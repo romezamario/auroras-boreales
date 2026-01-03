@@ -96,7 +96,7 @@ function render() {
 window.renderGlobe = render;
 
 // Cargar world atlas
-d3.json("https://unpkg.com/world-atlas@2/world/110m.json")
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
   .then(world => {
     land = topojson.feature(world, world.objects.land);
     render();
