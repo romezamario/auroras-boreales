@@ -1,3 +1,8 @@
+const APP_VERSION = "v2026.01.03-01";
+const versionEl = document.getElementById("app-version");
+if (versionEl) {
+  versionEl.textContent = `Versión: ${APP_VERSION}`;
+}
 const endpoint =
   "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json";
 
