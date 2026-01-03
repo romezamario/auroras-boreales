@@ -3,23 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <title>Visualización de Auroras (OVATION)</title>
+
+  <!-- Viewport correcto para mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="style.css">
 
+  <!-- D3 -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
+
+  <!-- Versor (drag tipo Mike Bostock) -->
   <script src="versor.js"></script>
 </head>
 
 <body>
+
   <h1>Visualización de Auroras (OVATION)</h1>
-  <p id="app-version">Versión: v0.0.0</p>
+
+  <p id="app-version">
+    Versión: <strong>v2026.01.03-stable-points-mobile</strong>
+  </p>
 
   <button id="refresh-btn">🔄 Refrescar datos</button>
-  <p id="last-update">Última actualización: —</p>
+
+  <p id="last-update">
+    Última actualización: —
+  </p>
+
+  <!-- Canvas del globo -->
   <canvas id="globe"></canvas>
+
+  <!-- Lógica del globo -->
   <script src="main.js"></script>
+
+  <!-- Carga de datos OVATION + botón refresh -->
   <script src="script.js"></script>
+
 </body>
 </html>
-
