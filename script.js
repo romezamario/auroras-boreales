@@ -1,61 +1,28 @@
-const APP_VERSION = "v2026.01.03-01-v1";
-const versionEl = document.getElementById("app-version");
-if (versionEl) {
-  versionEl.textContent = `Versión: ${APP_VERSION}`;
-}
-const endpoint =
-  "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json";
+const endpoint = "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json";
 
 const refreshBtn = document.getElementById("refresh-btn");
 const lastUpdateEl = document.getElementById("last-update");
+const versionEl = document.getElementById("app-version");
 
-// Inicializa contenedor global de puntos
-window.auroraPoints = [];
+// Cambia este valor cuando quieras validar despliegues
+const APP_VERSION = "v2026.01.03-stable-points-mobile";
 
-// ===== CARGA DE DATOS =====
-function loadAuroraData() {
-  if (refreshBtn) {
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = "⏳ Cargando...";
-  }
+// Inicializa contenedor global
+window.auroraPoints = window.auroraPoints || [];
 
-  d3.json(endpoint)
-    .then(data => {
-      console.log("Datos OVATION:", data);
-
-      // Extrae coordenadas: [lon, lat, value]
-      window.auroraPoints = (data.coordinates || []).map(c => [
-        c[0],
-        c[1],
-        c[2]
-      ]);
-
-      // Redibuja globo si ya está listo
-      if (typeof window.renderGlobe === "function") {
-        window.renderGlobe();
-      }
-
-      updateLastRefreshTime(data);
-    })
-    .catch(err => {
-      console.error("Error cargando datos OVATION:", err);
-      if (lastUpdateEl) {
-        lastUpdateEl.textContent = "Error al cargar datos";
-      }
-    })
-    .finally(() => {
-      if (refreshBtn) {
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = "🔄 Refrescar datos";
-      }
-    });
+// Muestra versión (si existe el elemento)
+if (versionEl) {
+  versionEl.innerHTML = `Versión: <strong>${APP_VERSION}</strong>`;
 }
 
-// ===== HORA DE ACTUALIZACIÓN =====
+function setLoading(isLoading) {
+  if (!refreshBtn) return;
+  refreshBtn.disabled = isLoading;
+  refreshBtn.textContent = isLoading ? "⏳ Cargando..." : "🔄 Refrescar datos";
+}
+
 function updateLastRefreshTime(data) {
   const now = new Date();
-
-  // Hora local del usuario
   const localTime = now.toLocaleString("es-MX", {
     year: "numeric",
     month: "2-digit",
@@ -65,22 +32,47 @@ function updateLastRefreshTime(data) {
     second: "2-digit"
   });
 
-  // (Opcional) hora del forecast NOAA si existe
   let forecast = "";
+  // OVATION normalmente trae "Forecast Time" (y a veces "Observation Time")
   if (data && data["Forecast Time"]) {
     forecast = ` | Forecast NOAA: ${data["Forecast Time"]}`;
   }
 
   if (lastUpdateEl) {
-    lastUpdateEl.textContent =
-      `Última actualización: ${localTime}${forecast}`;
+    lastUpdateEl.textContent = `Última actualización: ${localTime}${forecast}`;
   }
 }
 
-// ===== EVENTO BOTÓN =====
+function loadAuroraData() {
+  setLoading(true);
+
+  d3.json(endpoint)
+    .then(data => {
+      console.log("Datos OVATION:", data);
+
+      // coordinates: [lon, lat, aurora]
+      window.auroraPoints = (data.coordinates || []).map(c => [c[0], c[1], c[2]]);
+
+      // Redibuja globo si ya existe
+      if (typeof window.renderGlobe === "function") {
+        window.renderGlobe();
+      }
+
+      updateLastRefreshTime(data);
+    })
+    .catch(err => {
+      console.error("Error cargando datos OVATION:", err);
+      if (lastUpdateEl) lastUpdateEl.textContent = "Última actualización: Error al cargar datos";
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+}
+
+// Click del botón
 if (refreshBtn) {
   refreshBtn.addEventListener("click", loadAuroraData);
 }
 
-// ===== CARGA INICIAL =====
+// Carga inicial
 loadAuroraData();
