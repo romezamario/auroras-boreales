@@ -34,22 +34,28 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 /* ================= CANVAS / GLOBO ================= */
 #globe {
   display: block;
-  max-width: 100%;
+  width: 100%;
+  max-width: 1100px;
   margin-top: 8px;
   border: 1px solid #ddd;
   background: #fff;
 
-  /* 🔥 CLAVE PARA MOBILE: evita scroll/zoom del navegador */
+  /* 🔥 CLAVE PARA MOBILE */
   touch-action: none;
 
   /* Evita selección accidental */
   -webkit-user-select: none;
   user-select: none;
 
-  /* Mejora interacción táctil */
+  /* Evita highlight al tocar */
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -60,7 +66,7 @@ button {
   color: #444;
 }
 
-/* ================= MOBILE TUNING ================= */
+/* ================= MOBILE ================= */
 @media (max-width: 520px) {
   body {
     padding: 8px;
