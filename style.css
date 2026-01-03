@@ -9,10 +9,5 @@ button {
     font-size: 13px;
     color: #555;
   }
-  
-  #globe {
-    display: block;
-    width: 960px;
-    height: 600px;
-    border: 1px solid #ddd;
-  }
+  body { margin: 12px; }
+  #globe { max-width: 100%; }
