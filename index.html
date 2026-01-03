@@ -2,27 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Aurora D3 Visualización</title>
+  <title>Visualización de Auroras (OVATION)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
-  <!-- D3.js desde CDN -->
+
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
-  <script src="versor.js"></script> <!-- ver abajo -->
+  <script src="versor.js"></script>
 </head>
 
 <body>
   <h1>Visualización de Auroras (OVATION)</h1>
   <p id="app-version">Versión: v0.0.0</p>
+
   <button id="refresh-btn">🔄 Refrescar datos</button>
   <p id="last-update">Última actualización: —</p>
 
   <canvas id="globe"></canvas>
+
   <script src="main.js"></script>
-
-  <div id="chart"></div>
-
-  <!-- Tu script para la visualización -->
   <script src="script.js"></script>
 </body>
 </html>
+

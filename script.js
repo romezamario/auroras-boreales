@@ -1,4 +1,4 @@
-const APP_VERSION = "v2026.01.03-01";
+const APP_VERSION = "v2026.01.03-01-v1";
 const versionEl = document.getElementById("app-version");
 if (versionEl) {
   versionEl.textContent = `Versión: ${APP_VERSION}`;
