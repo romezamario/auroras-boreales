@@ -7,6 +7,7 @@ canvas.attr("width", width).attr("height", height);
 
 const context = canvas.node().getContext("2d");
 
+// ================= PROYECCIÓN =================
 const projection = d3.geoOrthographic()
   .scale((height - 20) / 2)
   .translate([width / 2, height / 2])
@@ -14,7 +15,7 @@ const projection = d3.geoOrthographic()
 
 const path = d3.geoPath(projection, context);
 
-// Drag con versor
+// ================= DRAG CON VERSOR =================
 let v0, r0, q0;
 
 function dragstarted(event) {
@@ -29,11 +30,13 @@ function dragged(event) {
   if (!v0) return;
   const p = projection.rotate(r0).invert([event.x, event.y]);
   if (!p) return;
+
   const v1 = versor.cartesian(p);
   const delta = versor.delta(v0, v1);
   const q1 = versor.multiply(q0, delta);
   projection.rotate(versor.rotation(q1));
-  render();
+
+  scheduleRender();
 }
 
 canvas.call(
@@ -42,17 +45,36 @@ canvas.call(
     .on("drag", dragged)
 );
 
-// Datos del mundo
+// ================= RAF THROTTLE =================
+let rafPending = false;
+function scheduleRender() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => {
+    rafPending = false;
+    render();
+  });
+}
+
+// ================= MAPA BASE =================
 const sphere = { type: "Sphere" };
 let land = null;
 
-// Render
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+  .then(world => {
+    const obj = world.objects.land || world.objects.countries;
+    land = topojson.feature(world, obj);
+    render();
+  })
+  .catch(err => console.error("Error cargando world atlas:", err));
+
+// ================= RENDER =================
 function render() {
   if (!land) return;
 
   context.clearRect(0, 0, width, height);
 
-  // Esfera
+  // Fondo (esfera)
   context.beginPath();
   path(sphere);
   context.fillStyle = "#eef";
@@ -70,36 +92,43 @@ function render() {
   context.strokeStyle = "#000";
   context.stroke();
 
-  // Puntos aurora (si existen)
+  // ================= AURORAS =================
   const points = window.auroraPoints || [];
 
+  // Centro de la vista (para visibilidad)
+  const c = projection.invert([width / 2, height / 2]);
+  const vc = c ? versor.cartesian(c) : null;
+
   context.beginPath();
+
   for (const [lon, lat, val] of points) {
-    if (val < 10) continue; 
+    // 🔥 UMBRAL DE INTENSIDAD
+    if (val < 5) continue;
+
+    // 🔥 FILTRO CARA VISIBLE
+    if (vc) {
+      const vp = versor.cartesian([lon, lat]);
+      const dot = vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2];
+      if (dot <= 0) continue;
+    }
+
     const xy = projection([lon, lat]);
     if (!xy) continue;
 
-    const x = xy[0];
-    const y = xy[1];
+    const [x, y] = xy;
 
-    let r = 0.8;
-    if (val >= 50) r = 2.4;
-    else if (val >= 20) r = 1.6;
+    // Radio según intensidad
+    let r = 1.0;
+    if (val >= 50) r = 2.6;
+    else if (val >= 20) r = 1.8;
 
     context.moveTo(x + r, y);
     context.arc(x, y, r, 0, 2 * Math.PI);
   }
+
   context.fillStyle = "rgba(0, 200, 255, 0.55)";
   context.fill();
 }
 
-// Exponer render para que script.js fuerce redibujado
+// Exponer render para refrescos desde script.js
 window.renderGlobe = render;
-
-// Cargar world atlas
-d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
-  .then(world => {
-    land = topojson.feature(world, world.objects.land);
-    render();
-  })
-  .catch(err => console.error("Error cargando world atlas:", err));
