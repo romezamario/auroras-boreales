@@ -1,17 +1,44 @@
-const endpoint = "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json";
+const endpoint =
+  "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json";
 
-d3.json(endpoint)
-  .then(data => {
-    console.log("Datos OVATION:", data);
+const lastUpdateEl = document.getElementById("last-update");
+const refreshBtn = document.getElementById("refresh-btn");
 
-    // Aquí podrías procesar coordenadas y dibujar
-    d3.select("#chart")
-      .append("p")
-      .text("¡Datos cargados correctamente! Revisa la consola");
-  })
-  .catch(err => {
-    console.error("Error cargando JSON:", err);
-    d3.select("#chart")
-      .append("p")
-      .text("Error cargando datos");
+// 👉 función principal de carga
+function loadAuroraData() {
+  d3.json(endpoint)
+    .then(data => {
+      console.log("Datos OVATION:", data);
+
+      // AQUÍ luego puedes actualizar tu visualización D3
+      // updateVisualization(data);
+
+      updateLastRefreshTime();
+    })
+    .catch(err => {
+      console.error("Error cargando datos:", err);
+    });
+}
+
+// 👉 actualiza la hora del último refresh
+function updateLastRefreshTime() {
+  const now = new Date();
+  const formatted = now.toLocaleString("es-MX", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
   });
+
+  lastUpdateEl.textContent = `Última actualización: ${formatted}`;
+}
+
+// 👉 evento del botón
+refreshBtn.addEventListener("click", () => {
+  loadAuroraData();
+});
+
+// 👉 carga inicial al abrir la página
+loadAuroraData();
