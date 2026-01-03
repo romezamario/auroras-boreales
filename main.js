@@ -75,6 +75,7 @@ function render() {
 
   context.beginPath();
   for (const [lon, lat, val] of points) {
+    if (val < 10) continue; 
     const xy = projection([lon, lat]);
     if (!xy) continue;
 
