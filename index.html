@@ -23,7 +23,7 @@
   <h1>Visualización de Auroras (OVATION)</h1>
 
   <p id="app-version">
-    Versión: <strong>v2026.01.03-stable-points-mobile</strong>
+    Versión: <strong>v2026.01.03-4.45</strong>
   </p>
 
   <button id="refresh-btn">🔄 Refrescar datos</button>
@@ -31,6 +31,20 @@
   <p id="last-update">
     Última actualización: —
   </p>
+
+  <div class="legend" aria-label="Leyenda de intensidad de aurora">
+    <div class="legend-title">Intensidad (OVATION)</div>
+  
+    <div class="legend-bar" role="img" aria-label="Gradiente de intensidad de 5 a 80"></div>
+  
+    <div class="legend-ticks">
+      <span>5</span>
+      <span>20</span>
+      <span>40</span>
+      <span>60</span>
+      <span>80+</span>
+    </div>
+  </div>
 
   <!-- Canvas del globo -->
   <canvas id="globe"></canvas>

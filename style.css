@@ -81,3 +81,62 @@ button:disabled {
     padding: 6px 10px;
   }
 }
+
+/* ================= LEYENDA ================= */
+.legend {
+  max-width: 1100px;
+  margin-top: 8px;
+  padding: 10px 10px 8px 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.legend-title {
+  font-size: 0.85rem;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.legend-bar {
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+
+  /* Debe coincidir con tu escala en main.js:
+     5   -> #3cff00
+     20  -> #00ff88
+     40  -> #ffff66
+     60  -> #ff9900
+     80+ -> #ff3333
+  */
+  background: linear-gradient(
+    90deg,
+    #3cff00 0%,
+    #00ff88 25%,
+    #ffff66 50%,
+    #ff9900 75%,
+    #ff3333 100%
+  );
+}
+
+.legend-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #444;
+  margin-top: 6px;
+}
+
+/* Mobile: más compacto */
+@media (max-width: 520px) {
+  .legend {
+    padding: 8px 8px 6px 8px;
+  }
+  .legend-title {
+    font-size: 0.8rem;
+  }
+  .legend-ticks {
+    font-size: 0.7rem;
+  }
+}
