@@ -15,6 +15,18 @@ const projection = d3.geoOrthographic()
 
 const path = d3.geoPath(projection, context);
 
+// ================= ESCALA DE COLOR =================
+const auroraColor = d3.scaleLinear()
+  .domain([5, 20, 40, 60, 80])
+  .range([
+    "#3cff00", // verde tenue
+    "#00ff88", // verde intenso
+    "#ffff66", // amarillo
+    "#ff9900", // naranja
+    "#ff3333"  // rojo
+  ])
+  .clamp(true);
+
 // ================= DRAG CON VERSOR =================
 let v0, r0, q0;
 
@@ -28,6 +40,7 @@ function dragstarted(event) {
 
 function dragged(event) {
   if (!v0) return;
+
   const p = projection.rotate(r0).invert([event.x, event.y]);
   if (!p) return;
 
@@ -99,37 +112,34 @@ function render() {
   const c = projection.invert([width / 2, height / 2]);
   const vc = c ? versor.cartesian(c) : null;
 
-  context.beginPath();
-
   for (const [lon, lat, val] of points) {
+    // 🔥 UMBRAL
     if (val < 5) continue;
-  
-    // Cara visible
+
+    // 🔥 FILTRO CARA VISIBLE
     if (vc) {
       const vp = versor.cartesian([lon, lat]);
       const dot = vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2];
       if (dot <= 0) continue;
     }
-  
+
     const xy = projection([lon, lat]);
     if (!xy) continue;
-  
+
     const [x, y] = xy;
-  
+
+    // Radio según intensidad
     let r = 1.0;
     if (val >= 50) r = 2.6;
     else if (val >= 20) r = 1.8;
-  
+
     context.beginPath();
     context.moveTo(x + r, y);
     context.arc(x, y, r, 0, 2 * Math.PI);
-  
+
     context.fillStyle = auroraColor(val);
     context.fill();
   }
-  
-
-
 }
 
 // Exponer render para refrescos desde script.js
