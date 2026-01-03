@@ -7,13 +7,19 @@
   <link rel="stylesheet" href="style.css">
   <!-- D3.js desde CDN -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+  <script src="versor.js"></script> <!-- ver abajo -->
 </head>
+
 <body>
   <h1>Visualización de Auroras (OVATION)</h1>
   
   <button id="refresh-btn">🔄 Refrescar datos</button>
   <p id="last-update">Última actualización: —</p>
   
+  <canvas id="globe"></canvas>
+  <script src="main.js"></script>
+
   <div id="chart"></div>
 
   <!-- Tu script para la visualización -->
