@@ -102,32 +102,34 @@ function render() {
   context.beginPath();
 
   for (const [lon, lat, val] of points) {
-    // 🔥 UMBRAL DE INTENSIDAD
     if (val < 5) continue;
-
-    // 🔥 FILTRO CARA VISIBLE
+  
+    // Cara visible
     if (vc) {
       const vp = versor.cartesian([lon, lat]);
       const dot = vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2];
       if (dot <= 0) continue;
     }
-
+  
     const xy = projection([lon, lat]);
     if (!xy) continue;
-
+  
     const [x, y] = xy;
-
-    // Radio según intensidad
+  
     let r = 1.0;
     if (val >= 50) r = 2.6;
     else if (val >= 20) r = 1.8;
-
+  
+    context.beginPath();
     context.moveTo(x + r, y);
     context.arc(x, y, r, 0, 2 * Math.PI);
+  
+    context.fillStyle = auroraColor(val);
+    context.fill();
   }
+  
 
-  context.fillStyle = "rgba(0, 200, 255, 0.55)";
-  context.fill();
+
 }
 
 // Exponer render para refrescos desde script.js
