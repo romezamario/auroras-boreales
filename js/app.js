@@ -5,7 +5,7 @@
       App.refreshUI?.setLoading(true);
       try {
         // Clouds (no bloquea)
-        App.cloudsOverlay?.refresh();
+        //App.cloudsOverlay?.refresh();
   
         // Aurora
         const { points, forecastTime } = await App.ovationService.fetchLatest();
