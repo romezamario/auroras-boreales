@@ -1,0 +1,143 @@
+name: Update GFS Clouds JSON (TCDC)
+
+on:
+  schedule:
+    - cron: "20 */3 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-clouds
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system deps (ecCodes) + python deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libeccodes0
+          python -m pip install --upgrade pip
+          python -m pip install numpy xarray cfgrib
+
+      - name: Download filtered GRIB2 from NOMADS (TCDC) with fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p /tmp/gfs
+
+          # Lag: evita pedir el ciclo "recién salido". Si sigue fallando, sube a 5.
+          LAG_HOURS=4
+
+          # Intentos: 0h, -6h, -12h, -18h, -24h (5 intentos)
+          BACKOFF_HOURS=(0 6 12 18 24)
+
+          now_utc_epoch="$(date -u +%s)"
+          base_epoch="$((now_utc_epoch - LAG_HOURS*3600))"
+
+          download_ok=0
+
+          for bh in "${BACKOFF_HOURS[@]}"; do
+            target_epoch="$((base_epoch - bh*3600))"
+            YYYYMMDD="$(date -u -d "@$target_epoch" +%Y%m%d)"
+            HH="$(date -u -d "@$target_epoch" +%H)"
+            hour_num=$((10#$HH))
+
+            if   (( hour_num >= 18 )); then CYCLE="18"
+            elif (( hour_num >= 12 )); then CYCLE="12"
+            elif (( hour_num >=  6 )); then CYCLE="06"
+            else                          CYCLE="00"
+            fi
+
+            FILE="gfs.t${CYCLE}z.pgrb2.1p00.anl"
+            DIR="%2Fgfs.${YYYYMMDD}%2F${CYCLE}%2Fatmos"
+            URL="https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?dir=${DIR}&file=${FILE}&var_TCDC=on"
+
+            echo "Attempt (back ${bh}h): ${YYYYMMDD} ${CYCLE}Z"
+            echo "URL: $URL"
+
+            # Descarga con reintentos de red
+            rm -f /tmp/gfs/tcdc.grib2
+            if curl -sS -L --fail \
+              --retry 6 --retry-delay 10 --retry-connrefused \
+              --connect-timeout 20 --max-time 300 \
+              -A "Mozilla/5.0 (GitHubActions; +https://github.com)" \
+              "$URL" -o /tmp/gfs/tcdc.grib2; then
+
+              # Verifica que NO sea HTML y que sea GRIB (header "GRIB")
+              if [ -s /tmp/gfs/tcdc.grib2 ]; then
+                magic="$(head -c 4 /tmp/gfs/tcdc.grib2 || true)"
+                if [ "$magic" = "GRIB" ]; then
+                  echo "✅ Download OK: /tmp/gfs/tcdc.grib2"
+                  ls -lh /tmp/gfs/tcdc.grib2
+                  echo "GFS_USED_DATE=$YYYYMMDD" >> $GITHUB_ENV
+                  echo "GFS_USED_CYCLE=$CYCLE" >> $GITHUB_ENV
+                  download_ok=1
+                  break
+                else
+                  echo "⚠️ Downloaded file is not GRIB (magic='$magic'). Likely HTML error page."
+                  echo "First 200 bytes:"
+                  head -c 200 /tmp/gfs/tcdc.grib2 || true
+                fi
+              else
+                echo "⚠️ Downloaded file is empty."
+              fi
+            else
+              echo "⚠️ curl failed for this attempt."
+            fi
+
+            echo "----"
+          done
+
+          if [ "$download_ok" -ne 1 ]; then
+            echo "❌ Could not download a valid GRIB file after all attempts."
+            exit 1
+          fi
+
+      - name: Build data/clouds.json (lat/lon + TCDC)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data
+
+          # 1 = completo (~181x360). 2 o 4 reduce tamaño y acelera.
+          DOWNSAMPLE_STEP=1
+
+          python scripts/build_clouds_json.py /tmp/gfs/tcdc.grib2 data/clouds.json "$DOWNSAMPLE_STEP"
+
+          test -s data/clouds.json
+          echo "Generated:"
+          ls -lh data/clouds.json
+
+      - name: Commit & push (data/clouds.json)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add data/clouds.json
+
+          # Incluye en el mensaje el ciclo usado si existe
+          MSG="Update data/clouds.json (GFS TCDC"
+          if [ -n "${GFS_USED_DATE:-}" ] && [ -n "${GFS_USED_CYCLE:-}" ]; then
+            MSG="$MSG ${GFS_USED_DATE} ${GFS_USED_CYCLE}Z"
+          fi
+          MSG="$MSG)"
+
+          git commit -m "$MSG" || echo "No changes to commit"
+          git push
