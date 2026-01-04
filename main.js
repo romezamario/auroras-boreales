@@ -129,7 +129,7 @@ function render() {
 
   // Nubosidad (overlay)
   if (typeof window.drawCloudOverlay === "function") {
-    window.drawCloudOverlay(context, projection, width, height);
+    window.drawCloudOverlay(context, projection, widthCss, heightCss);
   }
 
   // ================= AURORAS =================
