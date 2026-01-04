@@ -40,7 +40,7 @@
   
         // Overlays (en orden)
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
-        //if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
+        if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
   
         // Border
         ctx.beginPath();
