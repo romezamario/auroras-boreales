@@ -33,7 +33,9 @@
         const st = App.state;
         const local = st.aurora.lastLocalUpdate ? st.aurora.lastLocalUpdate : "—";
         const forecast = st.aurora.forecastTime ? ` | Forecast NOAA: ${st.aurora.forecastTime}` : "";
-        const clouds = st.clouds.textureReady ? ` | Nubes: ${st.clouds.lastDate}` : "";
+        const clouds = st.clouds.textureReady
+            ? ` | Nubes: ${st.clouds.lastDate} (${st.clouds.coverage ?? 0}%)`
+            : "";
         this.last.textContent = `Última actualización: ${local}${forecast}${clouds}`;
       },
   

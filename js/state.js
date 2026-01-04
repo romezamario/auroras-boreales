@@ -15,7 +15,8 @@
         opacity: cfg.clouds.opacity,
         textureReady: false,
         lastDate: null,
-        error: null
+        error: null,
+        coverage: 0
       }
     };
   

@@ -196,3 +196,57 @@ button:disabled {
     font-size: 0.7rem;
   }
 }
+
+
+/* ================= BARRA NUBOSIDAD ================= */
+.cloud-legend {
+  margin-top: 10px;
+}
+
+.cloud-legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.cloud-legend-title {
+  font-size: 0.85rem;
+  color: #222;
+}
+
+#cloud-coverage {
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.cloud-bar {
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #f0f3ff; /* base clara */
+  overflow: hidden;
+}
+
+#cloud-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+
+  /* Azul claro -> azul oscuro */
+  background: linear-gradient(
+    90deg,
+    rgb(191,233,255) 0%,
+    rgb(120,195,255) 35%,
+    rgb(60,140,230) 65%,
+    rgb(11,45,143) 100%
+  );
+}
+
+.cloud-legend-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #444;
+  margin-top: 6px;
+}
