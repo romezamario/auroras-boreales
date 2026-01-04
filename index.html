@@ -4,20 +4,21 @@
   <meta charset="UTF-8" />
   <title>Visualización de Auroras (OVATION)</title>
 
-  <!-- Viewport correcto para mobile -->
+  <!-- Viewport mobile correcto -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Estilos -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- D3 -->
+  <!-- D3 y dependencias -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
 
+  <!-- Versor (rotación del globo) -->
   <script src="versor.js"></script>
+
+  <!-- Nubosidad (DEBE ir antes de main.js) -->
   <script src="cloud.js"></script>
-  <script src="main.js"></script>
-  <script src="script.js"></script>
 </head>
 
 <body>
@@ -25,20 +26,28 @@
   <h1>Visualización de Auroras (OVATION)</h1>
 
   <p id="app-version">
-    Versión: <strong>v2026.01.03-4.45</strong>
+    Versión: <strong>v2026.01.03-stable-points-mobile</strong>
   </p>
 
   <button id="refresh-btn">🔄 Refrescar datos</button>
 
-  <p id="last-update">
-    Última actualización: —
-  </p>
+  <!-- Toggle de umbral -->
+  <div class="controls">
+    <label for="threshold-select"><strong>Umbral</strong></label>
+    <select id="threshold-select">
+      <option value="5" selected>5 (más detalle)</option>
+      <option value="10">10 (balance)</option>
+      <option value="20">20 (más fuerte)</option>
+    </select>
+    <span id="threshold-label">Mostrando ≥ 5</span>
+  </div>
 
-  <div class="legend" aria-label="Leyenda de intensidad de aurora">
+  <p id="last-update">Última actualización: —</p>
+
+  <!-- Leyenda -->
+  <div class="legend">
     <div class="legend-title">Intensidad (OVATION)</div>
-  
-    <div class="legend-bar" role="img" aria-label="Gradiente de intensidad de 5 a 80"></div>
-  
+    <div class="legend-bar"></div>
     <div class="legend-ticks">
       <span>5</span>
       <span>20</span>
@@ -51,10 +60,10 @@
   <!-- Canvas del globo -->
   <canvas id="globe"></canvas>
 
-  <!-- Lógica del globo -->
+  <!-- Lógica del globo (usa versor + cloud overlay) -->
   <script src="main.js"></script>
 
-  <!-- Carga de datos OVATION + botón refresh -->
+  <!-- Datos OVATION + refresh + toggle -->
   <script src="script.js"></script>
 
 </body>
