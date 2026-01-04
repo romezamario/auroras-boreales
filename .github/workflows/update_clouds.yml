@@ -1,143 +1,129 @@
-name: Update GFS Clouds JSON (TCDC)
+name: Update TCDC JSON
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "20 */3 * * *"
-  workflow_dispatch: {}
+    - cron: "15 * * * *"  # cada hora al minuto 15 (ajusta)
 
 permissions:
   contents: write
 
-concurrency:
-  group: update-clouds
-  cancel-in-progress: true
-
 jobs:
-  build:
+  build-tcdc:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # Micromamba: rápido y estable para instalar wgrib2
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v2
         with:
-          python-version: "3.11"
+          micromamba-version: "latest"
+          environment-name: meteo
+          create-args: >-
+            -c conda-forge
+            wgrib2
+            python=3.11
 
-      - name: Install system deps (ecCodes) + python deps
+      - name: Verify tools
+        shell: bash -l {0}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libeccodes0
-          python -m pip install --upgrade pip
-          python -m pip install numpy xarray cfgrib
+          wgrib2 -V | head -n 5
+          python --version
 
-      - name: Download filtered GRIB2 from NOMADS (TCDC) with fallback
-        shell: bash
+      - name: Download GRIB2 (TCDC only)
+        shell: bash -l {0}
         run: |
-          set -euo pipefail
+          mkdir -p data tmp
 
-          mkdir -p /tmp/gfs
+          # EJEMPLO: usa el ciclo más reciente conocido por ti (ajusta dir/file si lo quieres dinámico)
+          URL="https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?dir=%2Fgfs.20260103%2F18%2Fatmos&file=gfs.t18z.pgrb2.1p00.anl&var_TCDC=on&lev_entire_atmosphere=on&subregion=&toplat=90&leftlon=0&rightlon=359&bottomlat=-90"
 
-          # Lag: evita pedir el ciclo "recién salido". Si sigue fallando, sube a 5.
-          LAG_HOURS=4
+          curl -L --fail --retry 5 --retry-delay 5 -o tmp/tcdc.grib2 "$URL"
+          ls -lh tmp/tcdc.grib2
 
-          # Intentos: 0h, -6h, -12h, -18h, -24h (5 intentos)
-          BACKOFF_HOURS=(0 6 12 18 24)
+          # Falla si está vacío
+          test -s tmp/tcdc.grib2
 
-          now_utc_epoch="$(date -u +%s)"
-          base_epoch="$((now_utc_epoch - LAG_HOURS*3600))"
-
-          download_ok=0
-
-          for bh in "${BACKOFF_HOURS[@]}"; do
-            target_epoch="$((base_epoch - bh*3600))"
-            YYYYMMDD="$(date -u -d "@$target_epoch" +%Y%m%d)"
-            HH="$(date -u -d "@$target_epoch" +%H)"
-            hour_num=$((10#$HH))
-
-            if   (( hour_num >= 18 )); then CYCLE="18"
-            elif (( hour_num >= 12 )); then CYCLE="12"
-            elif (( hour_num >=  6 )); then CYCLE="06"
-            else                          CYCLE="00"
-            fi
-
-            FILE="gfs.t${CYCLE}z.pgrb2.1p00.anl"
-            DIR="%2Fgfs.${YYYYMMDD}%2F${CYCLE}%2Fatmos"
-            URL="https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?dir=${DIR}&file=${FILE}&var_TCDC=on"
-
-            echo "Attempt (back ${bh}h): ${YYYYMMDD} ${CYCLE}Z"
-            echo "URL: $URL"
-
-            # Descarga con reintentos de red
-            rm -f /tmp/gfs/tcdc.grib2
-            if curl -sS -L --fail \
-              --retry 6 --retry-delay 10 --retry-connrefused \
-              --connect-timeout 20 --max-time 300 \
-              -A "Mozilla/5.0 (GitHubActions; +https://github.com)" \
-              "$URL" -o /tmp/gfs/tcdc.grib2; then
-
-              # Verifica que NO sea HTML y que sea GRIB (header "GRIB")
-              if [ -s /tmp/gfs/tcdc.grib2 ]; then
-                magic="$(head -c 4 /tmp/gfs/tcdc.grib2 || true)"
-                if [ "$magic" = "GRIB" ]; then
-                  echo "✅ Download OK: /tmp/gfs/tcdc.grib2"
-                  ls -lh /tmp/gfs/tcdc.grib2
-                  echo "GFS_USED_DATE=$YYYYMMDD" >> $GITHUB_ENV
-                  echo "GFS_USED_CYCLE=$CYCLE" >> $GITHUB_ENV
-                  download_ok=1
-                  break
-                else
-                  echo "⚠️ Downloaded file is not GRIB (magic='$magic'). Likely HTML error page."
-                  echo "First 200 bytes:"
-                  head -c 200 /tmp/gfs/tcdc.grib2 || true
-                fi
-              else
-                echo "⚠️ Downloaded file is empty."
-              fi
-            else
-              echo "⚠️ curl failed for this attempt."
-            fi
-
-            echo "----"
-          done
-
-          if [ "$download_ok" -ne 1 ]; then
-            echo "❌ Could not download a valid GRIB file after all attempts."
-            exit 1
-          fi
-
-      - name: Build data/clouds.json (lat/lon + TCDC)
-        shell: bash
+      - name: Extract to CSV (lon,lat,value) with wgrib2
+        shell: bash -l {0}
         run: |
-          set -euo pipefail
-          mkdir -p data
+          # -match restringe exactamente a TCDC (por si llegara más de una capa)
+          # -csv genera filas lon,lat,val (puede incluir header)
+          wgrib2 tmp/tcdc.grib2 -match "TCDC" -csv tmp/tcdc.csv
+          ls -lh tmp/tcdc.csv
+          head -n 5 tmp/tcdc.csv
 
-          # 1 = completo (~181x360). 2 o 4 reduce tamaño y acelera.
-          DOWNSAMPLE_STEP=1
-
-          python scripts/build_clouds_json.py /tmp/gfs/tcdc.grib2 data/clouds.json "$DOWNSAMPLE_STEP"
-
-          test -s data/clouds.json
-          echo "Generated:"
-          ls -lh data/clouds.json
-
-      - name: Commit & push (data/clouds.json)
-        shell: bash
+      - name: Convert CSV to JSON
+        shell: bash -l {0}
         run: |
-          set -euo pipefail
+          python - << 'PY'
+          import csv, json, math, pathlib
 
+          in_path = pathlib.Path("tmp/tcdc.csv")
+          out_path = pathlib.Path("data/tcdc.json")
+          out_path.parent.mkdir(parents=True, exist_ok=True)
+
+          rows = []
+          with in_path.open(newline="", encoding="utf-8") as f:
+            r = csv.reader(f)
+            for row in r:
+              if not row:
+                continue
+              # wgrib2 a veces mete encabezado o comentarios; filtramos
+              # esperamos 3 columnas: lon, lat, val (si hay más, tomamos las 3 primeras numéricas)
+              nums = []
+              for x in row:
+                try:
+                  nums.append(float(x))
+                except:
+                  pass
+              if len(nums) < 3:
+                continue
+              lon, lat, val = nums[0], nums[1], nums[2]
+              if not (math.isfinite(lon) and math.isfinite(lat) and math.isfinite(val)):
+                continue
+
+              # Normaliza: si viene 0-1 => 0-100
+              if 0 <= val <= 1:
+                val *= 100.0
+
+              # Redondeo para reducir tamaño
+              rows.append({
+                "lon": round(lon, 3),
+                "lat": round(lat, 3),
+                "tcdc": round(val, 2)
+              })
+
+          payload = {
+            "source": "NOAA NOMADS GFS 1.0deg",
+            "variable": "TCDC",
+            "units": "percent",
+            "count": len(rows),
+            "data": rows
+          }
+
+          out_path.write_text(json.dumps(payload, separators=(",", ":"), ensure_ascii=False))
+          print("Wrote", out_path, "rows:", len(rows))
+          PY
+
+          ls -lh data/tcdc.json
+          head -c 200 data/tcdc.json && echo
+
+      - name: Commit & push if changed
+        shell: bash -l {0}
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add data/clouds.json
+          git add data/tcdc.json
 
-          # Incluye en el mensaje el ciclo usado si existe
-          MSG="Update data/clouds.json (GFS TCDC"
-          if [ -n "${GFS_USED_DATE:-}" ] && [ -n "${GFS_USED_CYCLE:-}" ]; then
-            MSG="$MSG ${GFS_USED_DATE} ${GFS_USED_CYCLE}Z"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
           fi
-          MSG="$MSG)"
 
-          git commit -m "$MSG" || echo "No changes to commit"
+          git commit -m "Update TCDC JSON"
           git push
