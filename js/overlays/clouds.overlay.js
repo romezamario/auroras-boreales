@@ -5,7 +5,7 @@
     let texData = null;
     let texSize = null;
   
-    function ymdUTC(daysBack = 2) {
+    function ymdUTC(daysBack = 1) {
       const d = new Date();
       const dt = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
       dt.setUTCDate(dt.getUTCDate() - daysBack);
