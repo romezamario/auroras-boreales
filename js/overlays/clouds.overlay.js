@@ -55,7 +55,10 @@
       const cfg = App.config.clouds;
       const date = ymdUTC(cfg.daysBack);
       const url = buildWmsUrl(date);
-  
+      App.state.clouds.lastDate = date;
+      App.state.clouds.error = null;
+      App.emit("data:clouds");
+      
       return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = "anonymous";

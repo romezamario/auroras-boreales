@@ -6,6 +6,11 @@
       try {
         // Clouds (no bloquea)
         //App.cloudsOverlay?.refresh();
+        if (!App.cloudsOverlay) {
+            console.warn("[app] cloudsOverlay no está cargado (revisa index.html / rutas)");
+          } else {
+            await App.cloudsOverlay.refresh();
+          }
   
         // Aurora
         const { points, forecastTime } = await App.ovationService.fetchLatest();
