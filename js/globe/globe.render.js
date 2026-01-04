@@ -34,7 +34,7 @@
         if (App.assets.graticule) {
           ctx.beginPath();
           path(App.assets.graticule);
-          ctx.strokeStyle = "rgba(0,0,0,0.08)";
+          ctx.strokeStyle = "rgba(255,255,255,0.10)";
           ctx.stroke();
         }
   
