@@ -15,10 +15,12 @@ html, body {
 /* ================= LAYOUT GENERAL ================= */
 body {
   padding: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 h1 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   margin: 0 0 6px 0;
 }
 
@@ -28,8 +30,8 @@ p {
 }
 
 button {
-  margin: 6px 0 4px 0;
-  padding: 6px 12px;
+  margin: 6px 0 8px 0;
+  padding: 6px 14px;
   font-size: 0.9rem;
   cursor: pointer;
 }
@@ -44,26 +46,127 @@ button:disabled {
   display: block;
   width: 100%;
   max-width: 1100px;
-  margin-top: 8px;
+  margin-top: 10px;
   border: 1px solid #ddd;
   background: #fff;
 
-  /* 🔥 CLAVE PARA MOBILE */
+  /* 🔑 CLAVE PARA DRAG EN MOBILE */
   touch-action: none;
 
-  /* Evita selección accidental */
+  /* UX */
   -webkit-user-select: none;
   user-select: none;
-
-  /* Evita highlight al tocar */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ================= TEXTO INFORMATIVO ================= */
+/* ================= TEXTO INFO ================= */
 #last-update,
 #app-version {
   font-size: 0.8rem;
   color: #444;
+}
+
+/* ================= LEYENDA ================= */
+.legend {
+  max-width: 1100px;
+  margin-top: 8px;
+  padding: 10px 10px 8px 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.legend-title {
+  font-size: 0.85rem;
+  color: #222;
+}
+
+.legend-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #444;
+  margin-top: 6px;
+}
+
+/* ================= LEYENDA CON SLIDER ================= */
+.legend-slider {
+  position: relative;
+}
+
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+#threshold-value {
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.legend-bar-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Gradiente (DEBE coincidir con aurora.overlay.js) */
+.legend-bar {
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: linear-gradient(
+    90deg,
+    #3cff00 0%,
+    #00ff88 25%,
+    #ffff66 50%,
+    #ff9900 75%,
+    #ff3333 100%
+  );
+}
+
+/* ================= SLIDER ================= */
+#threshold-range {
+  position: absolute;
+  left: 0;
+  top: -4px;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  pointer-events: auto;
+  appearance: none;
+}
+
+/* Track invisible */
+#threshold-range::-webkit-slider-runnable-track {
+  height: 22px;
+  background: transparent;
+}
+#threshold-range::-moz-range-track {
+  height: 22px;
+  background: transparent;
+}
+
+/* Thumb */
+#threshold-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid #fff;
+  box-shadow: 0 0 2px rgba(0,0,0,0.4);
+  margin-top: 2px;
+  cursor: pointer;
+}
+#threshold-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid #fff;
+  cursor: pointer;
 }
 
 /* ================= MOBILE ================= */
@@ -80,62 +183,15 @@ button:disabled {
     font-size: 0.85rem;
     padding: 6px 10px;
   }
-}
 
-/* ================= LEYENDA ================= */
-.legend {
-  max-width: 1100px;
-  margin-top: 8px;
-  padding: 10px 10px 8px 10px;
-  border: 1px solid #e6e6e6;
-  border-radius: 10px;
-  background: #fafafa;
-}
-
-.legend-title {
-  font-size: 0.85rem;
-  color: #222;
-  margin-bottom: 6px;
-}
-
-.legend-bar {
-  height: 14px;
-  border-radius: 999px;
-  border: 1px solid #ddd;
-
-  /* Debe coincidir con tu escala en main.js:
-     5   -> #3cff00
-     20  -> #00ff88
-     40  -> #ffff66
-     60  -> #ff9900
-     80+ -> #ff3333
-  */
-  background: linear-gradient(
-    90deg,
-    #3cff00 0%,
-    #00ff88 25%,
-    #ffff66 50%,
-    #ff9900 75%,
-    #ff3333 100%
-  );
-}
-
-.legend-ticks {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: #444;
-  margin-top: 6px;
-}
-
-/* Mobile: más compacto */
-@media (max-width: 520px) {
   .legend {
-    padding: 8px 8px 6px 8px;
+    padding: 8px;
   }
+
   .legend-title {
     font-size: 0.8rem;
   }
+
   .legend-ticks {
     font-size: 0.7rem;
   }
