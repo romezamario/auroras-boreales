@@ -1,0 +1,67 @@
+name: Update GEE S2 Cloud Probability
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 */6 * * *"  # cada 6 horas
+
+permissions:
+  contents: write
+
+jobs:
+  gee-cloudprob:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          pip install --upgrade pip
+          pip install earthengine-api pillow numpy
+
+      - name: Write GEE credentials
+        run: |
+          mkdir -p tmp
+          echo '${{ secrets.GEE_SERVICE_ACCOUNT_JSON }}' > tmp/gee-sa.json
+
+      - name: Run export (PNG + JSON)
+        env:
+          GEE_SA_JSON: tmp/gee-sa.json
+
+          # AOI bbox (lon/lat)
+          MINLON: "-76.5"
+          MINLAT: "2.0"
+          MAXLON: "-74.0"
+          MAXLAT: "4.0"
+
+          # Fecha
+          START_DATE: "2019-01-01"
+          END_DATE: "2019-03-01"
+
+          # Umbral cloud prob (0-100)
+          MAX_CLOUD_PROB: "65"
+
+          # Escala en metros/pixel (10, 20, 60)
+          SCALE_M: "20"
+
+        run: |
+          mkdir -p data
+          python scripts/gee_cloudprob.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/cloudprob.png data/cloudmeta.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git commit -m "Update GEE S2 cloud probability"
+          git push
