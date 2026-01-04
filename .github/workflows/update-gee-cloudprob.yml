@@ -35,10 +35,10 @@ jobs:
           GEE_SA_JSON: tmp/gee-sa.json
 
           # AOI bbox (lon/lat)
-          MINLON: "-180"
-          MINLAT: "-90"
-          MAXLON: "180"
-          MAXLAT: "90"
+          MINLON: "19"
+          MINLAT: "63"
+          MAXLON: "22"
+          MAXLAT: "66"
 
           # Fecha
           START_DATE: "2019-01-01"
