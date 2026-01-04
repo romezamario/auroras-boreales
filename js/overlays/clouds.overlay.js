@@ -14,7 +14,8 @@
   
     function buildWmsUrl(date) {
       const c = App.config.clouds;
-      // WMS 1.1.1: BBOX = lon,lat (minLon,minLat,maxLon,maxLat)
+  
+      // WMS 1.1.1: BBOX = lon,lat (minLon,minLat,maxLon,maxLat) => evita axis-order
       return (
         `${c.wmsBase}?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1` +
         `&LAYERS=${encodeURIComponent(c.layer)}` +
@@ -42,10 +43,9 @@
         texSize = { w: off.width, h: off.height };
         return true;
       } catch (e) {
-        // CORS taint
         texData = null;
         texSize = null;
-        App.state.clouds.error = "Canvas tainted (CORS). No se puede leer pixeles de la textura.";
+        App.state.clouds.error = "No se pudo leer pixeles de la textura (CORS/tainted).";
         console.error("[clouds] getImageData failed:", e);
         return false;
       }
@@ -53,12 +53,15 @@
   
     async function loadTexture() {
       const cfg = App.config.clouds;
+  
       const date = ymdUTC(cfg.daysBack);
       const url = buildWmsUrl(date);
+  
+      // deja huella inmediata
       App.state.clouds.lastDate = date;
       App.state.clouds.error = null;
       App.emit("data:clouds");
-      
+  
       return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -66,7 +69,6 @@
         img.onload = () => {
           const ok = ensurePixelData(img);
           App.state.clouds.textureReady = ok;
-          App.state.clouds.lastDate = date;
           App.state.clouds.error = ok ? null : App.state.clouds.error;
           App.emit("data:clouds");
           resolve(ok);
@@ -74,7 +76,7 @@
   
         img.onerror = (e) => {
           App.state.clouds.textureReady = false;
-          App.state.clouds.error = "No se pudo descargar la textura WMS.";
+          App.state.clouds.error = "No se pudo descargar la textura WMS (GetMap).";
           console.error("[clouds] image load error:", e);
           App.emit("data:clouds");
           resolve(false);
@@ -96,15 +98,22 @@
   
         const { ctx, projection } = globe;
   
+        // cara visible
         const center = projection.invert([globe.width / 2, globe.height / 2]);
         const vc = center ? versor.cartesian(center) : null;
   
         const isMobile = Math.min(globe.width, globe.height) < 520;
         const stepDeg = isMobile ? 4 : 2;
   
+        // ===== Parámetros visuales (ajustables) =====
+        const baseOpacity = state.clouds.opacity ?? 0.65; // más visible
+        const L0 = 0.40; // umbral de luminancia más permisivo (antes 0.60)
+  
         ctx.save();
-        ctx.globalAlpha = state.clouds.opacity ?? App.config.clouds.opacity;
-        ctx.globalCompositeOperation = "multiply";
+        ctx.globalAlpha = baseOpacity;
+  
+        // "screen" hace que las nubes brillantes se noten sobre el fondo/continentes
+        ctx.globalCompositeOperation = "screen";
   
         for (let lat = -88; lat <= 88; lat += stepDeg) {
           for (let lon = -180; lon <= 180; lon += stepDeg) {
@@ -117,20 +126,29 @@
             const xy = projection([lon, lat]);
             if (!xy) continue;
   
+            // sample de textura equirectangular
             const u = Math.floor(((lon + 180) / 360) * (texSize.w - 1));
             const v = Math.floor(((90 - lat) / 180) * (texSize.h - 1));
             const idx = (v * texSize.w + u) * 4;
   
-            const r = texData[idx], g = texData[idx + 1], b = texData[idx + 2], a = texData[idx + 3];
+            const r = texData[idx];
+            const g = texData[idx + 1];
+            const b = texData[idx + 2];
+            const a = texData[idx + 3];
             if (a === 0) continue;
   
+            // proxy de nube = brillo alto
             const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-            if (luminance < 0.6) continue;
+            if (luminance < L0) continue;
+  
+            // alpha remapeada para que destaque
+            const t = Math.min(1, (luminance - L0) / (1 - L0));
+            const aPoint = 0.12 + 0.70 * t;
   
             const [x, y] = xy;
-            ctx.fillStyle = `rgba(255,255,255,${0.35 * luminance})`;
+            ctx.fillStyle = `rgba(255,255,255,${aPoint})`;
             ctx.beginPath();
-            ctx.arc(x, y, isMobile ? 1.3 : 1.0, 0, 2 * Math.PI);
+            ctx.arc(x, y, isMobile ? 1.7 : 1.3, 0, 2 * Math.PI);
             ctx.fill();
           }
         }
