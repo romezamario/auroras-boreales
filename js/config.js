@@ -2,7 +2,7 @@
     window.App = window.App || {};
   
     App.config = {
-      version: "v2026.01.03-8.30",
+      version: "v2026.01.03-7.30",
       endpoints: {
         ovation: "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json",
         worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json"
