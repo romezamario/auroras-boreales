@@ -55,7 +55,7 @@
       const cfg = App.config.clouds;
       const date = ymdUTC(cfg.daysBack);
       const url = buildWmsUrl(date);
-  
+      console.log(url)
       // Huella inmediata para UI
       App.state.clouds.lastDate = date;
       App.state.clouds.error = null;
