@@ -3,35 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>Visualización de Auroras (OVATION)</title>
-
-  <!-- Viewport correcto para mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Estilos -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- D3 y dependencias -->
+  <!-- Libs -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
-
-  <!-- Versor (rotación tipo Mike Bostock) -->
   <script src="versor.js"></script>
-
-  <!-- Nubosidad (opcional, desacoplada) -->
-  <script src="cloud.js"></script>
 </head>
 
 <body>
 
   <h1>Visualización de Auroras (OVATION)</h1>
 
-  <p id="app-version">
-    Versión: <strong>v2026.01.03-stable</strong>
-  </p>
+  <p id="app-version">Versión: —</p>
 
   <button id="refresh-btn">🔄 Refrescar datos</button>
 
-  <!-- Leyenda + slider de umbral -->
+  <!-- Leyenda + slider (UI) -->
   <div class="legend legend-slider">
     <div class="legend-header">
       <span class="legend-title">Intensidad (OVATION)</span>
@@ -61,17 +51,33 @@
 
   <p id="last-update">Última actualización: —</p>
 
-  <!-- Canvas del globo -->
   <canvas id="globe"></canvas>
 
-  <!-- Render del globo -->
-  <script src="main.js"></script>
+  <!-- App core -->
+  <script src="js/config.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/events.js"></script>
 
-  <!-- Lógica del slider (UI → estado global) -->
-  <script src="slider.js"></script>
+  <!-- Services -->
+  <script src="js/data/world.service.js"></script>
+  <script src="js/data/ovation.service.js"></script>
 
-  <!-- Carga de datos OVATION -->
-  <script src="script.js"></script>
+  <!-- UI -->
+  <script src="js/ui/version.ui.js"></script>
+  <script src="js/ui/refresh.ui.js"></script>
+  <script src="js/ui/threshold.ui.js"></script>
+
+  <!-- Overlays -->
+  <script src="js/overlays/clouds.overlay.js"></script>
+  <script src="js/overlays/aurora.overlay.js"></script>
+
+  <!-- Globe -->
+  <script src="js/globe/globe.core.js"></script>
+  <script src="js/globe/globe.drag.js"></script>
+  <script src="js/globe/globe.render.js"></script>
+
+  <!-- Bootstrap -->
+  <script src="js/app.js"></script>
 
 </body>
 </html>
