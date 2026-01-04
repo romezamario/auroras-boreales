@@ -50,6 +50,8 @@ jobs:
           # Escala en metros/pixel (10, 20, 60)
           SCALE_M: "20"
 
+          
+
         run: |
           mkdir -p data
           python scripts/gee_cloudprob.py

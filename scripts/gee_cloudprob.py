@@ -12,7 +12,7 @@ def bbox_geom():
 
 def init_gee():
     sa_path = os.environ["GEE_SA_JSON"]
-    creds = ee.ServiceAccountCredentials(json.load(open(sa_path))["client_email"], sa_path)
+    creds = ee.ServiceAccountCredentials(json.load(open(sa_path))["romezamario@gmail.com"], sa_path)
     ee.Initialize(creds)
 
 def mask_edges(s2_img):
