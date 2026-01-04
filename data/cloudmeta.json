@@ -1,0 +1,1 @@
+{"source":"GEE COPERNICUS/S2_CLOUD_PROBABILITY","aoi_bbox":[-76.5,2.0,-74.0,4.0],"start_date":"2019-01-01","end_date":"2019-03-01","threshold":65.0,"scale_m":20,"cloud_percent":89.22,"png":"cloudprob.png"}
