@@ -27,7 +27,7 @@
         // Land
         ctx.beginPath();
         path(App.assets.land);
-        ctx.fillStyle = "#000";
+        ctx.fillStyle = "#999";
         ctx.fill();
   
         // Graticule
