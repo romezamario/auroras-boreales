@@ -35,10 +35,10 @@ jobs:
           GEE_SA_JSON: tmp/gee-sa.json
 
           # AOI bbox (lon/lat)
-          MINLON: "-76.5"
-          MINLAT: "2.0"
-          MAXLON: "-74.0"
-          MAXLAT: "4.0"
+          MINLON: "-180"
+          MINLAT: "-90"
+          MAXLON: "180"
+          MAXLAT: "90"
 
           # Fecha
           START_DATE: "2019-01-01"
@@ -50,7 +50,7 @@ jobs:
           # Escala en metros/pixel (10, 20, 60)
           SCALE_M: "20"
 
-          
+
 
         run: |
           mkdir -p data
