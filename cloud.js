@@ -25,16 +25,17 @@
     }
   
     function buildWmsUrl(date) {
-      // WMS 1.3.0 con CRS=EPSG:4326 usa BBOX lat,lon (minLat,minLon,maxLat,maxLon)
-      return (
-        `${CLOUD_WMS}?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0` +
-        `&LAYERS=${encodeURIComponent(CLOUD_LAYER)}` +
-        `&STYLES=&FORMAT=image/png&TRANSPARENT=true` +
-        `&CRS=EPSG:4326&BBOX=-90,-180,90,180` +
-        `&WIDTH=${TEX_W}&HEIGHT=${TEX_H}` +
-        `&TIME=${date}`
-      );
-    }
+        // WMS 1.1.1: BBOX siempre lon,lat (minLon,minLat,maxLon,maxLat)
+        return (
+          `${CLOUD_WMS}?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1` +
+          `&LAYERS=${encodeURIComponent(CLOUD_LAYER)}` +
+          `&STYLES=&FORMAT=image/png&TRANSPARENT=true` +
+          `&SRS=EPSG:4326&BBOX=-180,-90,180,90` +
+          `&WIDTH=${TEX_W}&HEIGHT=${TEX_H}` +
+          `&TIME=${date}`
+        );
+      }
+      
   
     function ensureCloudData(img) {
       // Crea/carga offscreen y cachea pixeles
@@ -141,7 +142,5 @@
       ctx.globalCompositeOperation = "source-over";
     };
   
-    // Autocarga inicial de nubes (opcional). Si no lo quieres, borra esta línea:
-    window.addEventListener("load", () => window.loadCloudTexture({ daysBack: 1 }));
   })();
   

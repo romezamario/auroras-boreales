@@ -45,6 +45,9 @@ function updateLastRefreshTime(data) {
 
 function loadAuroraData() {
   setLoading(true);
+  if (typeof window.loadCloudTexture === "function") {
+    window.loadCloudTexture({ daysBack: 2 }); // 2 días atrás suele ser más estable que 1
+  }
 
   d3.json(endpoint)
     .then(data => {
