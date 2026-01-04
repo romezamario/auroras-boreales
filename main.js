@@ -127,6 +127,11 @@ function render() {
   context.strokeStyle = "#000";
   context.stroke();
 
+  // Nubosidad (overlay)
+  if (typeof window.drawCloudOverlay === "function") {
+    window.drawCloudOverlay(ctx, projection, width, height);
+  }
+
   // ================= AURORAS =================
   const points = window.auroraPoints || [];
 
