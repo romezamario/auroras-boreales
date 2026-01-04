@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Visualización de Auroras (OVATION)</title>
 
-  <!-- Viewport mobile correcto -->
+  <!-- Viewport correcto para mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Estilos -->
@@ -14,10 +14,10 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
 
-  <!-- Versor (rotación del globo) -->
+  <!-- Versor (rotación tipo Mike Bostock) -->
   <script src="versor.js"></script>
 
-  <!-- Nubosidad (DEBE ir antes de main.js) -->
+  <!-- Nubosidad (opcional, desacoplada) -->
   <script src="cloud.js"></script>
 </head>
 
@@ -26,44 +26,51 @@
   <h1>Visualización de Auroras (OVATION)</h1>
 
   <p id="app-version">
-    Versión: <strong>v2026.01.03-stable-points-mobile</strong>
+    Versión: <strong>v2026.01.03-stable</strong>
   </p>
 
   <button id="refresh-btn">🔄 Refrescar datos</button>
 
-  <!-- Toggle de umbral -->
-  <div class="controls">
-    <label for="threshold-select"><strong>Umbral</strong></label>
-    <select id="threshold-select">
-      <option value="5" selected>5 (más detalle)</option>
-      <option value="10">10 (balance)</option>
-      <option value="20">20 (más fuerte)</option>
-    </select>
-    <span id="threshold-label">Mostrando ≥ 5</span>
+  <!-- Leyenda + slider de umbral -->
+  <div class="legend legend-slider">
+    <div class="legend-header">
+      <span class="legend-title">Intensidad (OVATION)</span>
+      <span id="threshold-value">≥ 5</span>
+    </div>
+
+    <div class="legend-bar-container">
+      <div class="legend-bar"></div>
+      <input
+        type="range"
+        id="threshold-range"
+        min="5"
+        max="20"
+        step="5"
+        value="5"
+        aria-label="Umbral de intensidad"
+      />
+    </div>
+
+    <div class="legend-ticks">
+      <span>5</span>
+      <span>10</span>
+      <span>15</span>
+      <span>20</span>
+    </div>
   </div>
 
   <p id="last-update">Última actualización: —</p>
 
-  <!-- Leyenda -->
-  <div class="legend">
-    <div class="legend-title">Intensidad (OVATION)</div>
-    <div class="legend-bar"></div>
-    <div class="legend-ticks">
-      <span>5</span>
-      <span>20</span>
-      <span>40</span>
-      <span>60</span>
-      <span>80+</span>
-    </div>
-  </div>
-
   <!-- Canvas del globo -->
   <canvas id="globe"></canvas>
 
-  <!-- Lógica del globo (usa versor + cloud overlay) -->
+  <!-- Render del globo -->
   <script src="main.js"></script>
 
-  <!-- Datos OVATION + refresh + toggle -->
+  <!-- Lógica del slider (UI → estado global) -->
+  <script src="slider.js"></script>
+
+  <!-- Carga de datos OVATION -->
   <script src="script.js"></script>
 
 </body>

@@ -1,148 +1,98 @@
-const canvasSel = d3.select("#globe");
-const canvasEl = canvasSel.node();
-const context = canvasEl.getContext("2d");
+// ================== SETUP CANVAS ==================
+const canvas = document.getElementById("globe");
+const ctx = canvas.getContext("2d");
 
-// ================= CONFIG RESPONSIVE =================
-const DPR = () => Math.max(1, window.devicePixelRatio || 1);
+let width, height, dpr;
 
-function getCanvasSize() {
-  // Usa el ancho disponible del contenedor (body) y limita un alto razonable
-  const margin = 16;
-  const wCss = Math.max(320, Math.min(1100, document.body.clientWidth - margin * 2));
-  const hCss = Math.max(320, Math.min(720, Math.round(wCss * 0.62))); // aspecto agradable
-  return { wCss, hCss };
-}
+// ================== PROJECTION ==================
+const projection = d3.geoOrthographic()
+  .precision(0.5);
 
-// ================= PROYECCIÓN =================
-const projection = d3.geoOrthographic().precision(0.1);
-const path = d3.geoPath(projection, context);
+const path = d3.geoPath(projection, ctx);
 
-// ================= ESCALA DE COLOR =================
-const auroraColor = d3.scaleLinear()
-  .domain([5, 20, 40, 60, 80])
-  .range(["#3cff00", "#00ff88", "#ffff66", "#ff9900", "#ff3333"])
-  .clamp(true);
+// ================== STATE ==================
+let land, graticule;
+let rotation = [0, -20, 0];
 
-// ================= RAF THROTTLE =================
-let rafPending = false;
-function scheduleRender() {
-  if (rafPending) return;
-  rafPending = true;
-  requestAnimationFrame(() => {
-    rafPending = false;
-    render();
-  });
-}
-
-// ================= DRAG CON VERSOR =================
-let v0, r0, q0;
-
-// Helper para coords dentro del canvas (D3 drag usa event.x/y relativo al elemento)
-function dragstarted(event) {
-  const p = projection.invert([event.x, event.y]);
-  if (!p) return;
-  v0 = versor.cartesian(p);
-  r0 = projection.rotate();
-  q0 = versor(r0);
-}
-
-function dragged(event) {
-  if (!v0) return;
-  const p = projection.rotate(r0).invert([event.x, event.y]);
-  if (!p) return;
-
-  const v1 = versor.cartesian(p);
-  const delta = versor.delta(v0, v1);
-  const q1 = versor.multiply(q0, delta);
-  projection.rotate(versor.rotation(q1));
-
-  scheduleRender();
-}
-
-canvasSel.call(
-  d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-);
-
-// ================= MAPA BASE =================
-const sphere = { type: "Sphere" };
-let land = null;
-
-// ================= RESIZE =================
-let widthCss = 960;
-let heightCss = 600;
-
+// ================== INIT ==================
 function resize() {
-  const { wCss, hCss } = getCanvasSize();
-  widthCss = wCss;
-  heightCss = hCss;
+  const rect = canvas.getBoundingClientRect();
+  dpr = window.devicePixelRatio || 1;
 
-  // Tamaño CSS (layout)
-  canvasSel
-    .style("width", `${widthCss}px`)
-    .style("height", `${heightCss}px`)
-    .style("display", "block");
+  width = rect.width;
+  height = Math.min(rect.width, window.innerHeight * 0.7);
 
-  // Tamaño real del canvas (pixels) para nitidez
-  const dpr = DPR();
-  canvasEl.width = Math.floor(widthCss * dpr);
-  canvasEl.height = Math.floor(heightCss * dpr);
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
 
-  // Normaliza el sistema de coordenadas a CSS pixels
-  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  canvas.style.height = `${height}px`;
 
-  // Actualiza proyección
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
   projection
-    .translate([widthCss / 2, heightCss / 2])
-    .scale((Math.min(widthCss, heightCss) - 20) / 2);
+    .translate([width / 2, height / 2])
+    .scale(Math.min(width, height) * 0.45)
+    .rotate(rotation);
 
-  scheduleRender();
+  render();
 }
 
-// Recalcula al cargar y al cambiar tamaño
+// ================== LOAD WORLD ==================
+Promise.all([
+  d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json")
+]).then(([world]) => {
+  land = topojson.feature(world, world.objects.land);
+  graticule = d3.geoGraticule10();
+  resize();
+});
+
 window.addEventListener("resize", resize);
 
-// ================= RENDER =================
+// ================== RENDER ==================
 function render() {
   if (!land) return;
 
-  context.clearRect(0, 0, widthCss, heightCss);
+  ctx.clearRect(0, 0, width, height);
 
-  // Fondo (esfera)
-  context.beginPath();
-  path(sphere);
-  context.fillStyle = "#eef";
-  context.fill();
+  // Fondo
+  ctx.beginPath();
+  path({ type: "Sphere" });
+  ctx.fillStyle = "#eef";
+  ctx.fill();
 
   // Tierra
-  context.beginPath();
+  ctx.beginPath();
   path(land);
-  context.fillStyle = "#999";
-  context.fill();
+  ctx.fillStyle = "#999";
+  ctx.fill();
 
-  // Borde
-  context.beginPath();
-  path(sphere);
-  context.strokeStyle = "#000";
-  context.stroke();
+  // Graticula
+  ctx.beginPath();
+  path(graticule);
+  ctx.strokeStyle = "rgba(0,0,0,0.08)";
+  ctx.stroke();
 
-  // Nubosidad (overlay)
+  // ===== Nubosidad (opcional) =====
   if (typeof window.drawCloudOverlay === "function") {
-    window.drawCloudOverlay(context, projection, widthCss, heightCss);
+    window.drawCloudOverlay(ctx, projection, width, height);
   }
 
-  // ================= AURORAS =================
+  // ===== Auroras =====
   const points = window.auroraPoints || [];
+  const TH = Number(window.AURORA_THRESHOLD ?? 5);
 
-  // Centro de la vista (para filtrar cara visible)
-  const c = projection.invert([widthCss / 2, heightCss / 2]);
-  const vc = c ? versor.cartesian(c) : null;
+  // Centro visible
+  const center = projection.invert([width / 2, height / 2]);
+  const vc = center ? versor.cartesian(center) : null;
 
-  for (const [lon, lat, val] of points) {
-    if (val < 5) continue;
+  const isMobile = Math.min(width, height) < 520;
+  const step = isMobile ? 4 : 2;
 
-    // Cara visible
+  for (let i = 0; i < points.length; i += step) {
+    const [lon, lat, val] = points[i];
+    if (val < TH) continue;
+
+    // Filtra cara visible
     if (vc) {
       const vp = versor.cartesian([lon, lat]);
       const dot = vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2];
@@ -154,29 +104,46 @@ function render() {
 
     const [x, y] = xy;
 
-    // Radio en función del tamaño del canvas (para móvil)
-    const base = Math.max(0.8, Math.min(1.4, Math.min(widthCss, heightCss) / 600));
-    let r = 1.0 * base;
-    if (val >= 50) r = 2.6 * base;
-    else if (val >= 20) r = 1.8 * base;
-
-    context.beginPath();
-    context.moveTo(x + r, y);
-    context.arc(x, y, r, 0, 2 * Math.PI);
-
-    context.fillStyle = auroraColor(val);
-    context.fill();
+    ctx.fillStyle = auroraColor(val);
+    ctx.beginPath();
+    ctx.arc(x, y, isMobile ? 1.8 : 1.2, 0, 2 * Math.PI);
+    ctx.fill();
   }
 }
 
-// Hook para que script.js pueda forzar redraw tras refresh
-window.renderGlobe = () => scheduleRender();
+// ================== COLOR SCALE ==================
+function auroraColor(v) {
+  if (v >= 80) return "rgba(255,51,51,0.9)";
+  if (v >= 60) return "rgba(255,153,0,0.85)";
+  if (v >= 40) return "rgba(255,255,102,0.8)";
+  if (v >= 20) return "rgba(0,255,136,0.75)";
+  return "rgba(60,255,0,0.7)";
+}
 
-// ================= INIT =================
-d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
-  .then(world => {
-    const obj = world.objects.land || world.objects.countries;
-    land = topojson.feature(world, obj);
-    resize(); // define tamaño y render
+// ================== DRAG ==================
+let v0, q0, r0;
+
+const drag = d3.drag()
+  .on("start", (event) => {
+    const p = projection.invert(d3.pointer(event, canvas));
+    if (!p) return;
+    v0 = versor.cartesian(p);
+    q0 = versor(rotation);
+    r0 = rotation;
   })
-  .catch(err => console.error("Error cargando world atlas:", err));
+  .on("drag", (event) => {
+    const p = projection.invert(d3.pointer(event, canvas));
+    if (!p) return;
+
+    const v1 = versor.cartesian(p);
+    const q1 = versor.multiply(q0, versor.delta(v0, v1));
+    rotation = versor.rotation(q1);
+
+    projection.rotate(rotation);
+    render();
+  });
+
+d3.select(canvas).call(drag);
+
+// ================== PUBLIC API ==================
+window.renderGlobe = render;
