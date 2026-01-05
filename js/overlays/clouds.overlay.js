@@ -117,7 +117,7 @@
   
         // Parámetros visuales (proxy de nubosidad desde True Color)
         const baseOpacity = state.clouds.opacity ?? 0.85;
-        const L0 = 0.40; // umbral de luminancia (más permisivo)
+        const L0 = 0.70; // umbral de luminancia 
   
         // Cobertura (cara visible)
         let totalVisible = 0;
