@@ -39,7 +39,7 @@
           const [x, y] = xy;
           ctx.fillStyle = auroraColor(val);
           ctx.beginPath();
-          ctx.arc(x, y, isMobile ? 4 : 3, 0, 2 * Math.PI);
+          ctx.arc(x, y, isMobile ? 4 : 4, 0, 2 * Math.PI);
           ctx.fill();
         }
       }
