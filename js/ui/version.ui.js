@@ -39,7 +39,7 @@
         });
 
         // Si quieres incluir hora:
-        // const fecha = new Date(iso).toLocaleString("es-MX");
+        const fecha = new Date(iso).toLocaleString("es-MX");
 
         el.innerHTML = `Versión: <strong>${fecha}</strong>`;
       } catch (e) {
