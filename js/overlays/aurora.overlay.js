@@ -2,11 +2,11 @@
     window.App = window.App || {};
   
     function auroraColor(v) {
-      if (v >= 80) return "rgba(255,51,51,0.9)";
-      if (v >= 60) return "rgba(255,153,0,0.85)";
-      if (v >= 40) return "rgba(255,255,102,0.8)";
-      if (v >= 20) return "rgba(0, 255, 255, 0.75)";
-      return "rgba(60,255,0,0.7)";
+      if (v >= 80) return "rgba(255,51,51,0.6)";
+      if (v >= 60) return "rgba(255,153,0,0.55)";
+      if (v >= 40) return "rgba(255,255,102,0.5)";
+      if (v >= 20) return "rgba(0, 255, 255, 0.45)";
+      return "rgba(60,255,0,0.4)";
     }
   
     App.auroraOverlay = {
