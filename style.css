@@ -118,11 +118,11 @@ button:disabled {
   border: 1px solid #ddd;
   background: linear-gradient(
     90deg,
-    #3cff00 0%,
-    #00ff88 25%,
-    #ffff66 50%,
-    #ff9900 75%,
-    #ff3333 100%
+    #3cff00 5%,
+    #00FFFF 20%,
+    #ffff66 40%,
+    #ff9900 60%,
+    #ff3333 80%
   );
 }
 
