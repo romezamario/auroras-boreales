@@ -168,7 +168,7 @@
             const [x, y] = xy;
             ctx.fillStyle = `rgba(${R},${G},${B},${aPoint})`;
             ctx.beginPath();
-            ctx.arc(x, y, isMobile ? 1.7 : 4, 0, 2 * Math.PI);
+            ctx.arc(x, y, isMobile ? 1.7 : 6, 0, 2 * Math.PI);
             ctx.fill();
           }
         }
