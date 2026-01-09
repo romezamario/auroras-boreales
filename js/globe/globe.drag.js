@@ -16,7 +16,8 @@
         const drag = d3.drag()
           .touchable(() => true)
           .on("start", (event) => {
-            const [x, y] = pointerXY(event);
+            //const [x, y] = pointerXY(event);
+            const x = event.x, y = event.y;
             const p = g.projection.invert([x, y]);
             if (!p) return;
             v0 = versor.cartesian(p);
@@ -25,7 +26,8 @@
           .on("drag", (event) => {
             if (!v0) return;
   
-            const [x, y] = pointerXY(event);
+            //const [x, y] = pointerXY(event);
+            const x = event.x, y = event.y;
             const p = g.projection.invert([x, y]);
             if (!p) return;
   
