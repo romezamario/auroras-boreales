@@ -18,9 +18,11 @@
       // Helper: read pointers (mouse or touches) relative to canvas
       function getPointer(event, that) {
         const t = d3.pointers(event, that); // array of [x,y]
+
+        // When touch count changes, reset baseline
         if (t.length !== l) {
           l = t.length;
-          // when touch count changes, reset baseline
+
           if (l > 1) {
             a0 = Math.atan2(t[1][1] - t[0][1], t[1][0] - t[0][0]);
             const dx = t[1][0] - t[0][0];
@@ -30,6 +32,7 @@
           } else {
             a0 = d0 = s0 = null;
           }
+
           dragstarted({ x: t[0]?.[0] ?? event.x, y: t[0]?.[1] ?? event.y }, that);
         }
 
@@ -94,20 +97,23 @@
         App.state.rotation = rot;
         g.projection.rotate(rot);
 
-        // --- optional: pinch to zoom
+        // --- pinch to zoom (multitouch)
         if (p.dist != null && d0 != null && s0 != null) {
           const k = p.dist / d0;
-          // clamp zoom for sanity
-          const next = Math.max(50, Math.min(4000, s0 * k));
+          const next = clamp(s0 * k, 50, 4000);
           g.projection.scale(next);
         }
 
-        // restart near antipode for stability (like Observable example)
+        // restart near antipode for stability
         if (delta[0] < 0.7) {
           dragstarted({ x: p.x, y: p.y }, g.canvas);
         }
 
         g.requestRender();
+      }
+
+      function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
       }
 
       const drag = d3.drag()
@@ -126,7 +132,26 @@
           v0 = null;
         });
 
-      d3.select(g.canvas).call(drag);
+      // Apply drag to canvas
+      const canvasSel = d3.select(g.canvas).call(drag);
+
+      // ---- Desktop wheel zoom (projection.scale) ----
+      const SCALE_MIN = 50;
+      const SCALE_MAX = 4000;
+      const ZOOM_SPEED = 0.0015; // higher = more sensitive
+
+      canvasSel.on("wheel.globeZoom", (event) => {
+        event.preventDefault(); // prevent page scroll
+
+        const s = g.projection.scale();
+        const k = Math.exp(-event.deltaY * ZOOM_SPEED); // multiplicative zoom
+        const next = clamp(s * k, SCALE_MIN, SCALE_MAX);
+
+        if (next === s) return;
+
+        g.projection.scale(next);
+        g.requestRender();
+      }, { passive: false });
     }
   };
 })();
