@@ -32,14 +32,14 @@
         const iso = data.commit.committer.date;
 
         // Formato en tu zona/idioma
-        const fecha = new Date(iso).toLocaleDateString("es-MX", {
+        const fechaHora = new Date(iso).toLocaleString("es-MX", {
           year: "numeric",
           month: "2-digit",
-          day: "2-digit"
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
         });
-
-        // Si quieres incluir hora:
-        const fecha = new Date(iso).toLocaleString("es-MX");
 
         el.innerHTML = `Versión: <strong>${fecha}</strong>`;
       } catch (e) {
