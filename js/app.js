@@ -7,14 +7,14 @@
 
     try {
       // =========================
-      // 1) NUBES (backend JSON)
+      // 1) NUBES (backend: data/clouds.json desde MOD08_D3)
       // =========================
-      // Espera un archivo generado por CI en: /data/clouds.json
-      // Estructura esperada (mínimo):
+      // Espera un archivo en: /data/clouds.json (generado por GitHub Actions)
+      // Estructura mínima esperada:
       // {
       //   "date": "YYYY-MM-DD",
       //   "coverage_percent_global": 12.34,
-      //   "grid": { "w":360, "h":180, "values_0_100":[...]}   // opcional
+      //   "grid": { "w":360, "h":180, "values_0_100":[...]} // opcional
       // }
       try {
         const res = await fetch("data/clouds.json", { cache: "no-store" });
@@ -24,16 +24,14 @@
 
         App.state.clouds.lastDate = clouds.date ?? null;
         App.state.clouds.coverage = Math.round(Number(clouds.coverage_percent_global ?? 0));
+        App.state.clouds.grid = clouds.grid ?? null;
+
         App.state.clouds.textureReady = true;
         App.state.clouds.error = null;
 
-        // Guarda el grid en memoria para que el overlay lo use si quiere
-        // (clouds.overlay.js puede leer state.clouds.grid)
-        App.state.clouds.grid = clouds.grid ?? null;
-
         App.emit("data:clouds");
       } catch (e) {
-        // Si falla clouds.json, no truenes el resto de la app
+        // Si falla clouds.json, seguimos con la aurora
         App.state.clouds.textureReady = false;
         App.state.clouds.error = e?.message ?? String(e);
         App.emit("data:clouds");
@@ -82,7 +80,6 @@
     await refreshAll();
   }
 
-  // Arranca cuando el DOM esté listo
   document.addEventListener("DOMContentLoaded", () => {
     init().catch((e) => console.error("[app] init failed:", e));
   });

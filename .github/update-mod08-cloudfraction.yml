@@ -1,0 +1,48 @@
+name: Update MOD08 Cloud Fraction (Terra D3)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "25 */6 * * *"   # cada 6h UTC
+  push:
+    paths:
+      - "scripts/mod08_cloudfraction.py"
+      - ".github/workflows/update-mod08-cloudfraction.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libhdf4-dev
+          python -m pip install --upgrade pip
+          pip install requests numpy pyhdf
+
+      - name: Generate data/clouds.json from MOD08_D3
+        env:
+          EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
+          MODIS_COLLECTION: "61"
+          MODIS_PRODUCT: "MOD08_D3"
+          DAYS_BACK: "2"
+        run: |
+          python scripts/mod08_cloudfraction.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/clouds.json
+          git diff --cached --quiet || git commit -m "Update MOD08_D3 cloud fraction"
+          git push
