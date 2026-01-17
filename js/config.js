@@ -20,7 +20,9 @@
         rotation: [0, -20, 0],
         dprMax: 2,
         auroraStepMobile: 4,
-        auroraStepDesktop: 2
+        auroraStepDesktop: 2,
+        auroraPointRadiusMobile: 3,
+        auroraPointRadiusDesktop: 4
       },
       clouds: {
         enabled: true,

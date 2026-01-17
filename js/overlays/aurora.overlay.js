@@ -38,8 +38,9 @@
   
           const [x, y] = xy;
           ctx.fillStyle = auroraColor(val);
+          const radius = isMobile ? App.config.defaults.auroraPointRadiusMobile : App.config.defaults.auroraPointRadiusDesktop;
           ctx.beginPath();
-          ctx.arc(x, y, isMobile ? 4 : 4, 0, 2 * Math.PI);
+          ctx.arc(x, y, radius, 0, 2 * Math.PI);
           ctx.fill();
         }
       }
