@@ -2,10 +2,12 @@
     window.App = window.App || {};
   
     function fmtLocal() {
-      return new Date().toLocaleString("es-MX", {
+      const locale = App.config?.locale ?? "es-MX";
+      const options = App.config?.dateTimeFormat ?? {
         year: "numeric", month: "2-digit", day: "2-digit",
         hour: "2-digit", minute: "2-digit", second: "2-digit"
-      });
+      };
+      return new Date().toLocaleString(locale, options);
     }
   
     App.refreshUI = {

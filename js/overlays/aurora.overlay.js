@@ -15,7 +15,7 @@
         if (!points.length) return;
   
         const { ctx, projection } = globe;
-        const TH = Number(state.threshold ?? 5);
+        const TH = Number(state.threshold ?? App.config.defaults.threshold);
   
         const center = projection.invert([globe.width / 2, globe.height / 2]);
         const vc = center ? versor.cartesian(center) : null;

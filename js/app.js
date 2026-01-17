@@ -17,10 +17,7 @@
       //   "grid": { "w":360, "h":180, "values_0_100":[...]} // opcional
       // }
       try {
-        const res = await fetch("data/clouds.json", { cache: "no-store" });
-        if (!res.ok) throw new Error(`clouds.json HTTP ${res.status}`);
-
-        const clouds = await res.json();
+        const clouds = await App.cloudsService.fetchLatest();
 
         App.state.clouds.lastDate = clouds.date ?? null;
         App.state.clouds.coverage = Math.round(Number(clouds.coverage_percent_global ?? 0));
