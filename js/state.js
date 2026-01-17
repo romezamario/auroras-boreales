@@ -6,6 +6,7 @@
       threshold: cfg.defaults.threshold,
       rotation: cfg.defaults.rotation.slice(),
       aurora: {
+        enabled: cfg.aurora?.enabled ?? true,
         points: [],              // [lon, lat, val]
         forecastTime: null,
         lastLocalUpdate: null

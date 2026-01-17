@@ -7,6 +7,7 @@
         App.on("data:aurora", () => App.globe?.requestRender());
         App.on("data:clouds", () => App.globe?.requestRender());
         App.on("state:threshold", () => App.globe?.requestRender());
+        App.on("state:layers", () => App.globe?.requestRender());
       },
   
       render() {
