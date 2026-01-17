@@ -96,21 +96,22 @@
       const vc = center ? versor.cartesian(center) : null;
 
       const isMobile = Math.min(globe.width, globe.height) < 520;
+      const cloudsCfg = App.config?.clouds ?? {};
 
       // Para performance: muestreamos 1 de cada N celdas del grid según dispositivo.
       // Si tu grid es 360x180, step=1 es OK desktop, step=2/3 mobile.
-      const step = isMobile ? 2 : 1;
+      const step = isMobile ? (cloudsCfg.sampleStepMobile ?? 2) : (cloudsCfg.sampleStepDesktop ?? 1);
 
-      const baseOpacity = state.clouds.opacity ?? 0.28;
+      const baseOpacity = state.clouds.opacity ?? cloudsCfg.opacity ?? 0.28;
 
       // Umbral visual: ignora intensidades bajas para no “ensuciar”
-      const T_MIN = 0.12; // ajustable
+      const T_MIN = cloudsCfg.minIntensity ?? 0.12;
 
       ctx.save();
       ctx.globalCompositeOperation = "source-over";
       ctx.globalAlpha = baseOpacity;
 
-      const r = isMobile ? 1.6 : 2.2; // radio del punto
+      const r = isMobile ? (cloudsCfg.pointRadiusMobile ?? 1.6) : (cloudsCfg.pointRadiusDesktop ?? 2.2);
 
       for (let y = 0; y < gridN.h; y += step) {
         for (let x = 0; x < gridN.w; x += step) {
@@ -131,7 +132,7 @@
           const [R, G, B] = blueRamp(t);
 
           // alpha por punto (más fuerte conforme t sube)
-          const aPoint = 0.08 + 0.55 * t;
+          const aPoint = (cloudsCfg.pointAlphaBase ?? 0.08) + (cloudsCfg.pointAlphaScale ?? 0.55) * t;
 
           const [px, py] = xy;
           ctx.fillStyle = `rgba(${R},${G},${B},${aPoint})`;
