@@ -15,7 +15,7 @@
         if (!points.length) return;
   
         const { ctx, projection } = globe;
-        const TH = Number(state.threshold ?? 5);
+        const TH = Number(state.threshold ?? App.config.defaults.threshold);
   
         const center = projection.invert([globe.width / 2, globe.height / 2]);
         const vc = center ? versor.cartesian(center) : null;
@@ -38,8 +38,9 @@
   
           const [x, y] = xy;
           ctx.fillStyle = auroraColor(val);
+          const radius = isMobile ? App.config.defaults.auroraPointRadiusMobile : App.config.defaults.auroraPointRadiusDesktop;
           ctx.beginPath();
-          ctx.arc(x, y, isMobile ? 4 : 4, 0, 2 * Math.PI);
+          ctx.arc(x, y, radius, 0, 2 * Math.PI);
           ctx.fill();
         }
       }
