@@ -37,7 +37,10 @@
           ctx.strokeStyle = "rgba(255,255,255,0.10)";
           ctx.stroke();
         }
-  
+
+        // Day/Night shading
+        if (App.dayNightOverlay) App.dayNightOverlay.draw(g, App.state);
+
         // Overlays (en orden)
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
         if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);

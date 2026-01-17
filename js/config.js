@@ -40,6 +40,11 @@
         texW: 2048,
         texH: 1024,
         daysBack: 2
+      },
+      dayNight: {
+        enabled: true,
+        nightColor: "rgba(15, 20, 35, 0.35)",
+        refreshMs: 60000
       }
     };
   })();
