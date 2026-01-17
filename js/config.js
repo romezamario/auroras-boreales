@@ -41,6 +41,9 @@
         texH: 1024,
         daysBack: 2
       },
+      aurora: {
+        enabled: true
+      },
       dayNight: {
         enabled: true,
         nightColor: "rgba(15, 20, 35, 0.35)",

@@ -57,6 +57,7 @@
     App.refreshUI?.init();
     App.thresholdUI?.init();
     App.cloudsUI?.init();
+    App.layersUI?.init();
 
     // Globe
     App.globeCore?.init();

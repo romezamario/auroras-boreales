@@ -41,6 +41,42 @@ button:disabled {
   cursor: default;
 }
 
+/* ================= CONTROLES DE CAPAS ================= */
+.layer-controls {
+  margin: 6px 0 10px 0;
+  padding: 8px 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.layer-controls-title {
+  display: block;
+  font-size: 0.85rem;
+  color: #222;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.layer-controls-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #222;
+}
+
+.toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
 /* ================= CANVAS / GLOBO ================= */
 #globe {
   display: block;

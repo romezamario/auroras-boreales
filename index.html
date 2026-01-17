@@ -21,6 +21,20 @@
 
   <button id="refresh-btn">🔄 Refrescar datos</button>
 
+  <div class="layer-controls">
+    <span class="layer-controls-title">Capas visibles</span>
+    <div class="layer-controls-items">
+      <label class="toggle">
+        <input type="checkbox" id="toggle-aurora" checked>
+        <span class="toggle-text">Auroras boreales (puntos)</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="toggle-clouds" checked>
+        <span class="toggle-text">Nubosidad</span>
+      </label>
+    </div>
+  </div>
+
   <!-- Leyenda + slider (UI) -->
   <div class="legend legend-slider">
     <div class="legend-header">
@@ -100,6 +114,7 @@
   <script src="js/ui/refresh.ui.js"></script>
   <script src="js/ui/threshold.ui.js"></script>
   <script src="js/ui/clouds.ui.js"></script>
+  <script src="js/ui/layers.ui.js"></script>
 
   <!-- Overlays -->
   <script src="js/overlays/clouds.overlay.js"></script>

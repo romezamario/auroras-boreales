@@ -11,6 +11,7 @@
   
     App.auroraOverlay = {
       draw(globe, state) {
+        if (!state.aurora.enabled) return;
         const points = state.aurora.points || [];
         if (!points.length) return;
   
