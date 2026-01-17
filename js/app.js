@@ -62,6 +62,7 @@
     App.globeCore?.init();
     App.globeDrag?.init();
     App.globeRender?.init();
+    App.dayNightOverlay?.init();
 
     // Assets
     App.assets.land = await App.worldService.loadLand();
