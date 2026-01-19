@@ -17,7 +17,6 @@
         threshold: cfg.clouds.minIntensity,
         textureReady: false,
         lastDate: null,
-        error: null,
         coverage: 0
       }
     };

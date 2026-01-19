@@ -76,12 +76,6 @@
   }
 
   App.cloudsOverlay = {
-    // refresh ya NO baja nada. La carga del JSON la haces en app.js.
-    async refresh() {
-      // Conservamos el API para no romper app.js si lo llama.
-      return true;
-    },
-
     draw(globe, state) {
       if (!state.clouds.enabled) return;
 
