@@ -60,7 +60,7 @@
           </div>
           <div class="legend-header">
             <span class="legend-title">Umbral actual</span>
-            <span id="threshold-value">≥ 5</span>
+            <span id="threshold-value" class="legend-value">≥ 5</span>
           </div>
 
           <div class="legend-bar-container">
@@ -68,6 +68,7 @@
             <input
               type="range"
               id="threshold-range"
+              class="legend-range"
               min="5"
               max="80"
               step="1"
@@ -90,19 +91,20 @@
             <h2>Nubosidad (cobertura)</h2>
             <p>Reduce la nubosidad máxima para ver zonas despejadas.</p>
           </div>
-          <div class="cloud-legend-header">
-            <span class="cloud-legend-title">Nubosidad visible</span>
-            <span class="cloud-legend-values">
-              <span id="cloud-coverage">0%</span>
-              <span id="cloud-threshold-value">≥ 12%</span>
+          <div class="legend-header">
+            <span class="legend-title">Nubosidad visible</span>
+            <span class="legend-values">
+              <span id="cloud-coverage" class="legend-value">0%</span>
+              <span id="cloud-threshold-value" class="legend-value">≥ 12%</span>
             </span>
           </div>
 
-          <div class="cloud-bar-container">
-            <div class="cloud-bar"></div>
+          <div class="legend-bar-container">
+            <div class="legend-bar"></div>
             <input
               type="range"
               id="cloud-threshold-range"
+              class="legend-range"
               min="0"
               max="100"
               step="1"
@@ -111,7 +113,7 @@
             />
           </div>
 
-          <div class="cloud-legend-ticks">
+          <div class="legend-ticks">
             <span>0%</span>
             <span>25%</span>
             <span>50%</span>

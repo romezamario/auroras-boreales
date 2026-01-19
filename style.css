@@ -255,6 +255,18 @@ button:focus-visible {
   margin-bottom: 6px;
 }
 
+.legend-values {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.legend-value {
+  font-size: 0.8rem;
+  color: #0f172a;
+  font-weight: 600;
+}
+
 .legend-ticks {
   display: flex;
   justify-content: space-between;
@@ -266,12 +278,6 @@ button:focus-visible {
 /* ================= LEYENDA CON SLIDER ================= */
 .legend-slider {
   position: relative;
-}
-
-#threshold-value {
-  font-size: 0.8rem;
-  color: #0f172a;
-  font-weight: 600;
 }
 
 .legend-bar-container {
@@ -295,7 +301,7 @@ button:focus-visible {
 }
 
 /* ================= SLIDER ================= */
-#threshold-range {
+.legend-range {
   position: absolute;
   left: 0;
   top: -6px;
@@ -307,17 +313,17 @@ button:focus-visible {
 }
 
 /* Track invisible */
-#threshold-range::-webkit-slider-runnable-track {
+.legend-range::-webkit-slider-runnable-track {
   height: 22px;
   background: transparent;
 }
-#threshold-range::-moz-range-track {
+.legend-range::-moz-range-track {
   height: 22px;
   background: transparent;
 }
 
 /* Thumb */
-#threshold-range::-webkit-slider-thumb {
+.legend-range::-webkit-slider-thumb {
   appearance: none;
   width: 16px;
   height: 16px;
@@ -328,7 +334,7 @@ button:focus-visible {
   margin-top: 4px;
   cursor: pointer;
 }
-#threshold-range::-moz-range-thumb {
+.legend-range::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -391,98 +397,12 @@ button:focus-visible {
   margin-top: 0;
 }
 
-.cloud-legend-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.cloud-legend-title {
-  font-size: 0.85rem;
-  color: #475569;
-}
-
-.cloud-legend-values {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-#cloud-coverage,
-#cloud-threshold-value {
-  font-size: 0.8rem;
-  color: #0f172a;
-  font-weight: 600;
-}
-
-.cloud-bar-container {
-  position: relative;
-  width: 100%;
-}
-
-.cloud-bar {
-  height: 12px;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #f0f3ff; /* base clara */
-}
-
-/* Azul claro -> azul oscuro */
-.cloud-bar {
+.cloud-legend .legend-bar {
   background: linear-gradient(
     90deg,
-    rgb(191,233,255) 0%,
-    rgb(120,195,255) 35%,
-    rgb(60,140,230) 65%,
-    rgb(11,45,143) 100%
+    rgb(191, 233, 255) 0%,
+    rgb(120, 195, 255) 35%,
+    rgb(60, 140, 230) 65%,
+    rgb(11, 45, 143) 100%
   );
-}
-
-#cloud-threshold-range {
-  position: absolute;
-  left: 0;
-  top: -6px;
-  width: 100%;
-  height: 22px;
-  background: transparent;
-  pointer-events: auto;
-  appearance: none;
-}
-
-#cloud-threshold-range::-webkit-slider-runnable-track {
-  height: 22px;
-  background: transparent;
-}
-#cloud-threshold-range::-moz-range-track {
-  height: 22px;
-  background: transparent;
-}
-
-#cloud-threshold-range::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #0f172a;
-  border: 2px solid #fff;
-  box-shadow: 0 0 2px rgba(0,0,0,0.4);
-  margin-top: 4px;
-  cursor: pointer;
-}
-#cloud-threshold-range::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #111;
-  border: 2px solid #fff;
-  cursor: pointer;
-}
-
-.cloud-legend-ticks {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 6px;
 }
