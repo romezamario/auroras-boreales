@@ -54,7 +54,13 @@
         // Selected point marker
         const selection = App.state?.selection;
         if (selection && Number.isFinite(selection.lon) && Number.isFinite(selection.lat)) {
-          const projected = g.projection([selection.lon, selection.lat]);
+          const center = g.projection.invert([g.width / 2, g.height / 2]);
+          const vc = center ? versor.cartesian(center) : null;
+          const vp = vc ? versor.cartesian([selection.lon, selection.lat]) : null;
+          const isVisible = vc && vp
+            ? (vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2]) > 0
+            : true;
+          const projected = isVisible ? g.projection([selection.lon, selection.lat]) : null;
           if (projected) {
             const [px, py] = projected;
             ctx.beginPath();
