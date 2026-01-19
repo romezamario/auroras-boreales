@@ -399,3 +399,49 @@ button:focus-visible {
     rgb(11, 45, 143) 100%
   );
 }
+
+/* ================= PANEL DE DETALLE ================= */
+.inspector-card .card-header p {
+  margin-bottom: 14px;
+}
+
+.inspector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.inspector-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.inspector-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.inspector-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.inspector-hint {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+@media (max-width: 520px) {
+  .inspector-grid {
+    grid-template-columns: 1fr;
+  }
+}
