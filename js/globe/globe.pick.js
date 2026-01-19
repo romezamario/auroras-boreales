@@ -82,9 +82,6 @@
         const clouds = getCloudValue(App.state?.clouds?.grid, lon, lat);
         const isDay = App.utils?.isDayAt ? App.utils.isDayAt(lon, lat, new Date()) : null;
 
-        App.state.selection = { lon, lat };
-        App.globe?.requestRender();
-
         App.emit("globe:select", {
           lon,
           lat,
