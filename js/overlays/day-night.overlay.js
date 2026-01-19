@@ -80,9 +80,10 @@
       }, refreshMs);
     },
 
-    draw(globe) {
+    draw(globe, state) {
       const cfg = App.config.dayNight;
-      if (!cfg?.enabled) return;
+      const isEnabled = state?.dayNight?.enabled ?? cfg?.enabled;
+      if (!isEnabled) return;
 
       const { ctx, path } = globe;
       const now = new Date();
