@@ -130,7 +130,7 @@
           const [R, G, B] = blueRamp(t);
 
           // alpha por punto (más fuerte conforme t sube)
-          const aPoint = (cloudsCfg.pointAlphaBase ?? 0.08) + (cloudsCfg.pointAlphaScale ?? 0.55) * t;
+          const aPoint = (cloudsCfg.pointAlphaBase ?? 0.08) + (cloudsCfg.pointAlphaScale ?? 0.66) * t;
 
           const [px, py] = xy;
           ctx.fillStyle = `rgba(${R},${G},${B},${aPoint})`;
