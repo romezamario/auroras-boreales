@@ -33,13 +33,7 @@
         pointRadiusMobile: 1.6,
         pointRadiusDesktop: 2.2,
         pointAlphaBase: 0.08,
-        pointAlphaScale: 0.55,
-        // NASA GIBS WMS (más estable con 1.1.1 para evitar axis-order)
-        wmsBase: "https://gibs-c.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi",
-        layer: "MODIS_Terra_CorrectedReflectance_TrueColor",
-        texW: 2048,
-        texH: 1024,
-        daysBack: 2
+        pointAlphaScale: 0.55
       },
       aurora: {
         enabled: true
