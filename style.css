@@ -261,13 +261,6 @@ button:focus-visible {
   position: relative;
 }
 
-.legend-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
 #threshold-value {
   font-size: 0.8rem;
   color: #0f172a;
