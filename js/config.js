@@ -42,6 +42,11 @@
         enabled: true,
         nightColor: "rgba(15, 20, 35, 0.35)",
         refreshMs: 60000
+      },
+      github: {
+        owner: "romezamario",
+        repo: "auroras-boreales",
+        branch: "main"
       }
     };
   })();
