@@ -9,6 +9,7 @@ on:
       - "scripts/mod08_cloudfraction.py"
       - ".github/workflows/update-mod08-cloudfraction.yml"
 
+# Permisos para permitir commit del JSON generado.
 permissions:
   contents: write
 
@@ -16,13 +17,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Descarga el repositorio para ejecutar el script.
       - uses: actions/checkout@v4
 
+      # Prepara Python 3.11 con dependencias.
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # Instala dependencias de sistema y librerías Python.
       - name: Install deps
         run: |
           sudo apt-get update
@@ -30,6 +34,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests numpy pyhdf
 
+      # Ejecuta el script que genera data/clouds.json.
       - name: Generate data/clouds.json from MOD08_D3
         env:
           EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
@@ -39,6 +44,7 @@ jobs:
         run: |
           python scripts/mod08_cloudfraction.py
 
+      # Solo hace commit si cambió el archivo generado.
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"

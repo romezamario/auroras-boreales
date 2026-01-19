@@ -1,8 +1,10 @@
 (function () {
     window.App = window.App || {};
   
+    // Renderiza el globo y sus capas cuando ocurre un evento.
     App.globeRender = {
       init() {
+        // Conecta eventos de render y cambios de estado.
         App.on("globe:render", () => this.render());
         App.on("data:aurora", () => App.globe?.requestRender());
         App.on("data:clouds", () => App.globe?.requestRender());
@@ -18,6 +20,7 @@
         const { ctx, path } = g;
         const w = g.width, h = g.height;
   
+        // Limpia el canvas para el nuevo frame.
         ctx.clearRect(0, 0, w, h);
   
         // Sphere

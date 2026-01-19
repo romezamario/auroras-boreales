@@ -1,17 +1,20 @@
 (function () {
     window.App = window.App || {};
   
+    // UI para los controles y métricas de nubosidad.
     App.cloudsUI = {
       init() {
         this.coverageEl = document.getElementById("cloud-coverage");
         this.thresholdRange = document.getElementById("cloud-threshold-range");
         this.thresholdLabel = document.getElementById("cloud-threshold-value");
 
+        // Re-renderiza cuando llegan datos de nubes.
         App.on("data:clouds", () => this.render());
         this.bindThreshold();
         this.render();
       },
 
+      // Conecta el slider de umbral con el estado global.
       bindThreshold() {
         if (!this.thresholdRange) return;
 
@@ -28,10 +31,12 @@
         });
       },
 
+      // Actualiza la etiqueta textual del slider.
       updateThresholdLabel(v) {
         if (this.thresholdLabel) this.thresholdLabel.textContent = `≥ ${v}%`;
       },
 
+      // Refresca el porcentaje de cobertura global mostrado.
       render() {
         const pct = App.state.clouds.coverage ?? 0;
 

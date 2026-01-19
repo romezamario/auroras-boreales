@@ -1,15 +1,18 @@
 (function () {
   window.App = window.App || {};
 
+  // Normaliza ángulos para cálculos astronómicos.
   function normalizeAngle(angle) {
     return ((angle % 360) + 360) % 360;
   }
 
+  // Normaliza longitud a [-180, 180].
   function normalizeLon(lon) {
     const normalized = ((lon + 540) % 360) - 180;
     return normalized === -180 ? 180 : normalized;
   }
 
+  // Conversión a radianes/grados para trigonometría.
   function toRad(deg) {
     return (deg * Math.PI) / 180;
   }
@@ -18,10 +21,12 @@
     return (rad * 180) / Math.PI;
   }
 
+  // Devuelve la fecha juliana a partir de un Date.
   function getJulianDate(date) {
     return date.getTime() / 86400000 + 2440587.5;
   }
 
+  // Calcula el punto subsolar (lat/lon) para el sombreado día/noche.
   function getSubsolarPoint(date) {
     const jd = getJulianDate(date);
     const n = jd - 2451545.0;
@@ -63,6 +68,7 @@
     return { lat: declination, lon: subsolarLon };
   }
 
+  // Overlay que dibuja la máscara nocturna en el globo.
   App.dayNightOverlay = {
     _timer: null,
 
@@ -82,6 +88,7 @@
       const now = new Date();
       const subsolar = getSubsolarPoint(now);
 
+      // El centro de la noche es el antipunto del subsolar.
       const nightCenter = {
         lon: normalizeLon(subsolar.lon + 180),
         lat: -subsolar.lat

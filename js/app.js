@@ -1,8 +1,10 @@
 // js/app.js
+// Arranque principal: conecta UI, servicios, globo y ciclo de refresco.
 (function () {
   window.App = window.App || {};
 
   async function refreshAll() {
+    // Indica estado de carga para evitar interacciones mientras se actualiza.
     App.refreshUI?.setLoading(true);
 
     try {
@@ -17,6 +19,7 @@
       //   "grid": { "w":360, "h":180, "values_0_100":[...]} // opcional
       // }
       try {
+        // Descarga el JSON de nubes y actualiza el estado global.
         const clouds = await App.cloudsService.fetchLatest();
 
         App.state.clouds.lastDate = clouds.date ?? null;
@@ -35,6 +38,7 @@
       // =========================
       // 2) AURORA (NOAA OVATION)
       // =========================
+      // Trae puntos de aurora y tiempo de pronóstico.
       const { points, forecastTime } = await App.ovationService.fetchLatest();
       App.state.aurora.points = points;
       App.state.aurora.forecastTime = forecastTime;
@@ -45,6 +49,7 @@
     } catch (e) {
       console.error("[app] refresh error:", e);
     } finally {
+      // Restablece el estado del botón aunque haya error.
       App.refreshUI?.setLoading(false);
     }
   }
@@ -78,6 +83,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    // Garantiza que el DOM exista antes de inicializar módulos.
     init().catch((e) => console.error("[app] init failed:", e));
   });
 })();

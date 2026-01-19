@@ -1,6 +1,7 @@
 (function () {
     window.App = window.App || {};
   
+    // Mapea el valor de intensidad a un color RGBA.
     function auroraColor(v) {
       if (v >= 80) return "rgba(255,51,51,0.6)";
       if (v >= 60) return "rgba(255,153,0,0.55)";
@@ -9,6 +10,7 @@
       return "rgba(60,255,0,0.4)";
     }
   
+    // Overlay que renderiza puntos de aurora sobre el globo.
     App.auroraOverlay = {
       draw(globe, state) {
         if (!state.aurora.enabled) return;
@@ -18,6 +20,7 @@
         const { ctx, projection } = globe;
         const TH = Number(state.threshold ?? App.config.defaults.threshold);
   
+        // Evalúa visibilidad de puntos respecto a la cámara.
         const center = projection.invert([globe.width / 2, globe.height / 2]);
         const vc = center ? versor.cartesian(center) : null;
   
@@ -39,6 +42,7 @@
   
           const [x, y] = xy;
           ctx.fillStyle = auroraColor(val);
+          // Ajuste de tamaño de punto según el dispositivo.
           const radius = isMobile ? App.config.defaults.auroraPointRadiusMobile : App.config.defaults.auroraPointRadiusDesktop;
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, 2 * Math.PI);
