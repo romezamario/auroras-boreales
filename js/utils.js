@@ -17,4 +17,85 @@
     };
     return new Date(date).toLocaleString(locale, options);
   };
+
+  function normalizeAngle(angle) {
+    return ((angle % 360) + 360) % 360;
+  }
+
+  function normalizeLon(lon) {
+    const normalized = ((lon + 540) % 360) - 180;
+    return normalized === -180 ? 180 : normalized;
+  }
+
+  function toRad(deg) {
+    return (deg * Math.PI) / 180;
+  }
+
+  function toDeg(rad) {
+    return (rad * 180) / Math.PI;
+  }
+
+  function getJulianDate(date) {
+    return date.getTime() / 86400000 + 2440587.5;
+  }
+
+  // Calcula el punto subsolar (lat/lon) para el sombreado día/noche.
+  App.utils.getSubsolarPoint = function (date = new Date()) {
+    const jd = getJulianDate(date);
+    const n = jd - 2451545.0;
+    const T = n / 36525;
+
+    const L = normalizeAngle(280.460 + 0.9856474 * n);
+    const g = normalizeAngle(357.528 + 0.9856003 * n);
+
+    const lambda =
+      L +
+      1.915 * Math.sin(toRad(g)) +
+      0.02 * Math.sin(toRad(2 * g));
+
+    const epsilon = 23.439 - 0.0000004 * n;
+
+    const lambdaRad = toRad(lambda);
+    const epsilonRad = toRad(epsilon);
+
+    const declination = toDeg(Math.asin(Math.sin(epsilonRad) * Math.sin(lambdaRad)));
+    const rightAscension = normalizeAngle(
+      toDeg(
+        Math.atan2(
+          Math.cos(epsilonRad) * Math.sin(lambdaRad),
+          Math.cos(lambdaRad)
+        )
+      )
+    );
+
+    const gmst = normalizeAngle(
+      280.46061837 +
+        360.98564736629 * (jd - 2451545) +
+        0.000387933 * T * T -
+        (T * T * T) / 38710000
+    );
+
+    const gha = normalizeAngle(gmst - rightAscension);
+    const subsolarLon = normalizeLon(-gha);
+
+    return { lat: declination, lon: subsolarLon };
+  };
+
+  // Determina si un punto está en día o noche según el subsolar.
+  App.utils.isDayAt = function (lon, lat, date = new Date()) {
+    if (!Number.isFinite(lon) || !Number.isFinite(lat)) return null;
+    const subsolar = App.utils.getSubsolarPoint(date);
+
+    const lat1 = toRad(lat);
+    const lat2 = toRad(subsolar.lat);
+    const dLon = toRad(lon - subsolar.lon);
+
+    const cosc =
+      Math.sin(lat1) * Math.sin(lat2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.cos(dLon);
+
+    const clamped = Math.max(-1, Math.min(1, cosc));
+    const angular = Math.acos(clamped);
+    return angular <= Math.PI / 2;
+  };
 })();

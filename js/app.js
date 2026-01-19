@@ -61,10 +61,12 @@
     App.thresholdUI?.init();
     App.cloudsUI?.init();
     App.layersUI?.init();
+    App.inspectorUI?.init();
 
     // Globe
     App.globeCore?.init();
     App.globeDrag?.init();
+    App.globePick?.init();
     App.globeRender?.init();
     App.dayNightOverlay?.init();
 
