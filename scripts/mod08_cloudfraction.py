@@ -6,10 +6,12 @@ from pyhdf.SD import SD, SDC
 LAADS = "https://ladsweb.modaps.eosdis.nasa.gov"
 
 def ymd_to_yeardoy(date_ymd: str) -> tuple[int, int]:
+    """Convierte una fecha YYYY-MM-DD a año y día juliano."""
     d = dt.date.fromisoformat(date_ymd)
     return d.year, d.timetuple().tm_yday
 
 def iso_days_back(days_back: int) -> str:
+    """Devuelve la fecha ISO de hace N días."""
     return (dt.date.today() - dt.timedelta(days=days_back)).isoformat()
 
 def laads_headers(token: str) -> dict:
@@ -41,6 +43,7 @@ def pick_best_file(items):
     return sorted(items, key=get_size, reverse=True)[0]
 
 def main():
+    """Pipeline: busca MOD08_D3, descarga HDF y genera data/clouds.json."""
     token = os.environ["EARTHDATA_TOKEN"].strip()
     product = os.getenv("MODIS_PRODUCT", "MOD08_D3")
     collection = os.getenv("MODIS_COLLECTION", "61")
@@ -105,6 +108,7 @@ def main():
     download_url = f"{LAADS}/api/v2/content/archives/{path}"
     hdf_bytes = requests.get(download_url, headers=laads_headers(token), timeout=300).content
 
+    # Persistencia local del HDF para lectura con pyhdf.
     os.makedirs("data", exist_ok=True)
     local_hdf = "data/mod08_latest.hdf"
     with open(local_hdf, "wb") as f:
@@ -148,6 +152,7 @@ def main():
     hgt, wdt = cf.shape
     grid_vals = np.rint(cf * 100.0).astype(np.uint8)
 
+    # Construye el payload final que consume el frontend.
     meta = {
         "source": "LAADS DAAC (MODIS Terra)",
         "product": product,
@@ -163,6 +168,7 @@ def main():
         }
     }
 
+    # Guarda el JSON en disco para GitHub Pages / frontend.
     with open("data/clouds.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, separators=(",", ":"))
 

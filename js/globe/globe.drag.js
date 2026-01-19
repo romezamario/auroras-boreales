@@ -1,6 +1,7 @@
 (function () {
   window.App = window.App || {};
 
+  // Maneja el arrastre del globo (mouse/touch) y zoom (rueda/pinch).
   App.globeDrag = {
     init() {
       const g = App.globe;
@@ -9,6 +10,7 @@
       // IMPORTANT: prevent browser gestures on mobile
       g.canvas.style.touchAction = "none";
 
+      // Variables de control para el cálculo de rotación.
       let v0, q0, r0;
       let a0 = null;  // initial angle between 2 touches (twist)
       let d0 = null;  // initial distance between 2 touches (pinch)
@@ -33,6 +35,7 @@
             a0 = d0 = s0 = null;
           }
 
+          // Reinicia el estado de arrastre al cambiar número de toques.
           dragstarted({ x: t[0]?.[0] ?? event.x, y: t[0]?.[1] ?? event.y }, that);
         }
 
@@ -50,6 +53,7 @@
         return { x: t[0][0], y: t[0][1] };
       }
 
+      // Captura el estado base de rotación al iniciar el drag.
       function dragstarted({ x, y }, that) {
         const p = g.projection.invert([x, y]);
         if (!p) return;
@@ -63,6 +67,7 @@
       let pending = false;
       let lastEvent = null;
 
+      // Agenda el render para evitar demasiadas actualizaciones por frame.
       function scheduleRender() {
         if (pending) return;
         pending = true;
@@ -74,6 +79,7 @@
         });
       }
 
+      // Aplica la rotación y zoom según el evento de arrastre.
       function applyDrag(event) {
         if (!v0) return;
 
@@ -112,6 +118,7 @@
         g.requestRender();
       }
 
+      // Limita un valor dentro de un rango.
       function clamp(v, min, max) {
         return Math.max(min, Math.min(max, v));
       }

@@ -1,6 +1,7 @@
 (function () {
   window.App = window.App || {};
 
+  // UI que muestra la fecha del último commit del repo.
   App.versionUI = {
     async init() {
       const el = document.getElementById("app-version");
@@ -16,6 +17,7 @@
           throw new Error("Config GitHub incompleta");
         }
 
+        // Llama al endpoint de GitHub para obtener el commit más reciente.
         const url = `https://api.github.com/repos/${owner}/${repo}/commits/${branch}`;
         const res = await fetch(url, {
           headers: { "Accept": "application/vnd.github+json" }

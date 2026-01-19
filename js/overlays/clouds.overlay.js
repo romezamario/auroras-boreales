@@ -18,6 +18,7 @@
 (function () {
   window.App = window.App || {};
 
+  // Limita valores entre un mínimo y un máximo.
   function clamp(v, lo, hi) {
     return Math.max(lo, Math.min(hi, v));
   }
@@ -32,6 +33,7 @@
     return [R, G, B];
   }
 
+  // Valida la rejilla de nubes y normaliza su formato (2D o 1D).
   function normalizeGrid(grid) {
     if (!grid || !grid.w || !grid.h || !grid.values_0_100) return null;
 
@@ -55,6 +57,7 @@
     return null;
   }
 
+  // Obtiene el valor normalizado en rango [0..1] para una celda.
   function getValue01(gridN, x, y) {
     // x: [0..w-1], y: [0..h-1]
     const { w, values2D, values1D } = gridN;
@@ -75,6 +78,7 @@
     return [lon, lat];
   }
 
+  // Overlay principal de nubes.
   App.cloudsOverlay = {
     draw(globe, state) {
       if (!state.clouds.enabled) return;

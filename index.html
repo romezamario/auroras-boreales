@@ -5,9 +5,10 @@
   <title>Visualización de Auroras (OVATION)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Hoja de estilos principal de la app -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Libs -->
+  <!-- Libs externas: D3 + TopoJSON + helper de rotación -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
   <script src="versor.js"></script>
@@ -15,6 +16,7 @@
 
 <body>
   <div class="app-shell">
+    <!-- Encabezado con título y metadatos del panel -->
     <header class="app-header">
       <div class="title-block">
         <p class="eyebrow">OVATION · Visualización de Auroras</p>
@@ -35,6 +37,7 @@
     </header>
 
     <div class="layout">
+      <!-- Panel lateral con controles y leyendas -->
       <aside class="controls">
         <div class="card">
           <div class="card-header">
@@ -123,6 +126,7 @@
         </div>
       </aside>
 
+      <!-- Zona principal con el canvas del globo -->
       <main class="visual">
         <div class="canvas-card">
           <canvas id="globe"></canvas>
@@ -131,35 +135,35 @@
     </div>
   </div>
 
-  <!-- App core -->
+  <!-- App core: config, utilidades, estado y eventos -->
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/state.js"></script>
   <script src="js/events.js"></script>
 
-  <!-- Services -->
+  <!-- Services de datos remotos/locales -->
   <script src="js/data/world.service.js"></script>
   <script src="js/data/ovation.service.js"></script>
   <script src="js/data/clouds.service.js"></script>
 
-  <!-- UI -->
+  <!-- UI: widgets y controles -->
   <script src="js/ui/version.ui.js"></script>
   <script src="js/ui/refresh.ui.js"></script>
   <script src="js/ui/threshold.ui.js"></script>
   <script src="js/ui/clouds.ui.js"></script>
   <script src="js/ui/layers.ui.js"></script>
 
-  <!-- Overlays -->
+  <!-- Overlays del globo (nubes, noche, auroras) -->
   <script src="js/overlays/clouds.overlay.js"></script>
   <script src="js/overlays/day-night.overlay.js"></script>
   <script src="js/overlays/aurora.overlay.js"></script>
 
-  <!-- Globe -->
+  <!-- Globe: core, interacción y render -->
   <script src="js/globe/globe.core.js"></script>
   <script src="js/globe/globe.drag.js"></script>
   <script src="js/globe/globe.render.js"></script>
 
-  <!-- Bootstrap -->
+  <!-- Bootstrap general de la app -->
   <script src="js/app.js"></script>
 
 </body>
