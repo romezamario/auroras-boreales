@@ -23,6 +23,10 @@
         textureReady: false,
         lastDate: null,
         coverage: 0
+      },
+      // Estado específico para la máscara día/noche.
+      dayNight: {
+        enabled: cfg.dayNight?.enabled ?? true
       }
     };
   
