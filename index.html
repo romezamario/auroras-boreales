@@ -14,118 +14,122 @@
 </head>
 
 <body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="title-block">
+        <p class="eyebrow">OVATION · Visualización de Auroras</p>
+        <h1>Mapa en tiempo real de actividad auroral</h1>
+        <p class="subtitle">Filtra intensidad y nubosidad para enfocar zonas con mayor visibilidad.</p>
+      </div>
+      <div class="header-meta">
+        <div class="meta-item">
+          <span class="meta-label">Versión</span>
+          <p id="app-version">—</p>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Última actualización</span>
+          <p id="last-update">—</p>
+        </div>
+        <button id="refresh-btn">🔄 Refrescar datos</button>
+      </div>
+    </header>
 
-  <h1>Visualización de Auroras (OVATION)</h1>
+    <div class="layout">
+      <aside class="controls">
+        <div class="card">
+          <div class="card-header">
+            <h2>Capas visibles</h2>
+            <p>Activa o desactiva fuentes para comparar lecturas.</p>
+          </div>
+          <div class="layer-controls-items">
+            <label class="toggle">
+              <input type="checkbox" id="toggle-aurora" checked>
+              <span class="toggle-text">Auroras</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-clouds" checked>
+              <span class="toggle-text">Nubosidad</span>
+            </label>
+          </div>
+        </div>
 
-  <p id="app-version">Versión: —</p>
+        <div class="card legend legend-slider">
+          <div class="card-header">
+            <h2>Intensidad (OVATION)</h2>
+            <p>Define el umbral mínimo que se visualizará en el mapa.</p>
+          </div>
+          <div class="cloud-legend-header intensity-legend-header">
+            <span class="cloud-legend-title">Umbral actual</span>
+            <span class="cloud-legend-values">
+              <span id="threshold-value">≥ 5</span>
+            </span>
+          </div>
 
-  <button id="refresh-btn">🔄 Refrescar datos</button>
+          <div class="legend-bar-container">
+            <div class="legend-bar"></div>
+            <input
+              type="range"
+              id="threshold-range"
+              min="5"
+              max="80"
+              step="1"
+              value="5"
+              aria-label="Umbral de intensidad"
+            />
+          </div>
 
-  <div class="layer-controls">
-    <span class="layer-controls-title">Capas visibles</span>
-    <div class="layer-controls-items">
-      <label class="toggle">
-        <input type="checkbox" id="toggle-aurora" checked>
-        <span class="toggle-text">Auroras</span>
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="toggle-clouds" checked>
-        <span class="toggle-text">Nubosidad</span>
-      </label>
+          <div class="legend-ticks">
+            <span>5</span>
+            <span>20</span>
+            <span>40</span>
+            <span>60</span>
+            <span>80</span>
+          </div>
+        </div>
+
+        <div class="card cloud-legend">
+          <div class="card-header">
+            <h2>Nubosidad (cobertura)</h2>
+            <p>Reduce la nubosidad máxima para ver zonas despejadas.</p>
+          </div>
+          <div class="cloud-legend-header">
+            <span class="cloud-legend-title">Nubosidad visible</span>
+            <span class="cloud-legend-values">
+              <span id="cloud-coverage">0%</span>
+              <span id="cloud-threshold-value">≥ 12%</span>
+            </span>
+          </div>
+
+          <div class="cloud-bar-container">
+            <div class="cloud-bar"></div>
+            <input
+              type="range"
+              id="cloud-threshold-range"
+              min="0"
+              max="100"
+              step="1"
+              value="12"
+              aria-label="Umbral de nubosidad"
+            />
+          </div>
+
+          <div class="cloud-legend-ticks">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="visual">
+        <div class="canvas-card">
+          <canvas id="globe"></canvas>
+        </div>
+      </main>
     </div>
   </div>
-
-  <!-- Leyenda + slider (UI) -->
-  <div class="legend legend-slider">
-    <div class="legend-header">
-      <span class="legend-title">Intensidad (OVATION)</span>
-      <span id="threshold-value">≥ 5</span>
-    </div>
-
-    <div class="legend-bar-container">
-      <div class="legend-bar"></div>
-      <input
-        type="range"
-        id="threshold-range"
-        min="5"
-        max="80"
-        step="1"
-        value="5"
-        aria-label="Umbral de intensidad"
-      />
-    </div>
-
-    <div class="legend-ticks">
-      <span>5</span>
-      <span>10</span>
-      <span>15</span>
-      <span>20</span>
-      <span>25</span>
-      <span>30</span>
-      <span>35</span>
-      <span>40</span>
-      <span>45</span>
-      <span>50</span>
-      <span>55</span>
-      <span>60</span>
-      <span>65</span>
-      <span>70</span>
-      <span>75</span>
-      <span>80</span>
-    </div>
-  </div>
-
-  <!-- Barra de nubosidad -->
-  <div class="cloud-legend">
-    <div class="cloud-legend-header">
-      <span class="cloud-legend-title">Nubosidad (cobertura)</span>
-      <span class="cloud-legend-values">
-        <span id="cloud-coverage">0%</span>
-        <span id="cloud-threshold-value">≥ 12%</span>
-      </span>
-    </div>
-
-    <div class="cloud-bar-container">
-      <div class="cloud-bar"></div>
-      <input
-        type="range"
-        id="cloud-threshold-range"
-        min="0"
-        max="100"
-        step="1"
-        value="12"
-        aria-label="Umbral de nubosidad"
-      />
-    </div>
-
-    <div class="cloud-legend-ticks">
-      <span>0%</span>
-      <span>5%</span>
-      <span>10%</span>
-      <span>15%</span>
-      <span>20%</span>
-      <span>25%</span>
-      <span>30%</span>
-      <span>35%</span>
-      <span>40%</span>
-      <span>45%</span>
-      <span>50%</span>
-      <span>55%</span>
-      <span>60%</span>
-      <span>65%</span>
-      <span>70%</span>
-      <span>75%</span>
-      <span>80%</span>
-      <span>85%</span>
-      <span>90%</span>
-      <span>95%</span>
-      <span>100%</span>
-    </div>
-  </div>
-
-  <p id="last-update">Última actualización: —</p>
-
-  <canvas id="globe"></canvas>
 
   <!-- App core -->
   <script src="js/config.js"></script>
