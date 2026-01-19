@@ -54,22 +54,16 @@
         // Selected point marker
         const selection = App.state?.selection;
         if (selection && Number.isFinite(selection.lon) && Number.isFinite(selection.lat)) {
-          const rotation = g.projection.rotate();
-          const center = [-rotation[0], -rotation[1]];
-          const distance = d3.geoDistance([selection.lon, selection.lat], center);
-
-          if (distance <= Math.PI / 2) {
-            const projected = g.projection([selection.lon, selection.lat]);
-            if (projected) {
-              const [px, py] = projected;
-              ctx.beginPath();
-              ctx.arc(px, py, 4, 0, Math.PI * 2);
-              ctx.fillStyle = "#e63946";
-              ctx.fill();
-              ctx.lineWidth = 1.5;
-              ctx.strokeStyle = "#fff";
-              ctx.stroke();
-            }
+          const projected = g.projection([selection.lon, selection.lat]);
+          if (projected) {
+            const [px, py] = projected;
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fillStyle = "#e63946";
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = "#fff";
+            ctx.stroke();
           }
         }
   
