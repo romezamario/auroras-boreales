@@ -32,16 +32,7 @@
         const iso = data.commit.committer.date;
 
         // Formato en tu zona/idioma
-        const locale = App.config?.locale ?? "es-MX";
-        const options = App.config?.dateTimeFormat ?? {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit"
-        };
-        const fecha = new Date(iso).toLocaleString(locale, options);
+        const fecha = App.utils?.formatDateTime?.(iso) ?? new Date(iso).toLocaleString();
 
         el.innerHTML = `Versión: <strong>${fecha}</strong>`;
       } catch (e) {

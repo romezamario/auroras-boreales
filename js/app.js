@@ -24,13 +24,11 @@
         App.state.clouds.grid = clouds.grid ?? null;
 
         App.state.clouds.textureReady = true;
-        App.state.clouds.error = null;
 
         App.emit("data:clouds");
       } catch (e) {
         // Si falla clouds.json, seguimos con la aurora
         App.state.clouds.textureReady = false;
-        App.state.clouds.error = e?.message ?? String(e);
         App.emit("data:clouds");
       }
 
