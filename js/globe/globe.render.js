@@ -11,6 +11,7 @@
         App.on("state:threshold", () => App.globe?.requestRender());
         App.on("state:cloudsThreshold", () => App.globe?.requestRender());
         App.on("state:layers", () => App.globe?.requestRender());
+        App.on("globe:select", () => App.globe?.requestRender());
       },
   
       render() {
@@ -49,6 +50,22 @@
         // Overlays (en orden)
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
         if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
+
+        // Selected point marker
+        const selection = App.state?.selection;
+        if (selection && Number.isFinite(selection.lon) && Number.isFinite(selection.lat)) {
+          const projected = g.projection([selection.lon, selection.lat]);
+          if (projected) {
+            const [px, py] = projected;
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fillStyle = "#e63946";
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = "#fff";
+            ctx.stroke();
+          }
+        }
   
         // Border
         ctx.beginPath();
