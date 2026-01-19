@@ -287,9 +287,21 @@ button:disabled {
   color: #222;
 }
 
-#cloud-coverage {
+.cloud-legend-values {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#cloud-coverage,
+#cloud-threshold-value {
   font-size: 0.8rem;
   color: #333;
+}
+
+.cloud-bar-container {
+  position: relative;
+  width: 100%;
 }
 
 .cloud-bar {
@@ -297,15 +309,10 @@ button:disabled {
   border-radius: 999px;
   border: 1px solid #ddd;
   background: #f0f3ff; /* base clara */
-  overflow: hidden;
 }
 
-#cloud-bar-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-
-  /* Azul claro -> azul oscuro */
+/* Azul claro -> azul oscuro */
+.cloud-bar {
   background: linear-gradient(
     90deg,
     rgb(191,233,255) 0%,
@@ -313,6 +320,46 @@ button:disabled {
     rgb(60,140,230) 65%,
     rgb(11,45,143) 100%
   );
+}
+
+#cloud-threshold-range {
+  position: absolute;
+  left: 0;
+  top: -6px;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  pointer-events: auto;
+  appearance: none;
+}
+
+#cloud-threshold-range::-webkit-slider-runnable-track {
+  height: 22px;
+  background: transparent;
+}
+#cloud-threshold-range::-moz-range-track {
+  height: 22px;
+  background: transparent;
+}
+
+#cloud-threshold-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid #fff;
+  box-shadow: 0 0 2px rgba(0,0,0,0.4);
+  margin-top: 4px;
+  cursor: pointer;
+}
+#cloud-threshold-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid #fff;
+  cursor: pointer;
 }
 
 .cloud-legend-ticks {

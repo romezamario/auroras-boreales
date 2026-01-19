@@ -14,6 +14,7 @@
       clouds: {
         enabled: cfg.clouds.enabled,
         opacity: cfg.clouds.opacity,
+        threshold: cfg.clouds.minIntensity,
         textureReady: false,
         lastDate: null,
         error: null,

@@ -105,7 +105,7 @@
       const baseOpacity = state.clouds.opacity ?? cloudsCfg.opacity ?? 0.28;
 
       // Umbral visual: ignora intensidades bajas para no “ensuciar”
-      const T_MIN = cloudsCfg.minIntensity ?? 0.12;
+      const T_MIN = Number(state.clouds.threshold ?? cloudsCfg.minIntensity ?? 0.12);
 
       ctx.save();
       ctx.globalCompositeOperation = "source-over";
