@@ -114,6 +114,16 @@ button:focus-visible {
   letter-spacing: 0.06em;
 }
 
+.data-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.data-status .meta-item {
+  text-align: left;
+}
+
 /* ================= GRID ================= */
 .layout {
   display: grid;
