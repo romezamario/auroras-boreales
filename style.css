@@ -415,6 +415,62 @@ button:focus-visible {
   margin-bottom: 14px;
 }
 
+.inspector-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inspector-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.inspector-toggle:hover {
+  background: #eef2f7;
+  border-color: #cbd5f5;
+}
+
+.inspector-toggle:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+.inspector-toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.inspector-body {
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.2s ease, transform 0.2s ease;
+  max-height: 600px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.inspector-card.is-collapsed .inspector-body {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+.inspector-card.is-collapsed .inspector-toggle-icon {
+  transform: rotate(-90deg);
+}
+
 .inspector-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

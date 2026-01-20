@@ -121,33 +121,41 @@
         </div>
 
         <div class="card inspector-card" id="globe-inspector">
-          <div class="card-header">
-            <h2>Detalle del punto</h2>
-            <p>Haz clic en el globo para consultar el estado local.</p>
+          <div class="card-header inspector-header">
+            <div>
+              <h2>Detalle del punto</h2>
+              <p>Haz clic en el globo para consultar el estado local.</p>
+            </div>
+            <button class="inspector-toggle" id="inspector-toggle" type="button" aria-expanded="true">
+              <span class="inspector-toggle-label">Contraer</span>
+              <span class="inspector-toggle-icon" aria-hidden="true">▾</span>
+            </button>
           </div>
-          <div class="inspector-grid">
-            <div class="inspector-item">
-              <span class="inspector-label">Latitud</span>
-              <span id="inspector-lat" class="inspector-value">—</span>
+          <div class="inspector-body">
+            <div class="inspector-grid">
+              <div class="inspector-item">
+                <span class="inspector-label">Latitud</span>
+                <span id="inspector-lat" class="inspector-value">—</span>
+              </div>
+              <div class="inspector-item">
+                <span class="inspector-label">Longitud</span>
+                <span id="inspector-lon" class="inspector-value">—</span>
+              </div>
+              <div class="inspector-item">
+                <span class="inspector-label">Intensidad</span>
+                <span id="inspector-intensity" class="inspector-value">—</span>
+              </div>
+              <div class="inspector-item">
+                <span class="inspector-label">Nubosidad</span>
+                <span id="inspector-clouds" class="inspector-value">—</span>
+              </div>
+              <div class="inspector-item">
+                <span class="inspector-label">Día / noche</span>
+                <span id="inspector-daynight" class="inspector-value">—</span>
+              </div>
             </div>
-            <div class="inspector-item">
-              <span class="inspector-label">Longitud</span>
-              <span id="inspector-lon" class="inspector-value">—</span>
-            </div>
-            <div class="inspector-item">
-              <span class="inspector-label">Intensidad</span>
-              <span id="inspector-intensity" class="inspector-value">—</span>
-            </div>
-            <div class="inspector-item">
-              <span class="inspector-label">Nubosidad</span>
-              <span id="inspector-clouds" class="inspector-value">—</span>
-            </div>
-            <div class="inspector-item">
-              <span class="inspector-label">Día / noche</span>
-              <span id="inspector-daynight" class="inspector-value">—</span>
-            </div>
+            <p class="inspector-hint" id="inspector-hint">Selecciona un punto visible para ver detalles.</p>
           </div>
-          <p class="inspector-hint" id="inspector-hint">Selecciona un punto visible para ver detalles.</p>
         </div>
 
         <div class="card data-status">
