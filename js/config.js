@@ -26,7 +26,8 @@
         auroraStepMobile: 4,
         auroraStepDesktop: 2,
         auroraPointRadiusMobile: 3,
-        auroraPointRadiusDesktop: 4
+        auroraPointRadiusDesktop: 4,
+        auroraMinAbsLatitude: 40
       },
       // Configuración específica para la capa de nubosidad.
       clouds: {

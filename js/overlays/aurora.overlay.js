@@ -19,6 +19,7 @@
   
         const { ctx, projection } = globe;
         const TH = Number(state.threshold ?? App.config.defaults.threshold);
+        const minAbsLat = Number(App.config.defaults.auroraMinAbsLatitude ?? 0);
   
         // Evalúa visibilidad de puntos respecto a la cámara.
         const center = projection.invert([globe.width / 2, globe.height / 2]);
@@ -30,6 +31,7 @@
         for (let i = 0; i < points.length; i += step) {
           const [lon, lat, val] = points[i];
           if (val < TH) continue;
+          if (Math.abs(lat) < minAbsLat) continue;
   
           if (vc) {
             const vp = versor.cartesian([lon, lat]);
