@@ -9,8 +9,25 @@
       const cloudsEl = document.getElementById("inspector-clouds");
       const dayNightEl = document.getElementById("inspector-daynight");
       const hintEl = document.getElementById("inspector-hint");
+      const inspectorCard = document.getElementById("globe-inspector");
+      const toggleBtn = document.getElementById("inspector-toggle");
+      const toggleLabel = toggleBtn?.querySelector(".inspector-toggle-label");
 
       if (!latEl || !lonEl || !intensityEl || !cloudsEl || !dayNightEl) return;
+
+      function setExpanded(isExpanded) {
+        if (!inspectorCard || !toggleBtn || !toggleLabel) return;
+        inspectorCard.classList.toggle("is-collapsed", !isExpanded);
+        toggleBtn.setAttribute("aria-expanded", String(isExpanded));
+        toggleLabel.textContent = isExpanded ? "Contraer" : "Expandir";
+      }
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+          const isExpanded = toggleBtn.getAttribute("aria-expanded") !== "true";
+          setExpanded(isExpanded);
+        });
+      }
 
       function fmtCoord(value) {
         if (!Number.isFinite(value)) return "—";
