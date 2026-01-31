@@ -35,7 +35,16 @@
         path(App.assets.land);
         ctx.fillStyle = "#999";
         ctx.fill();
-  
+
+        // Country borders
+        if (App.assets.countryBorders) {
+          ctx.beginPath();
+          path(App.assets.countryBorders);
+          ctx.strokeStyle = "rgba(255,255,255,0.35)";
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+
         // Graticule
         if (App.assets.graticule) {
           ctx.beginPath();
