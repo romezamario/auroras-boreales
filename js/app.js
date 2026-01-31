@@ -72,6 +72,7 @@
 
     // Assets
     App.assets.land = await App.worldService.loadLand();
+    App.assets.countryBorders = await App.worldService.loadCountryBorders();
     App.assets.graticule = d3.geoGraticule10();
 
     // Primer render

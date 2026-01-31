@@ -16,7 +16,8 @@
       // Endpoints remotos que alimentan las capas del globo.
       endpoints: {
         ovation: "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json",
-        worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json"
+        worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json",
+        worldCountries: "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
       },
       // Valores base para umbrales, rotación y ajustes de rendimiento.
       defaults: {
