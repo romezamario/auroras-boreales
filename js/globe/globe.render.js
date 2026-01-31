@@ -8,6 +8,7 @@
         App.on("globe:render", () => this.render());
         App.on("data:aurora", () => App.globe?.requestRender());
         App.on("data:clouds", () => App.globe?.requestRender());
+        App.on("data:location", () => App.globe?.requestRender());
         App.on("state:threshold", () => App.globe?.requestRender());
         App.on("state:cloudsThreshold", () => App.globe?.requestRender());
         App.on("state:layers", () => App.globe?.requestRender());
@@ -59,6 +60,28 @@
         // Overlays (en orden)
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
         if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
+
+        // User location marker (purple)
+        const userLocation = App.state?.userLocation;
+        if (userLocation && Number.isFinite(userLocation.lon) && Number.isFinite(userLocation.lat)) {
+          const center = g.projection.invert([g.width / 2, g.height / 2]);
+          const vc = center ? versor.cartesian(center) : null;
+          const vp = vc ? versor.cartesian([userLocation.lon, userLocation.lat]) : null;
+          const isVisible = vc && vp
+            ? (vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2]) > 0
+            : true;
+          const projected = isVisible ? g.projection([userLocation.lon, userLocation.lat]) : null;
+          if (projected) {
+            const [px, py] = projected;
+            ctx.beginPath();
+            ctx.arc(px, py, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = "#8b5cf6";
+            ctx.fill();
+            ctx.lineWidth = 1.6;
+            ctx.strokeStyle = "rgba(255,255,255,0.9)";
+            ctx.stroke();
+          }
+        }
 
         // Selected point marker
         const selection = App.state?.selection;
