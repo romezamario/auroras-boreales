@@ -75,6 +75,17 @@
     App.assets.countryBorders = await App.worldService.loadCountryBorders();
     App.assets.graticule = d3.geoGraticule10();
 
+    // Ubicación aproximada por IP (no bloquea el render inicial).
+    App.locationService?.fetchIpLocation()
+      .then((location) => {
+        if (location) {
+          App.state.userLocation = location;
+          App.emit("data:location");
+          App.globe?.requestRender();
+        }
+      })
+      .catch((e) => console.warn("[app] ip location error:", e));
+
     // Primer render
     App.globe?.requestRender();
 

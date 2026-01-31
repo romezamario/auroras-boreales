@@ -29,7 +29,15 @@
         enabled: cfg.dayNight?.enabled ?? true
       },
       // Último punto seleccionado en el globo.
-      selection: null
+      selection: null,
+      // Ubicación aproximada del usuario (por IP o Geolocation API).
+      userLocation: {
+        lon: null,
+        lat: null,
+        source: null,
+        accuracyKm: null,
+        label: null
+      }
     };
   
     // Assets precargados (topojson, graticule, etc.).
