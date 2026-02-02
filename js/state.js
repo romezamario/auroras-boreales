@@ -20,6 +20,7 @@
         enabled: cfg.clouds.enabled,
         opacity: cfg.clouds.opacity,
         threshold: cfg.clouds.minIntensity,
+        gridNormalized: null,
         textureReady: false,
         lastDate: null,
         coverage: 0

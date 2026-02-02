@@ -61,48 +61,52 @@
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
         if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
 
-        // User location marker (purple)
-        const userLocation = App.state?.userLocation;
-        if (userLocation && Number.isFinite(userLocation.lon) && Number.isFinite(userLocation.lat)) {
-          const center = g.projection.invert([g.width / 2, g.height / 2]);
-          const vc = center ? versor.cartesian(center) : null;
-          const vp = vc ? versor.cartesian([userLocation.lon, userLocation.lat]) : null;
+        const center = g.projection.invert([g.width / 2, g.height / 2]);
+        const vc = center ? versor.cartesian(center) : null;
+        const drawMarker = ({ lon, lat, radius, fill, stroke, strokeWidth }) => {
+          if (!Number.isFinite(lon) || !Number.isFinite(lat)) return;
+          const vp = vc ? versor.cartesian([lon, lat]) : null;
           const isVisible = vc && vp
             ? (vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2]) > 0
             : true;
-          const projected = isVisible ? g.projection([userLocation.lon, userLocation.lat]) : null;
-          if (projected) {
-            const [px, py] = projected;
-            ctx.beginPath();
-            ctx.arc(px, py, 4.5, 0, Math.PI * 2);
-            ctx.fillStyle = "#8b5cf6";
-            ctx.fill();
-            ctx.lineWidth = 1.6;
-            ctx.strokeStyle = "rgba(255,255,255,0.9)";
+          const projected = isVisible ? g.projection([lon, lat]) : null;
+          if (!projected) return;
+          const [px, py] = projected;
+          ctx.beginPath();
+          ctx.arc(px, py, radius, 0, Math.PI * 2);
+          ctx.fillStyle = fill;
+          ctx.fill();
+          if (stroke) {
+            ctx.lineWidth = strokeWidth;
+            ctx.strokeStyle = stroke;
             ctx.stroke();
           }
+        };
+
+        // User location marker (purple)
+        const userLocation = App.state?.userLocation;
+        if (userLocation) {
+          drawMarker({
+            lon: userLocation.lon,
+            lat: userLocation.lat,
+            radius: 4.5,
+            fill: "#8b5cf6",
+            stroke: "rgba(255,255,255,0.9)",
+            strokeWidth: 1.6
+          });
         }
 
         // Selected point marker
         const selection = App.state?.selection;
-        if (selection && Number.isFinite(selection.lon) && Number.isFinite(selection.lat)) {
-          const center = g.projection.invert([g.width / 2, g.height / 2]);
-          const vc = center ? versor.cartesian(center) : null;
-          const vp = vc ? versor.cartesian([selection.lon, selection.lat]) : null;
-          const isVisible = vc && vp
-            ? (vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2]) > 0
-            : true;
-          const projected = isVisible ? g.projection([selection.lon, selection.lat]) : null;
-          if (projected) {
-            const [px, py] = projected;
-            ctx.beginPath();
-            ctx.arc(px, py, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "#e63946";
-            ctx.fill();
-            ctx.lineWidth = 1.5;
-            ctx.strokeStyle = "#fff";
-            ctx.stroke();
-          }
+        if (selection) {
+          drawMarker({
+            lon: selection.lon,
+            lat: selection.lat,
+            radius: 4,
+            fill: "#e63946",
+            stroke: "#fff",
+            strokeWidth: 1.5
+          });
         }
   
         // Border
