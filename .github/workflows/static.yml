@@ -18,7 +18,7 @@ permissions:
 # Permite solo un despliegue concurrente (sin cancelar el que está en progreso).
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   # Trabajo único de despliegue del sitio completo
