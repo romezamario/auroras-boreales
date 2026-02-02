@@ -23,6 +23,11 @@
       }
 
       if (toggleBtn) {
+        const isExpanded = toggleBtn.getAttribute("aria-expanded") === "true";
+        setExpanded(isExpanded);
+      }
+
+      if (toggleBtn) {
         toggleBtn.addEventListener("click", () => {
           const isExpanded = toggleBtn.getAttribute("aria-expanded") !== "true";
           setExpanded(isExpanded);
