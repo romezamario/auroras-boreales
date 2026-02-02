@@ -98,4 +98,28 @@
     const angular = Math.acos(clamped);
     return angular <= Math.PI / 2;
   };
+
+  // Valida la rejilla de nubes y normaliza su formato (2D o 1D).
+  App.utils.normalizeCloudGrid = function (grid) {
+    if (!grid || !grid.w || !grid.h || !grid.values_0_100) return null;
+
+    const w = Number(grid.w);
+    const h = Number(grid.h);
+    const values = grid.values_0_100;
+
+    // Puede venir como 2D (h arrays de w) o como 1D plano (h*w).
+    const is2D = Array.isArray(values) && Array.isArray(values[0]);
+
+    if (is2D) {
+      if (values.length !== h) return null;
+      if (values[0].length !== w) return null;
+      return { w, h, values2D: values, values1D: null };
+    }
+
+    if (Array.isArray(values) && values.length === w * h) {
+      return { w, h, values2D: null, values1D: values };
+    }
+
+    return null;
+  };
 })();

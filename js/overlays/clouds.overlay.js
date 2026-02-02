@@ -33,30 +33,6 @@
     return [R, G, B];
   }
 
-  // Valida la rejilla de nubes y normaliza su formato (2D o 1D).
-  function normalizeGrid(grid) {
-    if (!grid || !grid.w || !grid.h || !grid.values_0_100) return null;
-
-    const w = Number(grid.w);
-    const h = Number(grid.h);
-    const values = grid.values_0_100;
-
-    // Puede venir como 2D (h arrays de w) o como 1D plano (h*w).
-    const is2D = Array.isArray(values) && Array.isArray(values[0]);
-
-    if (is2D) {
-      if (values.length !== h) return null;
-      if (values[0].length !== w) return null;
-      return { w, h, values2D: values, values1D: null };
-    }
-
-    if (Array.isArray(values) && values.length === w * h) {
-      return { w, h, values2D: null, values1D: values };
-    }
-
-    return null;
-  }
-
   // Obtiene el valor normalizado en rango [0..1] para una celda.
   function getValue01(gridN, x, y) {
     // x: [0..w-1], y: [0..h-1]
@@ -84,7 +60,7 @@
       if (!state.clouds.enabled) return;
 
       // Si no hay grid, no dibujamos (pero UI puede mostrar %)
-      const gridN = normalizeGrid(state.clouds.grid);
+      const gridN = state.clouds.gridNormalized ?? App.utils.normalizeCloudGrid(state.clouds.grid);
       if (!gridN) return;
 
       const { ctx, projection } = globe;
