@@ -158,6 +158,32 @@
           </div>
         </div>
 
+        <div class="card inspector-card is-collapsed" id="location-inspector">
+          <div class="card-header inspector-header">
+            <div>
+              <h2>Localización inferida</h2>
+              <p>Se basa en la IP desde donde se realiza la consulta.</p>
+            </div>
+            <button class="inspector-toggle" id="location-toggle" type="button" aria-expanded="false">
+              <span class="inspector-toggle-label">Expandir</span>
+              <span class="inspector-toggle-icon" aria-hidden="true">▾</span>
+            </button>
+          </div>
+          <div class="inspector-body">
+            <div class="inspector-grid">
+              <div class="inspector-item">
+                <span class="inspector-label">Estado</span>
+                <span id="location-state" class="inspector-value">—</span>
+              </div>
+              <div class="inspector-item">
+                <span class="inspector-label">País</span>
+                <span id="location-country" class="inspector-value">—</span>
+              </div>
+            </div>
+            <p class="inspector-hint" id="location-hint">Esperando datos de localización.</p>
+          </div>
+        </div>
+
         <div class="card data-status">
           <div class="card-header">
             <h2>Estado de datos</h2>
@@ -204,6 +230,7 @@
   <script src="js/ui/clouds.ui.js"></script>
   <script src="js/ui/layers.ui.js"></script>
   <script src="js/ui/inspector.ui.js"></script>
+  <script src="js/ui/location.ui.js"></script>
 
   <!-- Overlays del globo (nubes, noche, auroras) -->
   <script src="js/overlays/clouds.utils.js"></script>

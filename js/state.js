@@ -37,7 +37,9 @@
         lat: null,
         source: null,
         accuracyKm: null,
-        label: null
+        label: null,
+        region: null,
+        country: null
       }
     };
   
