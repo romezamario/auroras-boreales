@@ -19,7 +19,7 @@
         worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json",
         worldCountries: "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json",
         ipGeo: [
-          "https://ipapi.co/json/",
+          "https://ipapi.co/8.8.8.8/json/",
           "https://ipwho.is/"
         ]
       },
