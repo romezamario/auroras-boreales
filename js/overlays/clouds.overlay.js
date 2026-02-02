@@ -18,42 +18,6 @@
 (function () {
   window.App = window.App || {};
 
-  // Limita valores entre un mínimo y un máximo.
-  function clamp(v, lo, hi) {
-    return Math.max(lo, Math.min(hi, v));
-  }
-
-  // Mapea intensidad t (0..1) a azul claro->oscuro (igual que antes)
-  // light: #BFE9FF (191,233,255)
-  // dark : #0B2D8F (11,45,143)
-  function blueRamp(t) {
-    const R = Math.round(191 + (11 - 191) * t);
-    const G = Math.round(233 + (45 - 233) * t);
-    const B = Math.round(255 + (143 - 255) * t);
-    return [R, G, B];
-  }
-
-  // Obtiene el valor normalizado en rango [0..1] para una celda.
-  function getValue01(gridN, x, y) {
-    // x: [0..w-1], y: [0..h-1]
-    const { w, values2D, values1D } = gridN;
-    let v = 0;
-    if (values2D) v = values2D[y][x] ?? 0;
-    else v = values1D[y * w + x] ?? 0;
-
-    // v esperado 0..100
-    v = Number(v) || 0;
-    return clamp(v / 100, 0, 1);
-  }
-
-  // Convierte (grid cell center) a lon/lat.
-  // Grid equirectangular: lon -180..180, lat 90..-90 (top->bottom)
-  function cellCenterLonLat(w, h, x, y) {
-    const lon = -180 + ((x + 0.5) / w) * 360;
-    const lat = 90 - ((y + 0.5) / h) * 180;
-    return [lon, lat];
-  }
-
   // Overlay principal de nubes.
   App.cloudsOverlay = {
     draw(globe, state) {
@@ -89,10 +53,10 @@
 
       for (let y = 0; y < gridN.h; y += step) {
         for (let x = 0; x < gridN.w; x += step) {
-          const t = getValue01(gridN, x, y);
+          const t = App.cloudsUtils.getValue01(gridN, x, y);
           if (t < T_MIN) continue;
 
-          const [lon, lat] = cellCenterLonLat(gridN.w, gridN.h, x, y);
+          const [lon, lat] = App.cloudsUtils.cellCenterLonLat(gridN.w, gridN.h, x, y);
 
           if (vc) {
             const vp = versor.cartesian([lon, lat]);
@@ -103,7 +67,7 @@
           const xy = projection([lon, lat]);
           if (!xy) continue;
 
-          const [R, G, B] = blueRamp(t);
+          const [R, G, B] = App.cloudsUtils.blueRamp(t);
 
           // alpha por punto (más fuerte conforme t sube)
           const aPoint = (cloudsCfg.pointAlphaBase ?? 0.08) + (cloudsCfg.pointAlphaScale ?? 0.66) * t;

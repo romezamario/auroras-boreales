@@ -61,32 +61,12 @@
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
         if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
 
-        const center = g.projection.invert([g.width / 2, g.height / 2]);
-        const vc = center ? versor.cartesian(center) : null;
-        const drawMarker = ({ lon, lat, radius, fill, stroke, strokeWidth }) => {
-          if (!Number.isFinite(lon) || !Number.isFinite(lat)) return;
-          const vp = vc ? versor.cartesian([lon, lat]) : null;
-          const isVisible = vc && vp
-            ? (vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2]) > 0
-            : true;
-          const projected = isVisible ? g.projection([lon, lat]) : null;
-          if (!projected) return;
-          const [px, py] = projected;
-          ctx.beginPath();
-          ctx.arc(px, py, radius, 0, Math.PI * 2);
-          ctx.fillStyle = fill;
-          ctx.fill();
-          if (stroke) {
-            ctx.lineWidth = strokeWidth;
-            ctx.strokeStyle = stroke;
-            ctx.stroke();
-          }
-        };
+        const vc = App.globeMarkers?.getViewVector(g);
 
         // User location marker (purple)
         const userLocation = App.state?.userLocation;
         if (userLocation) {
-          drawMarker({
+          App.globeMarkers?.draw(g, vc, {
             lon: userLocation.lon,
             lat: userLocation.lat,
             radius: 4.5,
@@ -99,7 +79,7 @@
         // Selected point marker
         const selection = App.state?.selection;
         if (selection) {
-          drawMarker({
+          App.globeMarkers?.draw(g, vc, {
             lon: selection.lon,
             lat: selection.lat,
             radius: 4,
