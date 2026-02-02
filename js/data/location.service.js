@@ -25,7 +25,9 @@
       lon,
       source: "ip",
       accuracyKm: accuracy,
-      label: labelParts.length ? labelParts.join(", ") : null
+      label: labelParts.length ? labelParts.join(", ") : null,
+      region,
+      country
     };
   }
 

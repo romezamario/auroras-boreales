@@ -70,6 +70,7 @@
     App.cloudsUI?.init();
     App.layersUI?.init();
     App.inspectorUI?.init();
+    App.locationUI?.init();
 
     // Globe
     App.globeCore?.init();
