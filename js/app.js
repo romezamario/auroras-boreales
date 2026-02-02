@@ -18,30 +18,38 @@
       //   "coverage_percent_global": 12.34,
       //   "grid": { "w":360, "h":180, "values_0_100":[...]} // opcional
       // }
-      try {
-        // Descarga el JSON de nubes y actualiza el estado global.
-        const clouds = await App.cloudsService.fetchLatest();
+      const [cloudsResult, auroraResult] = await Promise.allSettled([
+        App.cloudsService.fetchLatest(),
+        App.ovationService.fetchLatest()
+      ]);
 
+      // =========================
+      // 1) NUBES (backend: data/clouds.json desde MOD08_D3)
+      // =========================
+      if (cloudsResult.status === "fulfilled") {
+        const clouds = cloudsResult.value;
         App.state.clouds.lastDate = clouds.date ?? null;
         App.state.clouds.coverage = Math.round(Number(clouds.coverage_percent_global ?? 0));
         App.state.clouds.grid = clouds.grid ?? null;
-
+        App.state.clouds.gridNormalized = App.utils.normalizeCloudGrid(clouds.grid);
         App.state.clouds.textureReady = true;
-
-        App.emit("data:clouds");
-      } catch (e) {
+      } else {
         // Si falla clouds.json, seguimos con la aurora
         App.state.clouds.textureReady = false;
-        App.emit("data:clouds");
+        App.state.clouds.gridNormalized = null;
       }
+      App.emit("data:clouds");
 
       // =========================
       // 2) AURORA (NOAA OVATION)
       // =========================
-      // Trae puntos de aurora y tiempo de pronóstico.
-      const { points, forecastTime } = await App.ovationService.fetchLatest();
-      App.state.aurora.points = points;
-      App.state.aurora.forecastTime = forecastTime;
+      if (auroraResult.status === "fulfilled") {
+        const { points, forecastTime } = auroraResult.value;
+        App.state.aurora.points = points;
+        App.state.aurora.forecastTime = forecastTime;
+      } else {
+        throw auroraResult.reason;
+      }
 
       // UI + eventos
       App.refreshUI?.markUpdated();
@@ -71,8 +79,12 @@
     App.dayNightOverlay?.init();
 
     // Assets
-    App.assets.land = await App.worldService.loadLand();
-    App.assets.countryBorders = await App.worldService.loadCountryBorders();
+    const [land, countryBorders] = await Promise.all([
+      App.worldService.loadLand(),
+      App.worldService.loadCountryBorders()
+    ]);
+    App.assets.land = land;
+    App.assets.countryBorders = countryBorders;
     App.assets.graticule = d3.geoGraticule10();
 
     // Ubicación aproximada por IP (no bloquea el render inicial).
