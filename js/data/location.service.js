@@ -8,6 +8,8 @@
 
   function parseLocationPayload(payload) {
     if (!payload) return null;
+    if (payload.success === false) return null;
+    if (payload.error === true) return null;
 
     const lat = parseNumber(payload.latitude ?? payload.lat);
     const lon = parseNumber(payload.longitude ?? payload.lon);
@@ -15,7 +17,11 @@
 
     const city = payload.city ? String(payload.city) : null;
     const region = payload.region ? String(payload.region) : null;
-    const country = payload.country_name ? String(payload.country_name) : null;
+    const country = payload.country_name
+      ? String(payload.country_name)
+      : payload.country
+        ? String(payload.country)
+        : null;
     const labelParts = [city, region, country].filter(Boolean);
 
     const accuracy = parseNumber(payload.accuracy);
@@ -33,9 +39,20 @@
 
   App.locationService = {
     async fetchIpLocation() {
-      const url = App.config.endpoints.ipGeo;
-      const data = await d3.json(url);
-      return parseLocationPayload(data);
+      const endpoints = Array.isArray(App.config.endpoints.ipGeo)
+        ? App.config.endpoints.ipGeo
+        : [App.config.endpoints.ipGeo];
+
+      for (const url of endpoints) {
+        try {
+          const data = await d3.json(url);
+          const location = parseLocationPayload(data);
+          if (location) return location;
+        } catch (error) {
+          console.warn("[location] ip lookup failed:", url, error);
+        }
+      }
+      return null;
     }
   };
 })();
