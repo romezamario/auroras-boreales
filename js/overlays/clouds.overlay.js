@@ -18,6 +18,26 @@
 (function () {
   window.App = window.App || {};
 
+  function buildCloudPointCache(gridN) {
+    const points = new Array(gridN.w * gridN.h);
+    const { w, h } = gridN;
+
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const t = App.cloudsUtils.getValue01(gridN, x, y);
+        if (t <= 0) continue;
+
+        const [lon, lat] = App.cloudsUtils.cellCenterLonLat(w, h, x, y);
+        const cartesian = versor.cartesian([lon, lat]);
+        const [r, g, b] = App.cloudsUtils.blueRamp(t);
+
+        points[y * w + x] = { lon, lat, t, cartesian, r, g, b };
+      }
+    }
+
+    return { gridRef: gridN, points, w, h };
+  }
+
   // Overlay principal de nubes.
   App.cloudsOverlay = {
     draw(globe, state) {
@@ -30,6 +50,10 @@
         state.clouds.gridNormalized = gridN;
       }
       if (!gridN) return;
+
+      if (!state.clouds.gridCache || state.clouds.gridCache.gridRef !== gridN) {
+        state.clouds.gridCache = buildCloudPointCache(gridN);
+      }
 
       const { ctx, projection } = globe;
 
@@ -55,29 +79,28 @@
 
       const r = isMobile ? (cloudsCfg.pointRadiusMobile ?? 1.6) : (cloudsCfg.pointRadiusDesktop ?? 2.2);
 
-      for (let y = 0; y < gridN.h; y += step) {
-        for (let x = 0; x < gridN.w; x += step) {
-          const t = App.cloudsUtils.getValue01(gridN, x, y);
-          if (t < T_MIN) continue;
+      const cache = state.clouds.gridCache;
+      const { points, w, h } = cache;
 
-          const [lon, lat] = App.cloudsUtils.cellCenterLonLat(gridN.w, gridN.h, x, y);
+      for (let y = 0; y < h; y += step) {
+        for (let x = 0; x < w; x += step) {
+          const point = points[y * w + x];
+          if (!point) continue;
+          if (point.t < T_MIN) continue;
 
           if (vc) {
-            const vp = versor.cartesian([lon, lat]);
-            const dot = vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2];
+            const dot = vc[0] * point.cartesian[0] + vc[1] * point.cartesian[1] + vc[2] * point.cartesian[2];
             if (dot <= 0) continue;
           }
 
-          const xy = projection([lon, lat]);
+          const xy = projection([point.lon, point.lat]);
           if (!xy) continue;
 
-          const [R, G, B] = App.cloudsUtils.blueRamp(t);
-
           // alpha por punto (más fuerte conforme t sube)
-          const aPoint = (cloudsCfg.pointAlphaBase ?? 0.08) + (cloudsCfg.pointAlphaScale ?? 0.66) * t;
+          const aPoint = (cloudsCfg.pointAlphaBase ?? 0.08) + (cloudsCfg.pointAlphaScale ?? 0.66) * point.t;
 
           const [px, py] = xy;
-          ctx.fillStyle = `rgba(${R},${G},${B},${aPoint})`;
+          ctx.fillStyle = `rgba(${point.r},${point.g},${point.b},${aPoint})`;
           ctx.beginPath();
           ctx.arc(px, py, r, 0, 2 * Math.PI);
           ctx.fill();

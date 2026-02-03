@@ -8,6 +8,7 @@
       App.state.clouds.coverage = Math.round(Number(clouds.coverage_percent_global ?? 0));
       App.state.clouds.grid = clouds.grid ?? null;
       App.state.clouds.gridNormalized = App.utils.normalizeCloudGrid(clouds.grid);
+      App.state.clouds.gridCache = null;
       App.state.clouds.textureReady = true;
     } else {
       App.state.clouds.textureReady = false;
