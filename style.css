@@ -127,7 +127,7 @@ button:focus-visible {
 /* ================= GRID ================= */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -138,16 +138,9 @@ button:focus-visible {
 }
 
 .visual {
-  display: grid;
-  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.primary-controls {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .card,
@@ -371,10 +364,6 @@ button:focus-visible {
   .layout {
     grid-template-columns: 1fr;
   }
-
-  .visual {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 520px) {
@@ -402,20 +391,6 @@ button:focus-visible {
 
   .legend-ticks {
     font-size: 0.7rem;
-  }
-
-  .visual {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .primary-controls {
-    order: 2;
-  }
-
-  .canvas-card {
-    order: 1;
   }
 }
 
@@ -534,17 +509,5 @@ button:focus-visible {
 @media (max-width: 520px) {
   .inspector-grid {
     grid-template-columns: 1fr;
-  }
-
-  .inspector-header {
-    align-items: center;
-  }
-
-  .inspector-toggle {
-    padding: 6px 10px;
-  }
-
-  .inspector-toggle-label {
-    display: none;
   }
 }

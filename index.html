@@ -29,106 +29,97 @@
     </header>
 
     <div class="layout">
-      <!-- Zona principal con controles clave y el canvas del globo -->
-      <main class="visual">
-        <div class="primary-controls">
-          <div class="card">
-            <div class="card-header">
-              <h2>Capas visibles</h2>
-              <p>Activa o desactiva fuentes para comparar lecturas.</p>
-            </div>
-            <div class="layer-controls-items">
-              <label class="toggle">
-                <input type="checkbox" id="toggle-aurora" checked>
-                <span class="toggle-text">Auroras</span>
-              </label>
-              <label class="toggle">
-                <input type="checkbox" id="toggle-clouds" checked>
-                <span class="toggle-text">Nubosidad</span>
-              </label>
-              <label class="toggle">
-                <input type="checkbox" id="toggle-day-night" checked>
-                <span class="toggle-text">Día / noche</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="card legend-slider">
-            <div class="card-header">
-              <h2>Intensidad (OVATION)</h2>
-              <p>Define el umbral mínimo que se visualizará en el mapa.</p>
-            </div>
-            <div class="legend-header">
-              <span class="legend-title">Umbral actual</span>
-              <span id="threshold-value" class="legend-value">≥ 5</span>
-            </div>
-
-            <div class="legend-bar-container">
-              <div class="legend-bar"></div>
-              <input
-                type="range"
-                id="threshold-range"
-                class="legend-range"
-                min="5"
-                max="80"
-                step="1"
-                value="5"
-                aria-label="Umbral de intensidad"
-              />
-            </div>
-
-            <div class="legend-ticks">
-              <span>5</span>
-              <span>20</span>
-              <span>40</span>
-              <span>60</span>
-              <span>80</span>
-            </div>
-          </div>
-
-          <div class="card cloud-legend">
-            <div class="card-header">
-              <h2>Nubosidad (cobertura)</h2>
-              <p>Reduce la nubosidad máxima para ver zonas despejadas.</p>
-            </div>
-            <div class="legend-header">
-              <span class="legend-title">Nubosidad visible</span>
-              <span class="legend-values">
-                <span id="cloud-threshold-value" class="legend-value">≥ 12%</span>
-              </span>
-            </div>
-
-            <div class="legend-bar-container">
-              <div class="legend-bar"></div>
-              <input
-                type="range"
-                id="cloud-threshold-range"
-                class="legend-range"
-                min="0"
-                max="100"
-                step="1"
-                value="12"
-                aria-label="Umbral de nubosidad"
-              />
-            </div>
-
-            <div class="legend-ticks">
-              <span>0%</span>
-              <span>25%</span>
-              <span>50%</span>
-              <span>75%</span>
-              <span>100%</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="canvas-card">
-          <canvas id="globe"></canvas>
-        </div>
-      </main>
-
-      <!-- Panel secundario con detalles y estado -->
+      <!-- Panel lateral con controles y leyendas -->
       <aside class="controls">
+        <div class="card">
+          <div class="card-header">
+            <h2>Capas visibles</h2>
+            <p>Activa o desactiva fuentes para comparar lecturas.</p>
+          </div>
+          <div class="layer-controls-items">
+            <label class="toggle">
+              <input type="checkbox" id="toggle-aurora" checked>
+              <span class="toggle-text">Auroras</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-clouds" checked>
+              <span class="toggle-text">Nubosidad</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-day-night" checked>
+              <span class="toggle-text">Día / noche</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card legend-slider">
+          <div class="card-header">
+            <h2>Intensidad (OVATION)</h2>
+            <p>Define el umbral mínimo que se visualizará en el mapa.</p>
+          </div>
+          <div class="legend-header">
+            <span class="legend-title">Umbral actual</span>
+            <span id="threshold-value" class="legend-value">≥ 5</span>
+          </div>
+
+          <div class="legend-bar-container">
+            <div class="legend-bar"></div>
+            <input
+              type="range"
+              id="threshold-range"
+              class="legend-range"
+              min="5"
+              max="80"
+              step="1"
+              value="5"
+              aria-label="Umbral de intensidad"
+            />
+          </div>
+
+          <div class="legend-ticks">
+            <span>5</span>
+            <span>20</span>
+            <span>40</span>
+            <span>60</span>
+            <span>80</span>
+          </div>
+        </div>
+
+        <div class="card cloud-legend">
+          <div class="card-header">
+            <h2>Nubosidad (cobertura)</h2>
+            <p>Reduce la nubosidad máxima para ver zonas despejadas.</p>
+          </div>
+          <div class="legend-header">
+            <span class="legend-title">Nubosidad visible</span>
+            <span class="legend-values">
+              <span id="cloud-threshold-value" class="legend-value">≥ 12%</span>
+            </span>
+          </div>
+
+          <div class="legend-bar-container">
+            <div class="legend-bar"></div>
+            <input
+              type="range"
+              id="cloud-threshold-range"
+              class="legend-range"
+              min="0"
+              max="100"
+              step="1"
+              value="12"
+              aria-label="Umbral de nubosidad"
+            />
+          </div>
+
+          <div class="legend-ticks">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </div>
+
         <div class="card inspector-card is-collapsed" id="globe-inspector">
           <div class="card-header inspector-header">
             <div>
@@ -210,6 +201,13 @@
           </div>
         </div>
       </aside>
+
+      <!-- Zona principal con el canvas del globo -->
+      <main class="visual">
+        <div class="canvas-card">
+          <canvas id="globe"></canvas>
+        </div>
+      </main>
     </div>
   </div>
 
