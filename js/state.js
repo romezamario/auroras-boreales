@@ -35,9 +35,6 @@
       userLocation: {
         lon: null,
         lat: null,
-        source: null,
-        accuracyKm: null,
-        label: null,
         region: null,
         country: null
       }
