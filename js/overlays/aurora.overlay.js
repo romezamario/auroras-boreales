@@ -29,12 +29,12 @@
         const step = isMobile ? App.config.defaults.auroraStepMobile : App.config.defaults.auroraStepDesktop;
   
         for (let i = 0; i < points.length; i += step) {
-          const [lon, lat, val] = points[i];
+          const [lon, lat, val, cartesian] = points[i];
           if (val < TH) continue;
           if (Math.abs(lat) < minAbsLat) continue;
   
           if (vc) {
-            const vp = versor.cartesian([lon, lat]);
+            const vp = cartesian || versor.cartesian([lon, lat]);
             const dot = vc[0] * vp[0] + vc[1] * vp[1] + vc[2] * vp[2];
             if (dot <= 0) continue;
           }

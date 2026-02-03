@@ -27,7 +27,7 @@
       lon = normalizeLon(lon);
       if (Math.abs(lat) > 90) return null;
 
-      return [lon, lat, val];
+      return [lon, lat, val, versor.cartesian([lon, lat])];
     }
 
     // Servicio que obtiene el último pronóstico OVATION.
