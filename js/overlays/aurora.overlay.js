@@ -29,7 +29,8 @@
         const step = isMobile ? App.config.defaults.auroraStepMobile : App.config.defaults.auroraStepDesktop;
   
         for (let i = 0; i < points.length; i += step) {
-          const [lon, lat, val, cartesian] = points[i];
+          const point = points[i];
+          const [lon, lat, val, cartesian] = point;
           if (val < TH) continue;
           if (Math.abs(lat) < minAbsLat) continue;
   
@@ -43,7 +44,12 @@
           if (!xy) continue;
   
           const [x, y] = xy;
-          ctx.fillStyle = auroraColor(val);
+          let color = point[4];
+          if (!color) {
+            color = auroraColor(val);
+            point[4] = color;
+          }
+          ctx.fillStyle = color;
           // Ajuste de tamaño de punto según el dispositivo.
           const radius = isMobile ? App.config.defaults.auroraPointRadiusMobile : App.config.defaults.auroraPointRadiusDesktop;
           ctx.beginPath();
