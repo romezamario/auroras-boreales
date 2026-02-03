@@ -24,7 +24,11 @@
       if (!state.clouds.enabled) return;
 
       // Si no hay grid, no dibujamos (pero UI puede mostrar %)
-      const gridN = state.clouds.gridNormalized ?? App.utils.normalizeCloudGrid(state.clouds.grid);
+      let gridN = state.clouds.gridNormalized;
+      if (!gridN && state.clouds.grid) {
+        gridN = App.utils.normalizeCloudGrid(state.clouds.grid);
+        state.clouds.gridNormalized = gridN;
+      }
       if (!gridN) return;
 
       const { ctx, projection } = globe;
