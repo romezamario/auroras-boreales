@@ -3,65 +3,6 @@
 (function () {
   window.App = window.App || {};
 
-  async function refreshAll() {
-    // Indica estado de carga para evitar interacciones mientras se actualiza.
-    App.refreshUI?.setLoading(true);
-
-    try {
-      // =========================
-      // 1) NUBES (backend: data/clouds.json desde MOD08_D3)
-      // =========================
-      // Espera un archivo en: /data/clouds.json (generado por GitHub Actions)
-      // Estructura mínima esperada:
-      // {
-      //   "date": "YYYY-MM-DD",
-      //   "coverage_percent_global": 12.34,
-      //   "grid": { "w":360, "h":180, "values_0_100":[...]} // opcional
-      // }
-      const [cloudsResult, auroraResult] = await Promise.allSettled([
-        App.cloudsService.fetchLatest(),
-        App.ovationService.fetchLatest()
-      ]);
-
-      // =========================
-      // 1) NUBES (backend: data/clouds.json desde MOD08_D3)
-      // =========================
-      if (cloudsResult.status === "fulfilled") {
-        const clouds = cloudsResult.value;
-        App.state.clouds.lastDate = clouds.date ?? null;
-        App.state.clouds.coverage = Math.round(Number(clouds.coverage_percent_global ?? 0));
-        App.state.clouds.grid = clouds.grid ?? null;
-        App.state.clouds.gridNormalized = App.utils.normalizeCloudGrid(clouds.grid);
-        App.state.clouds.textureReady = true;
-      } else {
-        // Si falla clouds.json, seguimos con la aurora
-        App.state.clouds.textureReady = false;
-        App.state.clouds.gridNormalized = null;
-      }
-      App.emit("data:clouds");
-
-      // =========================
-      // 2) AURORA (NOAA OVATION)
-      // =========================
-      if (auroraResult.status === "fulfilled") {
-        const { points, forecastTime } = auroraResult.value;
-        App.state.aurora.points = points;
-        App.state.aurora.forecastTime = forecastTime;
-      } else {
-        throw auroraResult.reason;
-      }
-
-      // UI + eventos
-      App.refreshUI?.markUpdated();
-      App.emit("data:aurora");
-    } catch (e) {
-      console.error("[app] refresh error:", e);
-    } finally {
-      // Restablece el estado del botón aunque haya error.
-      App.refreshUI?.setLoading(false);
-    }
-  }
-
   async function init() {
     // UI
     App.versionUI?.init();
@@ -103,10 +44,10 @@
     App.globe?.requestRender();
 
     // Eventos
-    App.on("action:refresh", refreshAll);
+    App.on("action:refresh", () => App.refreshService?.refreshAll());
 
     // Inicial
-    await refreshAll();
+    await App.refreshService?.refreshAll();
   }
 
   document.addEventListener("DOMContentLoaded", () => {
