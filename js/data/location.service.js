@@ -15,23 +15,16 @@
     const lon = parseNumber(payload.longitude ?? payload.lon);
     if (lat === null || lon === null) return null;
 
-    const city = payload.city ? String(payload.city) : null;
     const region = payload.region ? String(payload.region) : null;
     const country = payload.country_name
       ? String(payload.country_name)
       : payload.country
         ? String(payload.country)
         : null;
-    const labelParts = [city, region, country].filter(Boolean);
-
-    const accuracy = parseNumber(payload.accuracy);
 
     return {
       lat,
       lon,
-      source: "ip",
-      accuracyKm: accuracy,
-      label: labelParts.length ? labelParts.join(", ") : null,
       region,
       country
     };

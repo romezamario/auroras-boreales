@@ -48,8 +48,6 @@
       } finally {
         App.refreshUI?.setLoading(false);
       }
-    },
-    applyCloudsResult,
-    applyAuroraResult
+    }
   };
 })();
