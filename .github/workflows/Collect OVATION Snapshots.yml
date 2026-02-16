@@ -1,0 +1,147 @@
+name: Collect OVATION Snapshots
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"   # cada 5 minutos
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect-ovation
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Collect OVATION snapshot
+        env:
+          OVATION_URL: "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json"
+          OUT_DIR: "./data/history"
+          PROB_MIN: "0"
+        run: |
+          node <<'NODE'
+          import fs from "fs";
+          import path from "path";
+
+          const OVATION_URL = process.env.OVATION_URL;
+          const OUT_DIR     = process.env.OUT_DIR || "./data/history";
+          const PROB_MIN    = Number(process.env.PROB_MIN ?? "0");
+
+          function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
+          function isoNow() { return new Date().toISOString(); }
+          function ymd(iso) { return iso.slice(0, 10); }
+          function hmsZ(iso) { return iso.slice(11, 19).replaceAll(":", "") + "Z"; }
+
+          async function fetchJson(url) {
+            const res = await fetch(url, { cache: "no-store" });
+            if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+            return await res.json();
+          }
+
+          function normalizeLon(lon) {
+            if (lon > 180) return lon - 360;
+            if (lon < -180) return lon + 360;
+            return lon;
+          }
+
+          function ovationToCsvRows(ovationJson, probMin = 0) {
+            const coords = Array.isArray(ovationJson?.coordinates) ? ovationJson.coordinates : [];
+            const rows = [];
+            for (const entry of coords) {
+              if (!entry || entry.length < 3) continue;
+              let lon = Number(entry[0]);
+              let lat = Number(entry[1]);
+              const prob = Number(entry[2]);
+              if (!Number.isFinite(lon) || !Number.isFinite(lat) || !Number.isFinite(prob)) continue;
+
+              if (Math.abs(lat) > 90 && Math.abs(lon) <= 90) [lon, lat] = [lat, lon];
+              lon = normalizeLon(lon);
+              if (Math.abs(lat) > 90) continue;
+              if (prob <= probMin) continue;
+
+              rows.push(`${lon},${lat},${prob}`);
+            }
+            return rows;
+          }
+
+          async function writeFileAtomic(filepath, content) {
+            ensureDir(path.dirname(filepath));
+            const tmp = `${filepath}.tmp`;
+            await fs.promises.writeFile(tmp, content);
+            await fs.promises.rename(tmp, filepath);
+          }
+
+          const ts = isoNow();
+          const day = ymd(ts);
+          const timeKey = hmsZ(ts);
+
+          const ovation = await fetchJson(OVATION_URL);
+
+          const jsonPath = path.join(OUT_DIR, "ovation", day, `${timeKey}.json`);
+          await writeFileAtomic(jsonPath, JSON.stringify({ collected_at: ts, ...ovation }, null, 2));
+
+          const csvPath = path.join(OUT_DIR, "ovation_csv", day, `${timeKey}.csv`);
+          const rows = ovationToCsvRows(ovation, PROB_MIN);
+          const header = "lon,lat,probability\n";
+          await writeFileAtomic(csvPath, header + rows.join("\n") + "\n");
+
+          console.log(`[ok] ${ts}`);
+          console.log(`  json: ${jsonPath}`);
+          console.log(`  csv:  ${csvPath}`);
+          NODE
+
+      - name: Prune snapshots older than 30 days
+        run: |
+          python3 - <<'PY'
+          import os, re, shutil
+          from datetime import datetime, timedelta
+
+          base = "./data/history"
+          keep_days = 30
+          cutoff = datetime.utcnow().date() - timedelta(days=keep_days)
+
+          date_re = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+          for sub in ["ovation", "ovation_csv"]:
+              root = os.path.join(base, sub)
+              if not os.path.isdir(root):
+                  continue
+              for d in os.listdir(root):
+                  if not date_re.match(d):
+                      continue
+                  try:
+                      day = datetime.strptime(d, "%Y-%m-%d").date()
+                  except ValueError:
+                      continue
+                  if day < cutoff:
+                      shutil.rmtree(os.path.join(root, d), ignore_errors=True)
+          PY
+
+      - name: Commit and push if changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add data/history
+            git commit -m "chore(history): add OVATION snapshot [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
