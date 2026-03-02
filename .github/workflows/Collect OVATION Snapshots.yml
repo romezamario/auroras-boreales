@@ -231,7 +231,7 @@ jobs:
       - name: Commit and push if changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then
-            git add data/history
+            git add data/history ':!data/history/global_merge/'
             git commit -m "chore(history): add OVATION snapshot + global merge [skip ci]"
             git push
           else
