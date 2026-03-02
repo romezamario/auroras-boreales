@@ -229,16 +229,16 @@ jobs:
           PY
 
       - name: Commit and push if changes
-      shell: bash
-      run: |
-        set -euo pipefail
+        shell: bash
+        run: |
+          set -euo pipefail
 
-        # agrega TODO data/history excepto global_merge (evita error por .gitignore)
-        git add data/history ':!data/history/global_merge/'
+          # agrega TODO data/history excepto global_merge (evita error por .gitignore)
+          git add data/history ':!data/history/global_merge/'
 
-        if [ -n "$(git status --porcelain)" ]; then
-          git commit -m "chore(history): add OVATION snapshot [skip ci]"
-          git push
-        else
-          echo "No changes to commit."
-        fi
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "chore(history): add OVATION snapshot [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
