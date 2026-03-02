@@ -136,105 +136,13 @@ jobs:
                       shutil.rmtree(os.path.join(root, d), ignore_errors=True)
           PY
 
-      - name: Detect new snapshot CSVs
-        id: detect_csv
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Detecta cambios en CSVs de snapshots (excluye el merge global)
-          if git status --porcelain | awk '{print $2}' | grep -E '^data/history/ovation_csv/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{6}Z\.csv$' >/dev/null; then
-            echo "new_csv=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "new_csv=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build/Update GLOBAL merged CSV (only if new CSV exists)
-        if: steps.detect_csv.outputs.new_csv == 'true'
-        run: |
-          python3 - <<'PY'
-          import os, re, glob, tempfile
-          from datetime import datetime
-
-          BASE = "./data/history/ovation_csv"
-          OUT_DIR = "./data/history/global_merge"
-          OUT_PATH = os.path.join(OUT_DIR, "ovation_merged.csv")
-
-          day_re = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-          file_re = re.compile(r"^(?P<hh>\d{2})(?P<mm>\d{2})(?P<ss>\d{2})Z\.csv$")
-
-          def ensure_dir(p): os.makedirs(p, exist_ok=True)
-
-          def write_atomic(path, content: str):
-            ensure_dir(os.path.dirname(path))
-            fd, tmp = tempfile.mkstemp(prefix=".tmp_", dir=os.path.dirname(path))
-            try:
-              with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-                f.write(content)
-              os.replace(tmp, path)
-            finally:
-              try:
-                if os.path.exists(tmp):
-                  os.remove(tmp)
-              except Exception:
-                pass
-
-          def iter_snapshot_files():
-            if not os.path.isdir(BASE):
-              return
-            for day in sorted(os.listdir(BASE)):
-              if not day_re.match(day): 
-                continue
-              day_dir = os.path.join(BASE, day)
-              if not os.path.isdir(day_dir):
-                continue
-              for f in sorted(os.listdir(day_dir)):
-                m = file_re.match(f)
-                if not m:
-                  continue
-                yield day, os.path.join(day_dir, f), f
-
-          def snapshot_ts(day: str, filename: str) -> str:
-            # day = YYYY-MM-DD, filename = HHMMSSZ.csv -> YYYY-MM-DDTHH:MM:SSZ
-            hh = filename[0:2]; mm = filename[2:4]; ss = filename[4:6]
-            return f"{day}T{hh}:{mm}:{ss}Z"
-
-          header = "snapshot_time_utc,lon,lat,probability\n"
-          out_lines = [header]
-
-          total_files = 0
-          total_rows = 0
-
-          for day, path, fname in iter_snapshot_files():
-            ts = snapshot_ts(day, fname)
-            with open(path, "r", encoding="utf-8", errors="replace") as fp:
-              lines = fp.read().splitlines()
-
-            if not lines:
-              continue
-
-            # Quitar header si es el esperado
-            start = 1 if lines[0].strip().lower() == "lon,lat,probability" else 0
-            for ln in lines[start:]:
-              if not ln.strip():
-                continue
-              # cada ln: lon,lat,probability
-              out_lines.append(f"{ts},{ln}")
-              total_rows += 1
-
-            total_files += 1
-
-          write_atomic(OUT_PATH, "\n".join(out_lines) + "\n")
-          print(f"[global_merge] wrote {OUT_PATH}")
-          print(f"[global_merge] snapshot files: {total_files}, rows: {total_rows}")
-          PY
-
       - name: Commit and push if changes
         shell: bash
         run: |
           set -euo pipefail
 
-          # agrega TODO data/history excepto global_merge (evita error por .gitignore)
-          git add data/history ':!data/history/global_merge/'
+          # Commitea snapshots; excluye global_merge si existe/está ignorado
+          git add data/history/ovation data/history/ovation_csv || true
 
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "chore(history): add OVATION snapshot [skip ci]"
