@@ -25,7 +25,8 @@
       },
       // Valores base para umbrales, rotación y ajustes de rendimiento.
       defaults: {
-        threshold: 5,
+        thresholdMin: 5,
+        thresholdMax: 80,
         rotation: [0, -20, 0],
         dprMax: 2,
         auroraStepMobile: 4,
@@ -41,6 +42,7 @@
         sampleStepMobile: 2,
         sampleStepDesktop: 1,
         minIntensity: 0.12,
+        maxIntensity: 1,
         pointRadiusMobile: 1.6,
         pointRadiusDesktop: 2.2,
         pointAlphaBase: 0.08,

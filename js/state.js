@@ -4,8 +4,9 @@
   
     // Estado global mutable compartido por UI, overlays y servicios.
     App.state = {
-      // Umbral mínimo de intensidad de aurora para dibujar.
-      threshold: cfg.defaults.threshold,
+      // Rango de intensidad de aurora para dibujar.
+      thresholdMin: cfg.defaults.thresholdMin,
+      thresholdMax: cfg.defaults.thresholdMax,
       // Rotación actual del globo (lon, lat, roll).
       rotation: cfg.defaults.rotation.slice(),
       // Estado específico de la capa de auroras.
@@ -19,7 +20,8 @@
       clouds: {
         enabled: cfg.clouds.enabled,
         opacity: cfg.clouds.opacity,
-        threshold: cfg.clouds.minIntensity,
+        thresholdMin: cfg.clouds.minIntensity,
+        thresholdMax: cfg.clouds.maxIntensity,
         gridNormalized: null,
         gridCache: null,
         textureReady: false,
