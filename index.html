@@ -55,25 +55,47 @@
         <div class="card legend-slider">
           <div class="card-header">
             <h2>Intensidad (OVATION)</h2>
-            <p>Define el umbral mínimo que se visualizará en el mapa.</p>
+            <p>Define el umbral mínimo y máximo que se visualizarán en el mapa.</p>
           </div>
           <div class="legend-header">
-            <span class="legend-title">Umbral actual</span>
-            <span id="threshold-value" class="legend-value">≥ 5</span>
+            <span class="legend-title">Rango actual</span>
+            <span id="threshold-value" class="legend-value">5 – 80</span>
           </div>
 
-          <div class="legend-bar-container">
-            <div class="legend-bar"></div>
-            <input
-              type="range"
-              id="threshold-range"
-              class="legend-range"
-              min="5"
-              max="80"
-              step="1"
-              value="5"
-              aria-label="Umbral de intensidad"
-            />
+          <div class="threshold-range-row">
+            <div class="threshold-range-group">
+              <label for="threshold-range-min" class="legend-title">Mínimo</label>
+              <div class="legend-bar-container">
+                <div class="legend-bar"></div>
+                <input
+                  type="range"
+                  id="threshold-range-min"
+                  class="legend-range"
+                  min="5"
+                  max="80"
+                  step="1"
+                  value="5"
+                  aria-label="Umbral mínimo de intensidad"
+                />
+              </div>
+            </div>
+
+            <div class="threshold-range-group">
+              <label for="threshold-range-max" class="legend-title">Máximo</label>
+              <div class="legend-bar-container">
+                <div class="legend-bar"></div>
+                <input
+                  type="range"
+                  id="threshold-range-max"
+                  class="legend-range"
+                  min="5"
+                  max="80"
+                  step="1"
+                  value="80"
+                  aria-label="Umbral máximo de intensidad"
+                />
+              </div>
+            </div>
           </div>
 
           <div class="legend-ticks">
@@ -88,27 +110,49 @@
         <div class="card cloud-legend">
           <div class="card-header">
             <h2>Nubosidad (cobertura)</h2>
-            <p>Reduce la nubosidad máxima para ver zonas despejadas.</p>
+            <p>Selecciona un rango para filtrar valores de nubosidad visibles.</p>
           </div>
           <div class="legend-header">
             <span class="legend-title">Nubosidad visible</span>
             <span class="legend-values">
-              <span id="cloud-threshold-value" class="legend-value">≥ 12%</span>
+              <span id="cloud-threshold-value" class="legend-value">12% – 100%</span>
             </span>
           </div>
 
-          <div class="legend-bar-container">
-            <div class="legend-bar"></div>
-            <input
-              type="range"
-              id="cloud-threshold-range"
-              class="legend-range"
-              min="0"
-              max="100"
-              step="1"
-              value="12"
-              aria-label="Umbral de nubosidad"
-            />
+          <div class="threshold-range-row">
+            <div class="threshold-range-group">
+              <label for="cloud-threshold-range-min" class="legend-title">Mínimo</label>
+              <div class="legend-bar-container">
+                <div class="legend-bar"></div>
+                <input
+                  type="range"
+                  id="cloud-threshold-range-min"
+                  class="legend-range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="12"
+                  aria-label="Umbral mínimo de nubosidad"
+                />
+              </div>
+            </div>
+
+            <div class="threshold-range-group">
+              <label for="cloud-threshold-range-max" class="legend-title">Máximo</label>
+              <div class="legend-bar-container">
+                <div class="legend-bar"></div>
+                <input
+                  type="range"
+                  id="cloud-threshold-range-max"
+                  class="legend-range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="100"
+                  aria-label="Umbral máximo de nubosidad"
+                />
+              </div>
+            </div>
           </div>
 
           <div class="legend-ticks">

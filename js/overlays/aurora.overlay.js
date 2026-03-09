@@ -18,7 +18,8 @@
         if (!points.length) return;
   
         const { ctx, projection } = globe;
-        const TH = Number(state.threshold ?? App.config.defaults.threshold);
+        const thresholdMin = Number(state.thresholdMin ?? App.config.defaults.thresholdMin);
+        const thresholdMax = Number(state.thresholdMax ?? App.config.defaults.thresholdMax);
         const minAbsLat = Number(App.config.defaults.auroraMinAbsLatitude ?? 0);
   
         // Evalúa visibilidad de puntos respecto a la cámara.
@@ -31,7 +32,7 @@
         for (let i = 0; i < points.length; i += step) {
           const point = points[i];
           const [lon, lat, val, cartesian] = point;
-          if (val < TH) continue;
+          if (val < thresholdMin || val > thresholdMax) continue;
           if (Math.abs(lat) < minAbsLat) continue;
   
           if (vc) {

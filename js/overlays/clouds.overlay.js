@@ -71,7 +71,8 @@
       const baseOpacity = state.clouds.opacity ?? cloudsCfg.opacity ?? 0.28;
 
       // Umbral visual: ignora intensidades bajas para no “ensuciar”
-      const T_MIN = Number(state.clouds.threshold ?? cloudsCfg.minIntensity ?? 0.12);
+      const T_MIN = Number(state.clouds.thresholdMin ?? cloudsCfg.minIntensity ?? 0.12);
+      const T_MAX = Number(state.clouds.thresholdMax ?? cloudsCfg.maxIntensity ?? 1);
 
       ctx.save();
       ctx.globalCompositeOperation = "source-over";
@@ -86,7 +87,7 @@
         for (let x = 0; x < w; x += step) {
           const point = points[y * w + x];
           if (!point) continue;
-          if (point.t < T_MIN) continue;
+          if (point.t < T_MIN || point.t > T_MAX) continue;
 
           if (vc) {
             const dot = vc[0] * point.cartesian[0] + vc[1] * point.cartesian[1] + vc[2] * point.cartesian[2];
