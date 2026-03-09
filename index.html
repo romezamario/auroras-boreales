@@ -184,6 +184,28 @@
           </div>
         </div>
 
+        <div class="card data-processing">
+          <div class="card-header">
+            <h2>Tratamiento de datos</h2>
+            <p>Uso de geolocalización basada en dirección IP</p>
+          </div>
+          <p>
+            El sistema implementado incorpora una funcionalidad de geolocalización aproximada del usuario con el objetivo de contextualizar visualmente la información mostrada en un mapa dentro de la interfaz de la aplicación web. Para ello, al momento de realizar una consulta al sitio, se utiliza la dirección IP desde la cual se origina la solicitud HTTP.
+          </p>
+          <p>
+            La dirección IP se consulta de manera temporal mediante el servicio externo disponible en <a href="https://ipapi.co/json/" target="_blank" rel="noopener noreferrer">https://ipapi.co/json/</a>, el cual permite obtener información geográfica aproximada asociada a dicha dirección, incluyendo latitud, longitud, país y región administrativa. Esta información es utilizada exclusivamente para ubicar un marcador en el mapa interactivo que permite al usuario visualizar su posición aproximada en relación con los datos geográficos presentados por la aplicación.
+          </p>
+          <p>
+            Es importante señalar que la dirección IP no es almacenada ni persistida por el sistema desarrollado, ni se asocia a identificadores personales del usuario. El procesamiento de esta información se realiza únicamente durante el tiempo necesario para generar la visualización geográfica en la sesión activa del usuario.
+          </p>
+          <p>
+            Desde una perspectiva regulatoria, la dirección IP puede ser considerada un dato personal en determinados marcos normativos, como el Reglamento General de Protección de Datos (GDPR) de la Unión Europea, en la medida en que potencialmente podría permitir la identificación indirecta de un individuo. No obstante, en el contexto de este sistema el uso de la dirección IP se limita a un procesamiento efímero con fines estrictamente funcionales, sin almacenamiento ni elaboración de perfiles, lo que reduce significativamente los riesgos asociados al tratamiento de datos personales.
+          </p>
+          <p>
+            La geolocalización obtenida mediante este método es aproximada y depende de las bases de datos de asignación de direcciones IP mantenidas por el proveedor del servicio. En consecuencia, la ubicación mostrada debe interpretarse únicamente como una estimación de la localización geográfica del usuario y no como una posición exacta.
+          </p>
+        </div>
+
         <div class="card data-status">
           <div class="card-header">
             <h2>Estado de datos</h2>
