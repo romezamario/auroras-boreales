@@ -102,6 +102,24 @@ button:focus-visible {
   min-width: 220px;
 }
 
+.data-processing-link {
+  font-size: 0.85rem;
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.data-processing-link:hover {
+  border-bottom-color: #1d4ed8;
+}
+
+.data-processing-link:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .meta-item {
   text-align: right;
 }
