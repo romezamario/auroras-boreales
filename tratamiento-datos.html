@@ -21,6 +21,19 @@
 
     <main class="visual">
       <article class="card data-processing">
+        <h2>Fuentes de datos</h2>
+        <p>
+          La visualización integra diferentes fuentes de datos para ofrecer contexto tanto de actividad auroral como de condiciones atmosféricas.
+        </p>
+        <ul>
+          <li>
+            <strong>Datos de auroras boreales (OVATION):</strong> se utiliza la capa de probabilidad auroral para representar en el mapa las zonas con mayor intensidad/probabilidad de observación de auroras en tiempo casi real.
+          </li>
+          <li>
+            <strong>Consulta de nubosidad (Earthdata):</strong> se consulta información de cobertura de nubes desde servicios de Earthdata/NASA para superponer el estado de nubosidad y facilitar la interpretación de visibilidad potencial del fenómeno.
+          </li>
+        </ul>
+
         <p>
           El sistema implementado incorpora una funcionalidad de geolocalización aproximada del usuario con el objetivo de contextualizar visualmente la información mostrada en un mapa dentro de la interfaz de la aplicación web. Para ello, al momento de realizar una consulta al sitio, se utiliza la dirección IP desde la cual se origina la solicitud HTTP.
         </p>
