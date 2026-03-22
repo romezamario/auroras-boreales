@@ -15,7 +15,7 @@ html, body {
 /* ================= LAYOUT GENERAL ================= */
 body {
   padding: 20px;
-  max-width: 1280px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -145,8 +145,9 @@ button:focus-visible {
 /* ================= GRID ================= */
 .layout {
   display: grid;
-  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1.35fr) minmax(260px, 320px);
   gap: 20px;
+  align-items: start;
 }
 
 .controls {
@@ -155,10 +156,15 @@ button:focus-visible {
   gap: 16px;
 }
 
-.visual {
+.visual,
+.status-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+}
+
+.status-panel {
+  min-width: 0;
 }
 
 .card,
@@ -167,6 +173,13 @@ button:focus-visible {
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.canvas-card {
+  height: min(78vh, 980px);
+  min-height: 640px;
+  display: flex;
+  align-items: stretch;
 }
 
 .card-header h2 {
@@ -241,6 +254,7 @@ button:focus-visible {
 #globe {
   display: block;
   width: 100%;
+  height: 100%;
   max-width: 100%;
   border-radius: 14px;
   border: 1px solid #e2e8f0;
@@ -382,6 +396,19 @@ button:focus-visible {
 }
 
 /* ================= MOBILE ================= */
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  }
+
+  .status-panel {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
 @media (max-width: 900px) {
   .app-header {
     flex-direction: column;
@@ -398,6 +425,16 @@ button:focus-visible {
 
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .status-panel {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .canvas-card {
+    height: auto;
+    min-height: 0;
   }
 }
 
@@ -544,5 +581,13 @@ button:focus-visible {
 @media (max-width: 520px) {
   .inspector-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1201px) {
+  .controls,
+  .status-panel {
+    position: sticky;
+    top: 20px;
   }
 }

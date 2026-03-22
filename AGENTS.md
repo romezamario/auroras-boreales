@@ -43,6 +43,7 @@ Documentar de forma continua:
 
 ### Dependencias / herramientas
 - El repo no requiere build para editar esta sección; basta con modificar HTML estático.
+- El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -58,6 +59,9 @@ Documentar de forma continua:
 - **2026-03-09** — Incorporar direcciones/URLs concretas de las fuentes en la documentación.
   - **Motivo:** Resolver observación de revisión y conectar la documentación con endpoints reales del sistema.
   - **Impacto:** Mayor verificabilidad entre documentación y configuración técnica (`js/config.js`).
+- **2026-03-22** — Reorganizar el dashboard en tres columnas para escritorio y llevar los paneles informativos al lado derecho del globo.
+  - **Motivo:** Reducir espacios vacíos y priorizar visualmente la visualización principal.
+  - **Impacto:** Mejor aprovechamiento horizontal en desktop, manteniendo un apilado adaptativo en breakpoints menores.
 
 ---
 
@@ -72,10 +76,20 @@ Documentar de forma continua:
   - Archivos: `tratamiento-datos.html`
   - Motivo: Alinear documentación con URLs configuradas en `js/config.js`.
   - Resultado esperado: Trazabilidad directa entre texto y endpoints.
+- **Cambio:** Reordenamiento del layout principal para escritorio.
+  - Archivos: `index.html`, `style.css`
+  - Motivo: Mover paneles de detalle/estado a la derecha del globo y permitir que la visualización ocupe más área útil.
+  - Resultado esperado: Mejor jerarquía visual y menor espacio en blanco en pantallas de escritorio.
 
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
+- [x] Reubicar el detalle del punto, la localización inferida y el estado de datos al lado derecho del globo en escritorio.
+  - Estado: `completada`
+  - Evidencia: `index.html`, `style.css`
+- [x] Hacer que la visualización ocupe mejor los espacios vacíos del layout de escritorio.
+  - Estado: `completada`
+  - Evidencia: `style.css`
 - [ ] Revisar periódicamente que la documentación de fuentes coincida con endpoints implementados en `js/data/*`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 
