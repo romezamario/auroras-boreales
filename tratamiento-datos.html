@@ -27,10 +27,10 @@
         </p>
         <ul>
           <li>
-            <strong>Datos de auroras boreales (OVATION):</strong> se utiliza la capa de probabilidad auroral para representar en el mapa las zonas con mayor intensidad/probabilidad de observación de auroras en tiempo casi real.
+            <strong>Datos de auroras boreales (OVATION):</strong> se utiliza la capa de probabilidad auroral para representar en el mapa las zonas con mayor intensidad/probabilidad de observación de auroras en tiempo casi real. Dirección configurada: <a href="https://services.swpc.noaa.gov/json/ovation_aurora_latest.json" target="_blank" rel="noopener noreferrer">https://services.swpc.noaa.gov/json/ovation_aurora_latest.json</a>.
           </li>
           <li>
-            <strong>Consulta de nubosidad (Earthdata):</strong> se consulta información de cobertura de nubes desde servicios de Earthdata/NASA para superponer el estado de nubosidad y facilitar la interpretación de visibilidad potencial del fenómeno.
+            <strong>Consulta de nubosidad (Earthdata):</strong> la capa de nubosidad que consume la app se publica en <code>data/clouds.json</code>, archivo generado a partir de consultas de Earthdata/NASA para superponer el estado de nubosidad y facilitar la interpretación de visibilidad potencial del fenómeno.
           </li>
         </ul>
 
@@ -38,7 +38,7 @@
           El sistema implementado incorpora una funcionalidad de geolocalización aproximada del usuario con el objetivo de contextualizar visualmente la información mostrada en un mapa dentro de la interfaz de la aplicación web. Para ello, al momento de realizar una consulta al sitio, se utiliza la dirección IP desde la cual se origina la solicitud HTTP.
         </p>
         <p>
-          La dirección IP se consulta de manera temporal mediante el servicio externo disponible en <a href="https://ipapi.co/json/" target="_blank" rel="noopener noreferrer">https://ipapi.co/json/</a>, el cual permite obtener información geográfica aproximada asociada a dicha dirección, incluyendo latitud, longitud, país y región administrativa. Esta información es utilizada exclusivamente para ubicar un marcador en el mapa interactivo que permite al usuario visualizar su posición aproximada en relación con los datos geográficos presentados por la aplicación.
+          La dirección IP se consulta de manera temporal mediante servicios externos configurados en la aplicación: <a href="https://ipapi.co/json/" target="_blank" rel="noopener noreferrer">https://ipapi.co/json/</a> y <a href="https://ipwho.is/" target="_blank" rel="noopener noreferrer">https://ipwho.is/</a>. Estos servicios permiten obtener información geográfica aproximada asociada a dicha dirección, incluyendo latitud, longitud, país y región administrativa. Esta información es utilizada exclusivamente para ubicar un marcador en el mapa interactivo que permite al usuario visualizar su posición aproximada en relación con los datos geográficos presentados por la aplicación.
         </p>
         <p>
           Es importante señalar que la dirección IP no es almacenada ni persistida por el sistema desarrollado, ni se asocia a identificadores personales del usuario. El procesamiento de esta información se realiza únicamente durante el tiempo necesario para generar la visualización geográfica en la sesión activa del usuario.

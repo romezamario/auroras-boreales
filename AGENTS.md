@@ -26,6 +26,9 @@ Documentar de forma continua:
 - [x] Tarea 2: Documentar fuentes de auroras boreales y consulta Earthdata para nubosidad.
   - Estado: `completada`
   - Evidencia: `tratamiento-datos.html`
+- [x] Tarea 3: Incluir direcciones (URLs) explícitas en las secciones de fuentes y geolocalización.
+  - Estado: `completada`
+  - Evidencia: `tratamiento-datos.html`, `js/config.js`
 
 ---
 
@@ -52,6 +55,9 @@ Documentar de forma continua:
 - **2026-03-09** — Añadir sección explícita "Fuentes de datos" al inicio del artículo de tratamiento.
   - **Motivo:** Hacer visible y auditable qué fuente se usa para auroras y cuál para nubosidad.
   - **Impacto:** Mejora de trazabilidad y claridad de documentación para usuarios.
+- **2026-03-09** — Incorporar direcciones/URLs concretas de las fuentes en la documentación.
+  - **Motivo:** Resolver observación de revisión y conectar la documentación con endpoints reales del sistema.
+  - **Impacto:** Mayor verificabilidad entre documentación y configuración técnica (`js/config.js`).
 
 ---
 
@@ -62,6 +68,10 @@ Documentar de forma continua:
   - Archivos: `tratamiento-datos.html`
   - Motivo: Solicitud del usuario para documentar fuentes (OVATION y Earthdata nubosidad).
   - Resultado esperado: Página de tratamiento más completa y comprensible.
+- **Cambio:** Inclusión de direcciones de fuentes y fallback de geolocalización en la documentación.
+  - Archivos: `tratamiento-datos.html`
+  - Motivo: Alinear documentación con URLs configuradas en `js/config.js`.
+  - Resultado esperado: Trazabilidad directa entre texto y endpoints.
 
 ---
 
