@@ -159,6 +159,10 @@ Documentar de forma continua:
   - **Motivo:** Dejar explícitas en `README.md` y `AGENTS.md` la regla de negocio, la interacción entre intensidad/nubosidad/probabilidad y la convención visual de colores para evitar deriva documental.
   - **Impacto:** No cambia el código de runtime, pero sí consolida la arquitectura derivada de la capa, reduce ambigüedades funcionales y fija una referencia única para futuras evoluciones del negocio.
 
+- **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
+  - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
+  - **Impacto:** El panel izquierdo muestra un contenedor independiente para `Categorías de probabilidad`, manteniendo intacta la lógica reactiva de los checkboxes.
+
 ---
 
 ## 5) Registro de cambios realizados
@@ -241,6 +245,11 @@ Documentar de forma continua:
   - Archivos: `README.md`, `AGENTS.md`
   - Motivo: Documentar en paralelo la nueva capa funcional, su control de UI, la interacción entre intensidad/nubosidad/probabilidad, el código de colores (baja verde, media amarillo, alta rojo), el estado inicial apagado y el filtro por categorías.
   - Resultado esperado: Documentación operativa y bitácora alineadas con la implementación real, incluyendo el aprendizaje técnico y el impacto arquitectónico/regulatorio de la nueva regla derivada.
+
+- **Cambio:** Separación visual de la caja `Categorías de probabilidad` respecto de la tarjeta de nubosidad.
+  - Archivos: `index.html`, `style.css`, `README.md`
+  - Motivo: Responder a la solicitud de UX de mostrar los filtros de probabilidad como una tarjeta independiente y no como parte del bloque de nubosidad.
+  - Resultado esperado: Los controles del panel izquierdo distinguen mejor entre filtros de nubosidad y filtros propios de la capa de probabilidad.
 
 ---
 
