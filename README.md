@@ -111,7 +111,7 @@ sequenceDiagram
 ```
 
 ### Responsabilidades por módulo
-- `js/config.js`: parámetros globales, endpoints, límites, opacidad, sampling y metadatos del repo.
+- `js/config.js`: parámetros globales, endpoints, límites, opacidad, sampling y metadatos de versión embebidos para el despliegue.
 - `js/app.js`: composición de módulos, carga de assets base y primer refresco.
 - `js/data/ovation.service.js`: normaliza coordenadas NOAA y extrae `Forecast Time`.
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
@@ -234,7 +234,7 @@ erDiagram
 - La colección global derivada se regenera automáticamente cuando cambian `data:aurora` o `data:clouds`.
 - El refresco de datos acepta degradación parcial: si falla nubosidad, la app puede seguir mostrando auroras.
 - `clouds.json` se considera una instantánea diaria/preprocesada, no una fuente en vivo de alta frecuencia.
-- La versión visual expuesta al usuario corresponde a la fecha del último commit de la rama configurada en GitHub.
+- La versión visual expuesta al usuario se toma primero desde `App.config.version` (metadata embebida/inyectable en build o despliegue) y solo consulta remoto si se habilita explícitamente un refresco opcional con caché TTL en `localStorage`.
 
 ## Funcionalidad
 - Visualización del globo interactivo con arrastre y selección de puntos, ajustada al alto útil del panel principal.
@@ -258,7 +258,7 @@ erDiagram
 ### Externas
 - **NOAA SWPC:** feed JSON `ovation_aurora_latest.json`.
 - **world-atlas / jsDelivr:** topología mundial para masa continental y fronteras.
-- **GitHub API:** consulta del commit más reciente para mostrar la versión visible.
+- **Metadata de versión embebida:** `js/config.js` publica la etiqueta/fecha visible y puede inyectarse durante build o despliegue; el refresco remoto hacia GitHub queda deshabilitado por defecto y es opcional.
 - **ipapi (`/jsonp/`):** estimación geográfica por IP consumida desde el navegador mediante JSONP.
 - **NASA LAADS / Earthdata:** origen del dataset MODIS procesado offline.
 
@@ -269,7 +269,6 @@ flowchart TD
     APP[Frontend auroras-boreales]
     APP --> NOAA[services.swpc.noaa.gov]
     APP --> ATLAS[cdn.jsdelivr.net / world-atlas]
-    APP --> GITHUB[api.github.com]
     APP --> IP1[ipapi.co/jsonp/]
     JOB[Pipeline mod08_cloudfraction.py] --> LAADS[ladsweb.modaps.eosdis.nasa.gov]
     JOB --> CLOUDS[data/clouds.json]
@@ -325,12 +324,12 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - La capa de probabilidad reutiliza la grilla global cacheada en `App.state.probability.globalGridPoints`, evitando recalcular la clasificación completa durante rotación o drag y omitiendo coordenadas no relevantes.
 - La capa de probabilidad reutiliza una caché derivada con puntos enriquecidos por una categoría canónica `{ key, label, range, color }`, minimizando trabajo durante rotación o drag.
 - El grid de nubes se transporta como arreglo plano compacto `values_0_100`.
-- La geolocalización y consulta de versión no bloquean el render principal.
+- La geolocalización no bloquea el render principal y la versión visible se resuelve localmente antes de cualquier refresco remoto opcional.
 
 ## Governanza
 - El repositorio se rige por documentación viva: `README.md` para visión integral y `AGENTS.md` para bitácora operativa.
 - Toda modificación funcional debería dejar evidencia en archivos de documentación cuando afecte arquitectura, reglas, fuentes o operación.
-- La rama y repositorio configurados en `js/config.js` son referencia de la versión mostrada al usuario, por lo que deben mantenerse coherentes con el despliegue real.
+- Si se inyecta metadata de versión en `js/config.js`, esa etiqueta/fecha debe mantenerse coherente con el despliegue real; si se habilita refresco remoto, su endpoint y TTL también deben documentarse.
 
 ## Conocimiento
 - El dominio principal combina geovisualización, clima espacial y nubosidad satelital.

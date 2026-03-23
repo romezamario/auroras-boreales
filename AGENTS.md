@@ -64,6 +64,9 @@ Documentar de forma continua:
 - [x] Tarea 12: Sincronizar `README.md` y `AGENTS.md` con la funcionalidad final de la capa `Probabilidad`.
   - Estado: `completada`
   - Evidencia: `README.md`, `AGENTS.md`
+- [x] Tarea 13: Eliminar la dependencia obligatoria de la GitHub API para mostrar la versión del sitio.
+  - Estado: `completada`
+  - Evidencia: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -81,6 +84,7 @@ Documentar de forma continua:
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
+- La UI de versión puede resolverse con metadata embebida en `App.config.version` y solo consultar remoto de forma opcional/caché, evitando bloquear el arranque por disponibilidad de GitHub.
 - La clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación de una malla global derivada pueden compartirse desde un servicio reutilizable independiente del módulo de picking.
 - Para evitar recalcular vecinos aurorales sobre toda la malla global, conviene indexar los puntos OVATION por celdas enteras de latitud/longitud y consultar primero vecindarios locales antes de caer al arreglo completo.
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
@@ -170,6 +174,9 @@ Documentar de forma continua:
 - **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
   - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
   - **Impacto:** El panel izquierdo muestra un contenedor independiente para `Categorías de probabilidad`, manteniendo intacta la lógica reactiva de los checkboxes.
+- **2026-03-23** — Sustituir la consulta obligatoria de versión a GitHub por metadata embebida con soporte opcional de caché local TTL.
+  - **Motivo:** Evitar una llamada remota en cada `init()` y permitir que la fecha/versión visible se inyecte en build/despliegue o degrade a una etiqueta estática.
+  - **Impacto:** La app arranca sin depender de `api.github.com`; si se habilita un refresco remoto, este pasa a ser opcional y cacheable en `localStorage`.
 
 ---
 
@@ -267,6 +274,10 @@ Documentar de forma continua:
   - Archivos: `index.html`, `style.css`, `README.md`
   - Motivo: Responder a la solicitud de UX de mostrar los filtros de probabilidad como una tarjeta independiente y no como parte del bloque de nubosidad.
   - Resultado esperado: Los controles del panel izquierdo distinguen mejor entre filtros de nubosidad y filtros propios de la capa de probabilidad.
+- **Cambio:** Refactor de la UI de versión para consumir metadata embebida y usar actualización remota solo de forma opcional.
+  - Archivos: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
+  - Motivo: Eliminar la dependencia obligatoria de la GitHub API durante el arranque del sitio y preparar inyección de versión/fecha en build o despliegue.
+  - Resultado esperado: El panel de estado muestra una versión local inmediata, con degradación estática y posibilidad de cachear metadata remota mediante `localStorage` con TTL si más adelante se habilita.
 
 ---
 
