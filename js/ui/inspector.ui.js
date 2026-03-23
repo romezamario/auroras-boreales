@@ -8,9 +8,10 @@
       const intensityEl = document.getElementById("inspector-intensity");
       const cloudsEl = document.getElementById("inspector-clouds");
       const dayNightEl = document.getElementById("inspector-daynight");
+      const visibilityEl = document.getElementById("inspector-visibility");
       const hintEl = document.getElementById("inspector-hint");
 
-      if (!latEl || !lonEl || !intensityEl || !cloudsEl || !dayNightEl) return;
+      if (!latEl || !lonEl || !intensityEl || !cloudsEl || !dayNightEl || !visibilityEl) return;
 
       function fmtCoord(value) {
         if (!Number.isFinite(value)) return "—";
@@ -32,12 +33,18 @@
         return value ? "Día" : "Noche";
       }
 
+      function fmtVisibility(visibility) {
+        if (!visibility || !visibility.label) return "—";
+        return `${visibility.label} (${visibility.range})`;
+      }
+
       App.on("globe:select", (selection) => {
         latEl.textContent = fmtCoord(selection?.lat);
         lonEl.textContent = fmtCoord(selection?.lon);
         intensityEl.textContent = fmtIntensity(selection?.intensity);
         cloudsEl.textContent = fmtClouds(selection?.clouds);
         dayNightEl.textContent = fmtDayNight(selection?.isDay);
+        visibilityEl.textContent = fmtVisibility(selection?.visibility);
 
         if (hintEl) {
           hintEl.textContent = "Datos actualizados para el punto seleccionado.";

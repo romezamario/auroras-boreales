@@ -129,7 +129,7 @@ sequenceDiagram
 - `aurora.forecastTime`: fecha/hora publicada por NOAA.
 - `clouds.gridNormalized`: grid normalizado a valores `[0..1]` listo para render.
 - `clouds.coverage`: porcentaje global de nubosidad.
-- `selection`: punto actualmente inspeccionado.
+- `selection`: punto actualmente inspeccionado, incluida su clasificación de visibilidad estimada.
 - `userLocation`: localización inferida por IP.
 
 ### Feed de auroras esperado
@@ -209,6 +209,7 @@ erDiagram
 - El render de auroras y nubes omite puntos que quedan “detrás” del hemisferio visible mediante producto punto cartesiano.
 - La nube visible se restringe al rango seleccionado por el usuario en porcentaje normalizado.
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
+- La probabilidad de visibilidad del punto inspeccionado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
 - El refresco de datos acepta degradación parcial: si falla nubosidad, la app puede seguir mostrando auroras.
 - `clouds.json` se considera una instantánea diaria/preprocesada, no una fuente en vivo de alta frecuencia.
 - La versión visual expuesta al usuario corresponde a la fecha del último commit de la rama configurada en GitHub.
@@ -217,7 +218,7 @@ erDiagram
 - Visualización del globo interactivo con arrastre y selección de puntos, ajustada al alto útil del panel principal.
 - Activación/desactivación de capas de aurora, nubosidad y máscara día/noche.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles.
-- Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad y condición día/noche.
+- Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.
 - Página secundaria `tratamiento-datos.html` con documentación de fuentes y tratamiento.

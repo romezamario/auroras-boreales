@@ -57,6 +57,29 @@
     return null;
   }
 
+  function getVisibilityProbability(intensity, clouds) {
+    if (!Number.isFinite(intensity) || !Number.isFinite(clouds)) return null;
+
+    if (clouds <= 30 && intensity >= 70) {
+      return {
+        label: "Alta",
+        range: "+60%"
+      };
+    }
+
+    if (clouds <= 30 && intensity >= 30 && intensity <= 60) {
+      return {
+        label: "Media",
+        range: "31-60%"
+      };
+    }
+
+    return {
+      label: "Baja",
+      range: "0-30%"
+    };
+  }
+
   App.globePick = {
     init() {
       const g = App.globe;
@@ -80,9 +103,10 @@
 
         const intensity = getNearestAuroraIntensity(App.state?.aurora?.points ?? [], lon, lat);
         const clouds = getCloudValue(App.state?.clouds?.grid, lon, lat);
+        const visibility = getVisibilityProbability(intensity, clouds);
         const isDay = App.utils?.isDayAt ? App.utils.isDayAt(lon, lat, new Date()) : null;
 
-        App.state.selection = { lon, lat };
+        App.state.selection = { lon, lat, intensity, clouds, visibility, isDay };
         App.globe?.requestRender();
 
         App.emit("globe:select", {
@@ -90,6 +114,7 @@
           lat,
           intensity,
           clouds,
+          visibility,
           isDay
         });
       });
