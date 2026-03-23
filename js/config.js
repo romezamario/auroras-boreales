@@ -71,11 +71,22 @@
         nightColor: "rgba(15, 20, 35, 0.35)",
         refreshMs: 60000
       },
-      // Datos del repo para mostrar la versión en pantalla.
-      github: {
-        owner: "romezamario",
-        repo: "auroras-boreales",
-        branch: "main"
+      // Metadatos de versión para mostrar en pantalla sin depender de una llamada remota obligatoria.
+      // Este bloque puede inyectarse/actualizarse durante build o despliegue.
+      version: {
+        label: "2026-03-23",
+        updatedAt: "2026-03-23T00:00:00Z",
+        source: "embedded",
+        fallbackLabel: "versión local",
+        remote: {
+          enabled: false,
+          storageKey: "auroras-boreales:version-metadata",
+          ttlMs: 21600000,
+          endpoint: "https://api.github.com/repos/romezamario/auroras-boreales/commits/main",
+          parse: {
+            datePath: "commit.committer.date"
+          }
+        }
       }
     };
   })();
