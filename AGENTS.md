@@ -69,6 +69,7 @@ Documentar de forma continua:
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
 - GitHub Pages estaba publicando el repositorio completo; para excluir artefactos recolectados hay que construir un directorio intermedio y subir ese bundle en `actions/upload-pages-artifact`.
+- La agrupación de enlaces de cabecera se controla con `.header-links`; para mantenerlos en una sola fila en escritorio conviene evitar `flex-direction: column` y usar `white-space: nowrap`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -116,6 +117,10 @@ Documentar de forma continua:
 - **2026-03-23** — Crear la página secundaria `explicacion-sitio.html` y enlazarla desde la cabecera del sitio.
   - **Motivo:** Reunir en una sola narrativa tipo presentación de maestría la explicación funcional, arquitectónica y metodológica del proyecto.
   - **Impacto:** El sitio incorpora una ruta documental integral basada en `README.md` y `presentaciones/`, sin requerir abrir archivos externos.
+
+- **2026-03-23** — Reorganizar los enlaces de cabecera en una sola fila dentro del bloque de acciones.
+  - **Motivo:** Evitar que “Tratamiento de datos” y “Explicación del sitio” se separen en dos renglones debajo del botón principal.
+  - **Impacto:** La cabecera conserva una jerarquía más compacta y estable en escritorio sin alterar el comportamiento responsive existente.
 
 ---
 
@@ -170,6 +175,11 @@ Documentar de forma continua:
   - Archivos: `explicacion-sitio.html`, `index.html`, `tratamiento-datos.html`, `style.css`, `README.md`
   - Motivo: Centralizar en el sitio la documentación del proyecto usando como base el README y los archivos de `presentaciones/`.
   - Resultado esperado: Cualquier persona puede revisar el contexto, la metodología, la arquitectura y la hoja de ruta sin salir del sitio.
+
+- **Cambio:** Ajuste del bloque de enlaces de la cabecera para mostrarlos en una sola fila bajo el botón de refresco.
+  - Archivos: `style.css`
+  - Motivo: Corregir el quiebre visual que separaba los accesos a "Tratamiento de datos" y "Explicación del sitio" en dos renglones.
+  - Resultado esperado: Acciones de cabecera más compactas y legibles en escritorio.
 
 ---
 

@@ -547,9 +547,11 @@ button:focus-visible {
 
 .header-links {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
+  flex-wrap: nowrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
 }
 
 .explanation-page {
