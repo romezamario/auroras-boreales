@@ -55,6 +55,15 @@
       aurora: {
         enabled: true
       },
+      // Configuración específica para la capa de probabilidad de visibilidad.
+      probability: {
+        enabled: false,
+        opacity: 0.75,
+        sampleStepMobile: 4,
+        sampleStepDesktop: 2,
+        pointRadiusMobile: 2.4,
+        pointRadiusDesktop: 3.2
+      },
       // Parámetros para la máscara día/noche.
       dayNight: {
         enabled: true,

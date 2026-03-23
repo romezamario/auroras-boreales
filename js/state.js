@@ -29,6 +29,17 @@
         extractedAt: null,
         coverage: 0
       },
+      // Estado derivado para la capa de probabilidad de visibilidad.
+      probability: {
+        enabled: cfg.probability?.enabled ?? false,
+        opacity: cfg.probability?.opacity ?? 0.75,
+        gridCache: null,
+        activeCategories: {
+          low: true,
+          medium: true,
+          high: true
+        }
+      },
       // Estado específico para la máscara día/noche.
       dayNight: {
         enabled: cfg.dayNight?.enabled ?? true
