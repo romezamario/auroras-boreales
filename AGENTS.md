@@ -58,9 +58,12 @@ Documentar de forma continua:
 - [x] Tarea 10: Añadir la capa visual de probabilidad y sus filtros de categorías en la UI principal.
   - Estado: `completada`
   - Evidencia: `index.html`, `js/ui/probability.ui.js`, `js/overlays/probability.overlay.js`, `js/state.js`
-- [x] Tarea 10: Crear un overlay de probabilidad de visibilidad derivado de aurora + nubosidad y conectarlo al pipeline de render.
+- [x] Tarea 11: Crear un overlay de probabilidad de visibilidad derivado de aurora + nubosidad y conectarlo al pipeline de render.
   - Estado: `completada`
   - Evidencia: `js/overlays/probability.overlay.js`, `js/config.js`, `js/state.js`, `js/globe/globe.render.js`
+- [x] Tarea 12: Sincronizar `README.md` y `AGENTS.md` con la funcionalidad final de la capa `Probabilidad`.
+  - Estado: `completada`
+  - Evidencia: `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -86,6 +89,7 @@ Documentar de forma continua:
 - Los controles reactivos del panel izquierdo siguen un patrón consistente: leen el estado inicial desde `App.state`, sincronizan el DOM y emiten eventos `state:*` para disparar el re-render del globo.
 - Las capas derivadas pueden reutilizar la malla auroral ya normalizada y cachear puntos enriquecidos con nubosidad/categoría para evitar recomputar la clasificación en cada frame.
 - La grilla global de probabilidad debe filtrar primero por relevancia auroral; si la intensidad queda por debajo del umbral mínimo configurable, la coordenada no debe entrar en caché ni en el overlay.
+- La capa `Probabilidad` se genera por intersección de dos fuentes heterogéneas: toma la intensidad auroral más cercana desde el índice espacial OVATION, cruza ese valor con la celda MODIS de nubosidad y produce una categoría discreta reutilizable tanto en el overlay como en el inspector.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -149,12 +153,23 @@ Documentar de forma continua:
 - **2026-03-23** — Incorporar una capa derivada de probabilidad de visibilidad, gobernada por estado propio y cacheada para render incremental.
   - **Motivo:** Separar visualmente la clasificación Baja/Media/Alta sin mezclarla con la capa auroral original y sin recalcularla completa en cada repintado.
   - **Impacto:** El render del globo suma un overlay opcional con filtros por categoría y dependiente tanto de aurora como de nubosidad.
+- **2026-03-23** — Canonicalizar la estructura de probabilidad con claves estables `low`/`medium`/`high` y metadatos compartidos.
+  - **Motivo:** Evitar que overlay, filtros, picking e inspección dependan de etiquetas visibles o acentos para resolver categorías.
+  - **Impacto:** La clasificación de visibilidad queda centralizada en un solo servicio y los cachés/controles consumen una estructura común `{ key, label, range, color }`.
+
 - **2026-03-23** — Extraer a `js/data/probability.service.js` la lógica compartida de probabilidad, lecturas puntuales y grilla global cacheada.
   - **Motivo:** Reutilizar la misma resolución de intensidad/nubosidad tanto en el picking del globo como en futuros overlays o análisis globales, evitando duplicación y preparando una malla explícita de 1 grado.
   - **Impacto:** `globe.pick` queda más simple, el estado incorpora cachés derivados y los cambios de aurora/nubes regeneran la grilla automáticamente.
 - **2026-03-23** — Filtrar la grilla global de probabilidad por relevancia auroral antes de clasificar categorías.
   - **Motivo:** Evitar que la caché y el overlay incluyan coordenadas sin señal auroral suficiente, reduciendo ruido visual y haciendo que los filtros actúen sobre zonas candidatas reales.
   - **Impacto:** `globalGridPoints` solo conserva coordenadas con intensidad relevante y la capa `Probabilidad` renderiza directamente ese subconjunto.
+- **2026-03-23** — Sincronizar la documentación principal con la capa `Probabilidad` como funcionalidad derivada apagada por defecto y filtrable por categorías.
+  - **Motivo:** Dejar explícitas en `README.md` y `AGENTS.md` la regla de negocio, la interacción entre intensidad/nubosidad/probabilidad y la convención visual de colores para evitar deriva documental.
+  - **Impacto:** No cambia el código de runtime, pero sí consolida la arquitectura derivada de la capa, reduce ambigüedades funcionales y fija una referencia única para futuras evoluciones del negocio.
+
+- **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
+  - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
+  - **Impacto:** El panel izquierdo muestra un contenedor independiente para `Categorías de probabilidad`, manteniendo intacta la lógica reactiva de los checkboxes.
 
 ---
 
@@ -230,6 +245,11 @@ Documentar de forma continua:
   - Archivos: `js/overlays/probability.overlay.js`, `js/config.js`, `js/state.js`, `js/globe/globe.render.js`, `js/data/refresh.service.js`, `index.html`, `README.md`
   - Motivo: Pintar categorías Baja/Media/Alta sobre la cara visible del globo usando la grilla derivada de aurora + nubosidad y permitir filtros por categoría desde estado.
   - Resultado esperado: La app puede activar una capa opcional de probabilidad, reutilizando caché y refrescando cuando cambian datos o filtros.
+- **Cambio:** Refactor de la estructura canónica de probabilidad para compartir `key`, `label`, `range` y `color` entre picking, inspector, overlay, filtros y cachés.
+  - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/inspector.ui.js`, `js/ui/probability.ui.js`, `js/overlays/probability.overlay.js`, `js/state.js`, `js/data/refresh.service.js`, `js/globe/globe.render.js`, `README.md`
+  - Motivo: Desacoplar la lógica interna de probabilidad de textos visibles y reutilizar una taxonomía estable en toda la app.
+  - Resultado esperado: El overlay filtra por `key`, el inspector muestra metadatos consistentes y cualquier caché de puntos conserva la categoría canónica.
+
 - **Cambio:** Nuevo servicio reutilizable de probabilidad y muestreo geoespacial.
   - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
   - Motivo: Centralizar la clasificación de visibilidad, las lecturas puntuales de aurora/nubosidad y la generación cacheada de una grilla global de 1 grado.
@@ -238,6 +258,15 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `js/state.js`, `js/config.js`, `js/globe/globe.render.js`, `README.md`
   - Motivo: Asegurar que la caché derivada y el overlay ignoren coordenadas con intensidad inferior al umbral mínimo relevante antes de clasificar `Baja`/`Media`/`Alta`.
   - Resultado esperado: Menos ruido visual, filtros de probabilidad aplicados sobre un subconjunto significativo y estado coherente para la capa derivada.
+- **Cambio:** Sincronización documental completa de la capa `Probabilidad`.
+  - Archivos: `README.md`, `AGENTS.md`
+  - Motivo: Documentar en paralelo la nueva capa funcional, su control de UI, la interacción entre intensidad/nubosidad/probabilidad, el código de colores (baja verde, media amarillo, alta rojo), el estado inicial apagado y el filtro por categorías.
+  - Resultado esperado: Documentación operativa y bitácora alineadas con la implementación real, incluyendo el aprendizaje técnico y el impacto arquitectónico/regulatorio de la nueva regla derivada.
+
+- **Cambio:** Separación visual de la caja `Categorías de probabilidad` respecto de la tarjeta de nubosidad.
+  - Archivos: `index.html`, `style.css`, `README.md`
+  - Motivo: Responder a la solicitud de UX de mostrar los filtros de probabilidad como una tarjeta independiente y no como parte del bloque de nubosidad.
+  - Resultado esperado: Los controles del panel izquierdo distinguen mejor entre filtros de nubosidad y filtros propios de la capa de probabilidad.
 
 ---
 
@@ -251,6 +280,9 @@ Documentar de forma continua:
 - [x] Centralizar la clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación cacheada de la grilla global de 1 grado.
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
+- [x] Canonicalizar la categoría de probabilidad en servicios, UI, overlay y cachés con claves estables independientes del texto visible.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/inspector.ui.js`, `js/ui/probability.ui.js`, `js/overlays/probability.overlay.js`, `js/state.js`
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows, diagramas Mermaid, láminas SVG y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.

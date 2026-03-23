@@ -26,10 +26,14 @@
     draw(globe, state) {
       if (!state?.probability?.enabled) return;
       if (!state?.clouds?.grid || !state?.aurora?.points?.length) return;
+  App.probabilityOverlay = {
+    draw(globe, state) {
+      if (!state?.probability?.enabled) return;
+      if (!state?.aurora?.points?.length || !state?.clouds?.grid) return;
 
       const { ctx, projection } = globe;
       const center = projection.invert([globe.width / 2, globe.height / 2]);
-      const vc = center ? versor.cartesian(center) : null;
+      const viewVector = center ? versor.cartesian(center) : null;
       const isMobile = Math.min(globe.width, globe.height) < 520;
       const cfg = App.config?.probability ?? {};
       const step = isMobile ? (cfg.sampleStepMobile ?? 4) : (cfg.sampleStepDesktop ?? 2);
@@ -39,6 +43,10 @@
       const points = App.probabilityService?.getGlobalGridPoints?.() ?? [];
 
       if (!points.length) return;
+      const activeFilters = state?.probability?.filters ?? {};
+      const cache = App.probabilityService?.getOverlayCache?.(1);
+
+      if (!cache?.points?.length) return;
 
       ctx.save();
       ctx.globalCompositeOperation = "source-over";
@@ -53,6 +61,18 @@
 
         if (vc && Array.isArray(point.cartesian)) {
           const dot = vc[0] * point.cartesian[0] + vc[1] * point.cartesian[1] + vc[2] * point.cartesian[2];
+      for (let i = 0; i < cache.points.length; i += step) {
+        const point = cache.points[i];
+        const probability = point?.probability;
+        if (!probability?.key) continue;
+        if (activeFilters[probability.key] === false) continue;
+
+        if (viewVector) {
+          const cartesian = point.cartesian || versor.cartesian([point.lon, point.lat]);
+          const dot =
+            viewVector[0] * cartesian[0] +
+            viewVector[1] * cartesian[1] +
+            viewVector[2] * cartesian[2];
           if (dot <= 0) continue;
         }
 
@@ -61,8 +81,9 @@
 
         const [x, y] = xy;
         ctx.fillStyle = CATEGORY_COLORS[categoryKey] || CATEGORY_COLORS.low;
+        ctx.fillStyle = probability.color || "rgba(239,68,68,0.72)";
         ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.arc(xy[0], xy[1], radius, 0, 2 * Math.PI);
         ctx.fill();
       }
 

@@ -14,7 +14,6 @@
         App.on("state:probabilityFilter", () => App.globe?.requestRender());
         App.on("state:layers", () => App.globe?.requestRender());
         App.on("state:probability", () => App.globe?.requestRender());
-        App.on("state:probabilityFilter", () => App.globe?.requestRender());
         App.on("globe:select", () => App.globe?.requestRender());
       },
   

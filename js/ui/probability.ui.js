@@ -1,19 +1,24 @@
 (function () {
   window.App = window.App || {};
 
-  // UI para el filtro de categorías de probabilidad.
   App.probabilityUI = {
     init() {
-      this.filterInputs = {
-        high: document.getElementById("probability-filter-high"),
-        medium: document.getElementById("probability-filter-medium"),
-        low: document.getElementById("probability-filter-low")
-      };
+      const categoryKeys = App.probabilityService?.categoryKeys ?? ["high", "medium", "low"];
+      this.filterInputs = Object.fromEntries(
+        categoryKeys.map((key) => [key, document.getElementById(`probability-filter-${key}`)])
+      );
 
       const filters = App.state.probability?.filters ?? App.state.probability?.activeCategories ?? {};
 
       Object.entries(this.filterInputs).forEach(([key, input]) => {
         if (!input) return;
+
+        const category = App.probabilityService?.getVisibilityCategory?.(key);
+        const labelEl = input.parentElement?.querySelector(".toggle-text");
+        if (labelEl && category?.label) {
+          labelEl.textContent = category.label;
+        }
+
         input.checked = filters[key] !== false;
         input.addEventListener("change", () => {
           App.state.probability.filters[key] = input.checked;
