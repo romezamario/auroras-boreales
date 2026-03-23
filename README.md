@@ -30,9 +30,9 @@ La solución sigue una arquitectura **frontend estática modular**. No hay backe
 
 ### Capas principales
 - **Presentación:** `index.html` y `style.css` definen la shell visual, paneles laterales y canvas principal.
-- **Estado compartido:** `js/state.js` centraliza umbrales, rotación del globo, selección, datos de aurora, nubosidad y geolocalización.
+- **Estado compartido:** `js/state.js` centraliza umbrales, rotación del globo, selección, datos de aurora, nubosidad, probabilidad derivada y geolocalización.
 - **Servicios de datos:** `js/data/*.js` encapsula consumo de NOAA, archivos locales, geolocalización por IP y refresco coordinado.
-- **Renderizado geoespacial:** `js/globe/*.js` y `js/overlays/*.js` pintan continentes, auroras, nubes y día/noche sobre un canvas 2D con D3.
+- **Renderizado geoespacial:** `js/globe/*.js` y `js/overlays/*.js` pintan continentes, auroras, nubes, probabilidad derivada y día/noche sobre un canvas 2D con D3.
 - **Interacción/UI:** `js/ui/*.js` sincroniza sliders, toggles, paneles de inspección y metadatos de versión.
 - **Preproceso offline:** `scripts/mod08_cloudfraction.py` descarga y transforma datos NASA/LAADS para producir `data/clouds.json`.
 
@@ -117,7 +117,7 @@ sequenceDiagram
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
 - `js/data/location.service.js`: consulta la geolocalización por IP mediante JSONP y normaliza la respuesta al estado de la app.
-- `js/overlays/*.js`: renderizado de auroras, nubes y sombra nocturna.
+- `js/overlays/*.js`: renderizado de auroras, nubes, probabilidad derivada y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos.
 - `scripts/mod08_cloudfraction.py`: pipeline offline para generar la malla global de nubosidad.
 
@@ -131,6 +131,7 @@ sequenceDiagram
 - `clouds.gridNormalized`: grid normalizado a valores `[0..1]` listo para render.
 - `clouds.coverage`: porcentaje global de nubosidad.
 - `selection`: punto actualmente inspeccionado, incluida su clasificación de visibilidad estimada.
+- `probability.gridCache`: caché derivada desde aurora + nubosidad para pintar categorías Baja/Media/Alta sin recomputar toda la malla en cada frame.
 - `userLocation`: localización inferida por IP.
 
 ### Feed de auroras esperado
@@ -210,14 +211,15 @@ erDiagram
 - El render de auroras y nubes omite puntos que quedan “detrás” del hemisferio visible mediante producto punto cartesiano.
 - La nube visible se restringe al rango seleccionado por el usuario en porcentaje normalizado.
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
-- La probabilidad de visibilidad del punto inspeccionado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
+- La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
+- La capa de probabilidad solo dibuja la cara visible del globo y permite filtrar categorías activas desde `App.state.probability.activeCategories`.
 - El refresco de datos acepta degradación parcial: si falla nubosidad, la app puede seguir mostrando auroras.
 - `clouds.json` se considera una instantánea diaria/preprocesada, no una fuente en vivo de alta frecuencia.
 - La versión visual expuesta al usuario corresponde a la fecha del último commit de la rama configurada en GitHub.
 
 ## Funcionalidad
 - Visualización del globo interactivo con arrastre y selección de puntos, ajustada al alto útil del panel principal.
-- Activación/desactivación de capas de aurora, nubosidad y máscara día/noche.
+- Activación/desactivación de capas de aurora, nubosidad, probabilidad derivada y máscara día/noche.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
 - Panel de localización inferida por IP.
@@ -294,6 +296,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - Se limita la densidad de puntos renderizados por `sampleStep`/`auroraStep` según el tamaño del viewport.
 - Se topa el device pixel ratio (`dprMax`) para evitar sobrecoste en pantallas densas.
 - Se usa caché de malla de nubes (`gridCache`) para no recalcular puntos en cada frame.
+- La capa de probabilidad reutiliza puntos aurorales enriquecidos con nubosidad y categoría en `App.state.probability.gridCache`, minimizando trabajo durante rotación o drag.
 - El grid de nubes se transporta como arreglo plano compacto `values_0_100`.
 - La geolocalización y consulta de versión no bloquean el render principal.
 

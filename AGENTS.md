@@ -55,6 +55,9 @@ Documentar de forma continua:
 - [x] Tarea 9: Incorporar en la bitácora la ejecución obligatoria de pruebas/verificaciones en cada intervención del agente.
   - Estado: `completada`
   - Evidencia: `AGENTS.md`, `README.md`
+- [x] Tarea 10: Crear un overlay de probabilidad de visibilidad derivado de aurora + nubosidad y conectarlo al pipeline de render.
+  - Estado: `completada`
+  - Evidencia: `js/overlays/probability.overlay.js`, `js/config.js`, `js/state.js`, `js/globe/globe.render.js`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -75,6 +78,7 @@ Documentar de forma continua:
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
 - GitHub Pages estaba publicando el repositorio completo; para excluir artefactos recolectados hay que construir un directorio intermedio y subir ese bundle en `actions/upload-pages-artifact`.
 - La agrupación de enlaces de cabecera se controla con `.header-links`; para mantenerlos en una sola fila en escritorio conviene evitar `flex-direction: column` y usar `white-space: nowrap`.
+- Las capas derivadas pueden reutilizar la malla auroral ya normalizada y cachear puntos enriquecidos con nubosidad/categoría para evitar recomputar la clasificación en cada frame.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -129,6 +133,9 @@ Documentar de forma continua:
 - **2026-03-23** — Hacer obligatoria en `AGENTS.md` la ejecución de pruebas o verificaciones antes de cerrar cualquier intervención.
   - **Motivo:** Evitar cierres sin validación mínima, incluso cuando solo se tocan documentos o configuraciones.
   - **Impacto:** Cada cambio deberá acompañarse de comandos ejecutados y evidencia verificable también reflejada en `README.md`.
+- **2026-03-23** — Incorporar una capa derivada de probabilidad de visibilidad, gobernada por estado propio y cacheada para render incremental.
+  - **Motivo:** Separar visualmente la clasificación Baja/Media/Alta sin mezclarla con la capa auroral original y sin recalcularla completa en cada repintado.
+  - **Impacto:** El render del globo suma un overlay opcional con filtros por categoría y dependiente tanto de aurora como de nubosidad.
 
 ---
 
@@ -192,6 +199,10 @@ Documentar de forma continua:
   - Archivos: `AGENTS.md`, `README.md`
   - Motivo: Convertir la validación mínima en una obligación explícita y trazable para cualquier intervención futura.
   - Resultado esperado: Ningún cambio se cierra sin ejecutar y reportar comandos de comprobación acordes al alcance.
+- **Cambio:** Nuevo overlay de probabilidad de visibilidad y conexión al render global.
+  - Archivos: `js/overlays/probability.overlay.js`, `js/config.js`, `js/state.js`, `js/globe/globe.render.js`, `js/data/refresh.service.js`, `index.html`, `README.md`
+  - Motivo: Pintar categorías Baja/Media/Alta sobre la cara visible del globo usando la grilla derivada de aurora + nubosidad y permitir filtros por categoría desde estado.
+  - Resultado esperado: La app puede activar una capa opcional de probabilidad, reutilizando caché y refrescando cuando cambian datos o filtros.
 
 ---
 
