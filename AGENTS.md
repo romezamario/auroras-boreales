@@ -34,6 +34,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/data/location.service.js`, `js/config.js`
 
+- [x] Tarea 5: Corregir el cálculo responsivo del canvas para que el globo ocupe toda la tarjeta visual.
+  - Estado: `completada`
+  - Evidencia: `js/globe/globe.core.js`
+
 ---
 
 ## 3) Aprendizajes del repositorio
@@ -74,6 +78,10 @@ Documentar de forma continua:
   - **Motivo:** El endpoint gratuito de `ipwho.is` ya no permite CORS en frontend y la geolocalización dejó de resolverse desde el cliente.
   - **Impacto:** La app vuelve a obtener una ubicación aproximada por IP sin introducir backend ni exponer claves.
 
+- **2026-03-23** — Ajustar el resize del canvas para tomar la altura real de la tarjeta contenedora.
+  - **Motivo:** El globo estaba usando una altura limitada por viewport y dejaba un bloque en blanco al pie de la visualización.
+  - **Impacto:** El canvas vuelve a ocupar toda el área disponible del panel principal y responde mejor a cambios de layout.
+
 ---
 
 ## 5) Registro de cambios realizados
@@ -100,6 +108,11 @@ Documentar de forma continua:
   - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.
   - Resultado esperado: Vuelta del marcador de ubicación y del panel de localización sin depender de backend.
 
+- **Cambio:** Corrección del cálculo de tamaño del canvas del globo.
+  - Archivos: `js/globe/globe.core.js`
+  - Motivo: Evitar que el canvas se quede más bajo que la tarjeta visual y aparezca espacio en blanco sobrante.
+  - Resultado esperado: El globo aprovecha toda la altura útil del panel y se reajusta cuando cambia el contenedor.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
@@ -112,6 +125,8 @@ Documentar de forma continua:
 - [ ] Revisar periódicamente que la documentación de fuentes coincida con endpoints implementados en `js/data/*`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
+
+- [ ] Validar visualmente en distintos breakpoints que futuros cambios de layout no vuelvan a desalinear el tamaño real del canvas.
 
 ---
 

@@ -214,7 +214,7 @@ erDiagram
 - La versión visual expuesta al usuario corresponde a la fecha del último commit de la rama configurada en GitHub.
 
 ## Funcionalidad
-- Visualización del globo interactivo con arrastre y selección de puntos.
+- Visualización del globo interactivo con arrastre y selección de puntos, ajustada al alto útil del panel principal.
 - Activación/desactivación de capas de aurora, nubosidad y máscara día/noche.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad y condición día/noche.
