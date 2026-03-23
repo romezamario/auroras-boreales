@@ -87,6 +87,9 @@ Documentar de forma continua:
 - [x] Tarea 17: Ocultar en la capa de probabilidad los puntos donde sea de día en el momento actual.
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
+- [x] Tarea 18: Incorporar en `explicacion-sitio.html` un diagrama Mermaid para la sección "Reglas de negocio" basado en el `README.md`.
+  - Estado: `completada`
+  - Evidencia: `explicacion-sitio.html`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -122,6 +125,7 @@ Documentar de forma continua:
 - Un fallo de runtime dentro de `probability.overlay` puede cortar el pipeline de render antes de dibujar auroras si la capa derivada se pinta antes que `auroraOverlay`; por eso los helpers de grilla deben referenciar explícitamente `App.geoUtils.getCloudValue`.
 - La capa `Probabilidad` debe heredar el mismo umbral mínimo de latitud absoluta que usa `auroraOverlay`; así se evita poblar la grilla derivada con puntos cercanos al ecuador que nunca deberían mostrarse visualmente.
 - Como la visibilidad real depende también del ciclo solar local, conviene aplicar el filtro de día/noche en tiempo de render del overlay y no durante el cacheo de la grilla; así no hace falta invalidar toda la malla cada minuto.
+- `explicacion-sitio.html` ya embebe Mermaid en cliente, por lo que nuevos diagramas documentales pueden añadirse solo con bloques `<pre class="mermaid">` alineados con el contenido vigente del `README.md`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -236,6 +240,9 @@ Documentar de forma continua:
 - **2026-03-23** — Ocultar en la capa `Probabilidad` cualquier punto donde sea de día al momento del render.
   - **Motivo:** Si una localización está iluminada por el Sol, no existe probabilidad útil de visibilidad auroral para el usuario aunque la intensidad y la nubosidad sean favorables.
   - **Impacto:** El overlay derivado mantiene su caché espacial, pero filtra dinámicamente coordenadas diurnas usando la geometría solar actual antes de dibujarlas.
+- **2026-03-23** — Añadir un diagrama Mermaid específico para la sección "Reglas de negocio" en `explicacion-sitio.html`.
+  - **Motivo:** Traducir visualmente la lógica descrita en `README.md` para que la explicación del sitio sea más clara y trazable sin obligar a leer solo listas de texto.
+  - **Impacto:** La documentación secundaria incorpora una vista de flujo sobre filtros, degradaciones y clasificación de probabilidad.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
