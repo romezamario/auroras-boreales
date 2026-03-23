@@ -6,6 +6,7 @@ Documentar de forma continua:
 2. Qué aprendí del repositorio.
 3. Decisiones tomadas y su justificación.
 4. Pendientes y riesgos.
+5. Qué cambios deben reflejarse también en `README.md` para mantener la documentación integral del proyecto.
 
 ---
 
@@ -100,6 +101,14 @@ Documentar de forma continua:
 
 ---
 
-## 8) Glosario del proyecto
+## 8) Sincronización obligatoria con README.md
+- Cada cambio futuro que modifique arquitectura, funcionalidad, flujos de datos, integraciones, operación, seguridad, rendimiento, cumplimiento, gobernanza o evolución del sistema **debe** actualizar también `README.md`.
+- Si se agrega o cambia una fuente de datos, endpoint, pipeline, regla de negocio o dependencia operativa, se debe revisar simultáneamente `README.md`, `AGENTS.md` y, cuando aplique, `tratamiento-datos.html`.
+- Si una actualización altera relaciones entre componentes, se debe regenerar o ajustar el diagrama Mermaid correspondiente en `README.md`.
+- Ninguna tarea documental se considera completa si la bitácora en `AGENTS.md` y la documentación principal en `README.md` quedan desalineadas.
+
+---
+
+## 9) Glosario del proyecto
 - **OVATION:** Modelo/fuente de probabilidad auroral usada para visualizar actividad de auroras.
 - **Earthdata:** Ecosistema de datos de NASA utilizado para consultar capas ambientales, incluida nubosidad.
