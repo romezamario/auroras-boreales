@@ -13,6 +13,7 @@
     App.layersUI?.init();
     App.inspectorUI?.init();
     App.locationUI?.init();
+    App.probabilityService?.init();
 
     // Globe
     App.globeCore?.init();

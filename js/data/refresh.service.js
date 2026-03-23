@@ -10,11 +10,13 @@
       App.state.clouds.grid = clouds.grid ?? null;
       App.state.clouds.gridNormalized = App.utils.normalizeCloudGrid(clouds.grid);
       App.state.clouds.gridCache = null;
+      App.state.probability.gridCache = null;
       App.state.clouds.textureReady = true;
     } else {
       App.state.clouds.textureReady = false;
       App.state.clouds.extractedAt = null;
       App.state.clouds.gridNormalized = null;
+      App.state.probability.gridCache = null;
     }
 
     App.emit("data:clouds");
@@ -25,6 +27,7 @@
       const { points, forecastTime } = result.value;
       App.state.aurora.points = points;
       App.state.aurora.forecastTime = forecastTime;
+      App.state.probability.gridCache = null;
       return;
     }
 

@@ -55,9 +55,9 @@
 
         const [lon, lat] = coords;
 
-        const intensity = getNearestAuroraIntensity(App.state?.aurora?.points ?? [], lon, lat);
-        const clouds = App.utils?.getCloudValue ? App.utils.getCloudValue(App.state?.clouds?.grid, lon, lat) : null;
-        const visibility = App.utils?.getVisibilityProbability ? App.utils.getVisibilityProbability(intensity, clouds) : null;
+        const intensity = App.probabilityService?.getAuroraIntensityAt(lon, lat) ?? null;
+        const clouds = App.probabilityService?.getCloudValueAt(lon, lat) ?? null;
+        const visibility = App.probabilityService?.classifyVisibilityProbability(intensity, clouds) ?? null;
         const isDay = App.utils?.isDayAt ? App.utils.isDayAt(lon, lat, new Date()) : null;
 
         App.state.selection = { lon, lat, intensity, clouds, visibility, isDay };
