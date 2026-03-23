@@ -62,6 +62,9 @@ Documentar de forma continua:
 - **2026-03-22** — Reorganizar el dashboard en tres columnas para escritorio y llevar los paneles informativos al lado derecho del globo.
   - **Motivo:** Reducir espacios vacíos y priorizar visualmente la visualización principal.
   - **Impacto:** Mejor aprovechamiento horizontal en desktop, manteniendo un apilado adaptativo en breakpoints menores.
+- **2026-03-23** — Mostrar en el estado de datos la fecha/hora de extracción de nubosidad y persistirla en `clouds.json`.
+  - **Motivo:** Hacer explícito cuándo se generó la capa de nubes, diferenciando la fecha del dataset MODIS de la fecha de extracción/publicación.
+  - **Impacto:** La UI puede auditar mejor la frescura de nubosidad y usar fallback por cabecera HTTP si el JSON aún no trae el nuevo campo.
 
 ---
 
@@ -80,6 +83,10 @@ Documentar de forma continua:
   - Archivos: `index.html`, `style.css`
   - Motivo: Mover paneles de detalle/estado a la derecha del globo y permitir que la visualización ocupe más área útil.
   - Resultado esperado: Mejor jerarquía visual y menor espacio en blanco en pantallas de escritorio.
+- **Cambio:** Inclusión de fecha/hora de extracción de nubosidad en el estado de datos y en el payload de `clouds.json`.
+  - Archivos: `js/data/clouds.service.js`, `js/data/refresh.service.js`, `js/ui/refresh.ui.js`, `js/state.js`, `scripts/mod08_cloudfraction.py`, `data/clouds.json`
+  - Motivo: Distinguir la fecha del producto MODIS de la fecha real en que se extrajo/publicó la capa de nubes.
+  - Resultado esperado: Panel de estado más claro y trazable respecto al proceso del workflow/YAML.
 
 ---
 
