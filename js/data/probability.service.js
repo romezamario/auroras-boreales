@@ -105,6 +105,15 @@
     return Number.isFinite(stateThreshold) ? stateThreshold : 0;
   }
 
+  function getMinimumAuroraAbsLatitude() {
+    const configured = Number(App.config?.defaults?.auroraMinAbsLatitude);
+    return Number.isFinite(configured) ? configured : 0;
+  }
+
+  function isOutsideEquatorialExclusion(lat) {
+    return Number.isFinite(lat) && Math.abs(lat) >= getMinimumAuroraAbsLatitude();
+  }
+
   function isRelevantIntensity(intensity) {
     return Number.isFinite(intensity) && intensity >= getRelevantIntensityThreshold();
   }
@@ -289,6 +298,8 @@
     const points = [];
     for (let lat = -90; lat <= 90; lat += normalizedStep) {
       for (let lon = -180; lon <= 180; lon += normalizedStep) {
+        if (!isOutsideEquatorialExclusion(lat)) continue;
+
         const intensity = getAuroraIntensity(auroraIndex, lon, lat);
         if (!isRelevantIntensity(intensity)) continue;
 
@@ -337,6 +348,8 @@
     getRelevantIntensityThreshold,
     getVisibilityCategory,
     ensureProbabilityFilters,
+    getMinimumAuroraAbsLatitude,
+    isOutsideEquatorialExclusion,
 
     createProbabilityPoint,
     buildSelection,

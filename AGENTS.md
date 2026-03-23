@@ -78,6 +78,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `AGENTS.md`
 
+- [x] Tarea 16: Aplicar a la capa de probabilidad el mismo filtro latitudinal de auroras para ocultar puntos cercanos al ecuador.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -110,6 +114,7 @@ Documentar de forma continua:
 - El payload de selección del globo conviene generarlo desde un único helper compartido; así se evita duplicar el cálculo de intensidad, nubosidad, probabilidad e `isDay` entre el click handler y los refrescos de datos.
 - La retrocompatibilidad con `activeCategories` puede mantenerse como alias de `filters`, pero la fuente de verdad operativa debe seguir siendo `App.state.probability.filters`.
 - Un fallo de runtime dentro de `probability.overlay` puede cortar el pipeline de render antes de dibujar auroras si la capa derivada se pinta antes que `auroraOverlay`; por eso los helpers de grilla deben referenciar explícitamente `App.geoUtils.getCloudValue`.
+- La capa `Probabilidad` debe heredar el mismo umbral mínimo de latitud absoluta que usa `auroraOverlay`; así se evita poblar la grilla derivada con puntos cercanos al ecuador que nunca deberían mostrarse visualmente.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -211,6 +216,10 @@ Documentar de forma continua:
 - **2026-03-23** — Corregir la generación de la grilla de probabilidad para usar el helper geoespacial compartido de nubosidad.
   - **Motivo:** La capa derivada estaba llamando un símbolo inexistente (`getCloudValue`) y eso lanzaba una excepción al activarla, interrumpiendo también el render posterior de auroras.
   - **Impacto:** La activación de `Probabilidad` vuelve a mostrar puntos derivados sin apagar visualmente la capa auroral.
+
+- **2026-03-23** — Hacer que la capa `Probabilidad` reutilice la exclusión de latitudes ecuatoriales ya aplicada a `Auroras`.
+  - **Motivo:** Evitar inconsistencias visuales donde la capa derivada mostraba puntos cerca del ecuador aunque la capa auroral los ocultara por regla de negocio.
+  - **Impacto:** La grilla y el overlay de probabilidad quedan alineados con el umbral `auroraMinAbsLatitude`, reduciendo ruido visual en bajas latitudes.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -337,6 +346,11 @@ Documentar de forma continua:
   - Motivo: La generación de puntos globales invocaba `getCloudValue` sin namespace, provocando un error de JavaScript al activar la capa `Probabilidad`.
   - Resultado esperado: La capa derivada dibuja sus categorías y el pipeline de render continúa hasta la capa auroral sin interrupciones.
 
+- **Cambio:** Exclusión latitudinal compartida entre `Auroras` y `Probabilidad`.
+  - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
+  - Motivo: Alinear la capa derivada con la misma regla que ya oculta puntos aurorales cercanos al ecuador.
+  - Resultado esperado: La capa `Probabilidad` deja de renderizar o cachear puntos dentro del cinturón ecuatorial excluido.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
@@ -361,6 +375,7 @@ Documentar de forma continua:
 - [ ] Validar visualmente en distintos breakpoints que futuros cambios de layout no vuelvan a desalinear el tamaño real del canvas.
 - [ ] Verificar con producto/UX si la matriz de probabilidad debe evolucionar a un cálculo continuo o mantenerse como reglas discretas por rangos.
 - [ ] Validar visualmente que la superposición simultánea de `Auroras` y `Probabilidad` mantenga contraste suficiente en desktop y mobile.
+- [ ] Validar visualmente que la exclusión latitudinal compartida entre `Auroras` y `Probabilidad` siga alineada si cambia `auroraMinAbsLatitude`.
 
 ---
 

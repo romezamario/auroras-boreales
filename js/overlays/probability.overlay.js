@@ -30,6 +30,7 @@
         const probability = point?.probability;
         if (!probability?.key) continue;
         if (activeFilters[probability.key] === false) continue;
+        if (!App.probabilityService?.isOutsideEquatorialExclusion?.(point.lat)) continue;
 
         if (viewVector) {
           const cartesian = point.cartesian || versor.cartesian([point.lon, point.lat]);
