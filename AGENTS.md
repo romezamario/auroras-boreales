@@ -152,6 +152,10 @@ Documentar de forma continua:
   - **Motivo:** Reutilizar la misma resolución de intensidad/nubosidad tanto en el picking del globo como en futuros overlays o análisis globales, evitando duplicación y preparando una malla explícita de 1 grado.
   - **Impacto:** `globe.pick` queda más simple, el estado incorpora cachés derivados y los cambios de aurora/nubes regeneran la grilla automáticamente.
 
+- **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
+  - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
+  - **Impacto:** El panel izquierdo muestra un contenedor independiente para `Categorías de probabilidad`, manteniendo intacta la lógica reactiva de los checkboxes.
+
 ---
 
 ## 5) Registro de cambios realizados
@@ -230,6 +234,11 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
   - Motivo: Centralizar la clasificación de visibilidad, las lecturas puntuales de aurora/nubosidad y la generación cacheada de una grilla global de 1 grado.
   - Resultado esperado: La app puede reutilizar el mismo cálculo en picking y en futuras capas derivadas, regenerando automáticamente la malla cuando cambian auroras o nubes.
+
+- **Cambio:** Separación visual de la caja `Categorías de probabilidad` respecto de la tarjeta de nubosidad.
+  - Archivos: `index.html`, `style.css`, `README.md`
+  - Motivo: Responder a la solicitud de UX de mostrar los filtros de probabilidad como una tarjeta independiente y no como parte del bloque de nubosidad.
+  - Resultado esperado: Los controles del panel izquierdo distinguen mejor entre filtros de nubosidad y filtros propios de la capa de probabilidad.
 
 ---
 

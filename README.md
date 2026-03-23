@@ -238,7 +238,7 @@ erDiagram
 - Activación/desactivación de capas de aurora, nubosidad y máscara día/noche.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
-- Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y un bloque de checkboxes bajo `Nubosidad (cobertura)` para filtrar las categorías `Alta`, `Media` y `Baja`.
+- Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y una tarjeta independiente `Categorías de probabilidad` para filtrar las clases `Alta`, `Media` y `Baja` sin mezclarlas con los controles de nubosidad.
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.
 - Página secundaria `tratamiento-datos.html` con documentación de fuentes y tratamiento.
