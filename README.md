@@ -250,8 +250,9 @@ flowchart TD
 - **Hosting objetivo:** sitio estático, compatible con GitHub Pages o cualquier servidor HTTP simple.
 - **Dependencias runtime del navegador:** D3 v7, TopoJSON Client y `versor.js` cargados por script tag.
 - **Dependencias del pipeline offline:** Python, `requests`, `numpy`, `pyhdf` y un token `EARTHDATA_TOKEN`.
-- **Persistencia:** archivos versionados en Git (`data/clouds.json`, históricos bajo `data/history/`).
+- **Persistencia:** archivos versionados en Git (`data/clouds.json` y, si se conservan localmente, históricos bajo `data/history/`).
 - **Red de entrega:** endpoints públicos HTTPS y contenido estático servido por CDN o repositorio.
+- **Empaquetado de Pages:** el workflow de despliegue publica un bundle curado que excluye artefactos recolectados bajo `data/history/`.
 
 ## Seguridad
 - No existe autenticación ni manejo de cuentas de usuario en la aplicación web actual.
@@ -274,10 +275,10 @@ EARTHDATA_TOKEN=*** python scripts/mod08_cloudfraction.py
 ```
 
 ### Operación diaria recomendada
-1. Generar o actualizar `data/clouds.json` desde el pipeline.
-2. Verificar que el feed NOAA responde y que el frontend carga las capas.
-3. Publicar cambios estáticos en la rama servida.
-4. Revisar `tratamiento-datos.html` y `README.md` cuando cambien fuentes, reglas o endpoints.
+1. Generar o actualizar `data/clouds.json` desde el pipeline de nubosidad cuando corresponda.
+2. Verificar que el feed NOAA responde y que el frontend carga las capas en vivo.
+3. Publicar cambios estáticos en la rama servida, sabiendo que GitHub Pages excluye `data/history/` del artefacto desplegado.
+4. Revisar `tratamiento-datos.html` y `README.md` cuando cambien fuentes, reglas, pipelines o endpoints.
 
 ## Pruebas
 Actualmente el repositorio no define una suite automatizada formal. La validación operativa recomendada es:
@@ -303,7 +304,7 @@ Actualmente el repositorio no define una suite automatizada formal. La validaci�
 - El dominio principal combina geovisualización, clima espacial y nubosidad satelital.
 - La página `tratamiento-datos.html` documenta privacidad, fuentes y procesamiento orientado al usuario final.
 - `AGENTS.md` conserva decisiones, aprendizajes, riesgos y próximos pasos para mantener continuidad de trabajo.
-- Los datos históricos bajo `data/history/` sirven como base de análisis, respaldo y futuras extensiones analíticas.
+- Los datos históricos bajo `data/history/`, si se conservan en el repositorio o en copias locales, sirven como base de análisis y respaldo pero ya no forman parte del despliegue público.
 
 ## Evolución
 Áreas naturales de evolución:
@@ -324,6 +325,11 @@ Actualmente el repositorio no define una suite automatizada formal. La validaci�
 - La geolocalización por IP debe comunicarse como aproximada y no determinística.
 - Si el despliegue incorpora analítica, cookies u otros identificadores, la documentación regulatoria deberá ampliarse.
 - Se recomienda mantener trazabilidad entre documentación pública y endpoints reales configurados.
+
+## Operación de workflows
+- Los workflows `Collect OVATION Snapshots` y `Build OVATION Global Merge` se retiraron el **23 de marzo de 2026** porque la aplicación ya consume OVATION directamente desde NOAA en tiempo real y no requiere recolectar snapshots ni consolidarlos.
+- El único artefacto recolectado que permanece operativo para el frontend es `data/clouds.json`, generado por el workflow de MODIS.
+- El despliegue de GitHub Pages empaqueta una carpeta `dist/` y excluye `data/history/` para evitar publicar históricos o derivados de recolección.
 
 ## Gestión de cambio
 - Cualquier cambio en arquitectura, fuentes, endpoints, reglas de negocio, operación o cumplimiento debe reflejarse en `README.md`.
@@ -348,7 +354,7 @@ Posibles rutas de migración futura:
 - **A módulos ES / bundler:** para mejorar mantenibilidad y testing.
 - **A TypeScript:** para reforzar contratos de datos y estado.
 - **A backend liviano opcional:** si se requiere cachear integraciones o proteger secretos.
-- **A pipeline CI/CD:** para regenerar `clouds.json` y validar documentación automáticamente.
+- **A pipeline CI/CD:** para regenerar `clouds.json`, validar documentación automáticamente y empaquetar el sitio con exclusiones explícitas de artefactos recolectados.
 
 ### Consideraciones para migrar
 - Conservar el contrato de `App.state` o introducir una capa adaptadora.

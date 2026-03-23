@@ -44,6 +44,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/config.js`, `README.md`, `tratamiento-datos.html`
 
+- [x] Tarea 7: Retirar la recolección automática de OVATION y excluir artefactos históricos del despliegue del sitio.
+  - Estado: `completada`
+  - Evidencia: `.github/workflows/static.yml`, `README.md`, `.gitignore`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -59,6 +63,7 @@ Documentar de forma continua:
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
+- GitHub Pages estaba publicando el repositorio completo; para excluir artefactos recolectados hay que construir un directorio intermedio y subir ese bundle en `actions/upload-pages-artifact`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -97,6 +102,10 @@ Documentar de forma continua:
 - **2026-03-23** — Añadir clasificación de probabilidad de visibilidad al detalle del punto seleccionado.
   - **Motivo:** Mostrar al usuario una lectura accionable combinando intensidad auroral y nubosidad según la matriz de visibilidad definida para la interfaz.
   - **Impacto:** El panel de inspección ahora resume si la visibilidad estimada es baja, media o alta sin obligar a interpretar ambas métricas por separado.
+
+- **2026-03-23** — Retirar los workflows de snapshots/merge de OVATION y excluir históricos del artefacto de Pages.
+  - **Motivo:** La app ya consulta OVATION en vivo desde NOAA y el despliegue no necesita publicar ni reconstruir históricos recolectados.
+  - **Impacto:** Se simplifica la operación, se evita ejecutar pipelines innecesarios y GitHub Pages deja de incluir `data/history/` en el sitio público.
 
 ---
 
@@ -142,6 +151,11 @@ Documentar de forma continua:
   - Motivo: Traducir la combinación de intensidad y nubosidad a una categoría simple basada en la matriz suministrada.
   - Resultado esperado: El usuario identifica más rápido si un punto ofrece visibilidad baja, media o alta al hacer clic en el globo.
 
+- **Cambio:** Retiro de workflows de recolección/merge de OVATION y exclusión de históricos del despliegue.
+  - Archivos: `.github/workflows/static.yml`, `.gitignore`, `README.md`
+  - Motivo: Dejar de ejecutar automatizaciones innecesarias y evitar que GitHub Pages publique artefactos recolectados.
+  - Resultado esperado: Menor complejidad operativa y despliegues públicos sin `data/history/`.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
@@ -151,7 +165,7 @@ Documentar de forma continua:
 - [x] Hacer que la visualización ocupe mejor los espacios vacíos del layout de escritorio.
   - Estado: `completada`
   - Evidencia: `style.css`
-- [ ] Revisar periódicamente que la documentación de fuentes coincida con endpoints implementados en `js/data/*`.
+- [ ] Revisar periódicamente que la documentación de fuentes y workflows coincida con endpoints implementados en `js/data/*` y `.github/workflows/*`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
 - [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
