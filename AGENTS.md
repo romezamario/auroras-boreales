@@ -84,6 +84,9 @@ Documentar de forma continua:
 - [x] Tarea 16: Aplicar a la capa de probabilidad el mismo filtro latitudinal de auroras para ocultar puntos cercanos al ecuador.
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
+- [x] Tarea 17: Ocultar en la capa de probabilidad los puntos donde sea de día en el momento actual.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -118,6 +121,7 @@ Documentar de forma continua:
 - La retrocompatibilidad con `activeCategories` puede mantenerse como alias de `filters`, pero la fuente de verdad operativa debe seguir siendo `App.state.probability.filters`.
 - Un fallo de runtime dentro de `probability.overlay` puede cortar el pipeline de render antes de dibujar auroras si la capa derivada se pinta antes que `auroraOverlay`; por eso los helpers de grilla deben referenciar explícitamente `App.geoUtils.getCloudValue`.
 - La capa `Probabilidad` debe heredar el mismo umbral mínimo de latitud absoluta que usa `auroraOverlay`; así se evita poblar la grilla derivada con puntos cercanos al ecuador que nunca deberían mostrarse visualmente.
+- Como la visibilidad real depende también del ciclo solar local, conviene aplicar el filtro de día/noche en tiempo de render del overlay y no durante el cacheo de la grilla; así no hace falta invalidar toda la malla cada minuto.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -229,6 +233,9 @@ Documentar de forma continua:
 - **2026-03-23** — Hacer que la capa `Probabilidad` reutilice la exclusión de latitudes ecuatoriales ya aplicada a `Auroras`.
   - **Motivo:** Evitar inconsistencias visuales donde la capa derivada mostraba puntos cerca del ecuador aunque la capa auroral los ocultara por regla de negocio.
   - **Impacto:** La grilla y el overlay de probabilidad quedan alineados con el umbral `auroraMinAbsLatitude`, reduciendo ruido visual en bajas latitudes.
+- **2026-03-23** — Ocultar en la capa `Probabilidad` cualquier punto donde sea de día al momento del render.
+  - **Motivo:** Si una localización está iluminada por el Sol, no existe probabilidad útil de visibilidad auroral para el usuario aunque la intensidad y la nubosidad sean favorables.
+  - **Impacto:** El overlay derivado mantiene su caché espacial, pero filtra dinámicamente coordenadas diurnas usando la geometría solar actual antes de dibujarlas.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -364,6 +371,10 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
   - Motivo: Alinear la capa derivada con la misma regla que ya oculta puntos aurorales cercanos al ecuador.
   - Resultado esperado: La capa `Probabilidad` deja de renderizar o cachear puntos dentro del cinturón ecuatorial excluido.
+- **Cambio:** Exclusión de puntos diurnos en la capa `Probabilidad`.
+  - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
+  - Motivo: Evitar mostrar probabilidad de visibilidad en localizaciones donde es de día y, por tanto, la aurora no sería observable aunque existan datos aurorales y baja nubosidad.
+  - Resultado esperado: El overlay de probabilidad filtra en tiempo real cualquier coordenada diurna antes de pintarla en el mapa.
 
 ---
 
@@ -390,6 +401,7 @@ Documentar de forma continua:
 - [ ] Verificar con producto/UX si la matriz de probabilidad debe evolucionar a un cálculo continuo o mantenerse como reglas discretas por rangos.
 - [ ] Validar visualmente que la superposición simultánea de `Auroras` y `Probabilidad` mantenga contraste suficiente en desktop y mobile.
 - [ ] Validar visualmente que la exclusión latitudinal compartida entre `Auroras` y `Probabilidad` siga alineada si cambia `auroraMinAbsLatitude`.
+- [ ] Validar visualmente que la exclusión diurna de la capa `Probabilidad` siga alineada con la máscara `Día/Noche` en distintas horas UTC.
 
 ---
 

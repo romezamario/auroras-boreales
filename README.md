@@ -221,7 +221,7 @@ erDiagram
 - Antes de clasificar `Alta`/`Media`/`Baja`, la grilla derivada descarta cualquier coordenada cuya intensidad no alcance el umbral de relevancia auroral (`App.config.probability.minRelevantIntensity`, con fallback a `App.state.thresholdMin`).
 - La capa `Probabilidad` inicia apagada; al activarse reutiliza simultáneamente los filtros de intensidad y nubosidad ya presentes para pintar solo las categorías habilitadas, dejando las tres categorías activadas por defecto desde el estado inicial.
 - El filtro por categorías permite mostrar u ocultar `Alta`, `Media` y `Baja` sin alterar los datos base de aurora o nubosidad; la fuente de verdad operativa es `App.state.probability.filters` y `activeCategories` se mantiene solo como alias retrocompatible.
-- La capa de probabilidad solo dibuja la cara visible del globo, se regenera cuando cambia cualquiera de las dos fuentes cruzadas (aurora o nubosidad) y difiere la reconstrucción pesada de la grilla hasta `getGlobalGridPoints(step)` o `getOverlayCache(step)`.
+- La capa de probabilidad solo dibuja la cara visible del globo, oculta cualquier punto donde sea de día en la fecha/hora actual, se regenera cuando cambia cualquiera de las dos fuentes cruzadas (aurora o nubosidad) y difiere la reconstrucción pesada de la grilla hasta `getGlobalGridPoints(step)` o `getOverlayCache(step)`.
 - La lectura auroral reutilizable usa un índice espacial por celdas enteras y compara primero vecinos locales antes de recurrir a un fallback más amplio, para que la grilla global derivada de 1° sea viable en el navegador.
 - El resumen cromático de la capa es: `Baja` en verde, `Media` en amarillo y `Alta` en rojo.
 - El refresco de datos acepta degradación parcial: si falla nubosidad, la app puede seguir mostrando auroras.
@@ -233,7 +233,7 @@ erDiagram
 - Activación/desactivación de capas de aurora, nubosidad, probabilidad derivada y máscara día/noche.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles.
 - Servicio reutilizable para muestrear cualquier coordenada `(lon, lat)`, construir el payload del punto seleccionado y producir una grilla global cacheada de probabilidad a resolución explícita de 1°, filtrada por relevancia auroral antes de clasificar categorías.
-- Nueva capa `Probabilidad` derivada del cruce entre intensidad auroral y nubosidad, con estado inicial apagado para no sobrecargar la vista base.
+- Nueva capa `Probabilidad` derivada del cruce entre intensidad auroral y nubosidad, con estado inicial apagado para no sobrecargar la vista base y con exclusión dinámica de puntos en zonas actualmente diurnas.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles; la capa de probabilidad reutiliza ambos rangos para definir qué celdas son candidatas a mostrarse.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
 - Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y una tarjeta específica de categorías para filtrar `Alta`, `Media` y `Baja`, con las tres categorías activadas por defecto.
