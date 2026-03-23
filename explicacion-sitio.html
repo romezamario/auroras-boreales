@@ -223,6 +223,48 @@ sequenceDiagram
           <span class="section-kicker">5. Modelo analítico</span>
           <h2>Reglas de negocio y lógica de visibilidad</h2>
         </div>
+        <div class="mermaid-card">
+          <div class="mermaid-caption-block">
+            <h3>Diagrama de reglas de negocio</h3>
+            <p>Este diagrama resume la lógica descrita en el <code>README.md</code>: filtros de render, tolerancia a fallos y clasificación discreta de la capa <code>Probabilidad</code>.</p>
+          </div>
+          <pre class="mermaid">
+flowchart TD
+    A[Datos disponibles en App.state] --> B{¿La capa auroral está habilitada?}
+    B -- No --> Z1[No se dibujan auroras]
+    B -- Sí --> C{¿La intensidad cae dentro del umbral del usuario?}
+    C -- No --> Z2[Se descarta el punto]
+    C -- Sí --> D{¿Supera la latitud absoluta mínima?}
+    D -- No --> Z3[Se evita ruido fuera de zonas polares]
+    D -- Sí --> E{¿Está en la cara visible del globo?}
+    E -- No --> Z4[Se omite por estar detrás del hemisferio]
+    E -- Sí --> F[Aurora candidata a render]
+
+    A --> G{¿Hay nubosidad disponible?}
+    G -- No --> G1[La app sigue operando con degradación parcial]
+    G -- Sí --> H{¿La nubosidad cae dentro del rango visible?}
+    H -- No --> Z5[La nube no se pinta]
+    H -- Sí --> I[Nube candidata a overlay]
+
+    F --> J{¿Se activa la capa Probabilidad?}
+    I --> J
+    J -- No --> Z6[Se mantiene solo la vista base]
+    J -- Sí --> K{¿La intensidad alcanza la relevancia auroral mínima?}
+    K -- No --> Z7[La coordenada no entra en la grilla derivada]
+    K -- Sí --> L{¿La ubicación está de noche y en la cara visible?}
+    L -- No --> Z8[No se dibuja la probabilidad]
+    L -- Sí --> M[Tomar intensidad OVATION cercana + nubosidad MODIS]
+    M --> N{Clasificación canónica}
+    N -- Intensidad >= 70 y nubes <= 30% --> O[Alta / high / rojo]
+    N -- Intensidad 30 a 60 y nubes <= 30% --> P[Media / medium / amarillo]
+    N -- Cualquier otro caso --> Q[Baja / low / verde]
+    O --> R{¿Categoría habilitada en filtros?}
+    P --> R
+    Q --> R
+    R -- No --> Z9[Se oculta sin alterar datos base]
+    R -- Sí --> S[Renderizar overlay de probabilidad]
+          </pre>
+        </div>
         <div class="two-column-grid">
           <article class="info-panel">
             <h3>Reglas principales</h3>
