@@ -112,6 +112,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `explicacion-sitio.html`, `style.css`, `AGENTS.md`
 
+- [x] Tarea 22: Aumentar la altura de la caja del globo en la versión móvil para dar más área útil a la visualización.
+  - Estado: `completada`
+  - Evidencia: `style.css`, `AGENTS.md`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -152,6 +156,7 @@ Documentar de forma continua:
 - En la página `explicacion-sitio.html`, si los captions o textos sobre tarjetas oscuras usan variables CSS no definidas (por ejemplo `var(--muted)` sin fallback), el contraste puede degradarse hasta volver ilegibles las descripciones; conviene declarar tokens locales y tamaños mínimos explícitos para SVG/Mermaid.
 - El bootstrap de `js/app.js` puede separarse por dominios (`UI`, `globo`, `eventos`, `assets`, `background`) y lanzar en paralelo `loadStaticAssets()`, `refreshInitialData()` y `startBackgroundLocationLookup()`; solo la disponibilidad del atlas base debe bloquear el primer `requestRender()`.
 - En Mermaid, los `flowchart` con `htmlLabels` pueden fallar o volverse ilegibles en Safari/iOS; para diagramas documentales conviene preferir etiquetas SVG nativas (`htmlLabels: false`) y forzar contraste/fallback por CSS.
+- En móvil, la tarjeta `.canvas-card` necesita una `min-height` explícita dentro de las media queries; si se deja en `auto`, el globo puede colapsar visualmente y quedar demasiado pequeño aunque el canvas siga ocupando el 100% del contenedor.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -292,6 +297,10 @@ Documentar de forma continua:
   - **Motivo:** En iPhone/Safari algunos nodos y etiquetas del SVG quedaban sin texto visible o demasiado comprimidos dentro de los diagramas embebidos.
   - **Impacto:** Los diagramas de `explicacion-sitio.html` pasan a renderizar etiquetas SVG nativas con contraste explícito y ancho mínimo desplazable en pantallas pequeñas.
 
+- **2026-03-23** — Aumentar la altura mínima de `.canvas-card` en breakpoints móviles y tablets apiladas.
+  - **Motivo:** En la vista móvil el contenedor del globo estaba heredando `height: auto` y `min-height: 0`, lo que dejaba una visualización demasiado pequeña respecto del resto de tarjetas.
+  - **Impacto:** El canvas gana más altura útil en pantallas estrechas sin alterar el layout de escritorio.
+
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
 
@@ -328,6 +337,10 @@ Documentar de forma continua:
   - Motivo: Evitar que las etiquetas de los nodos desaparezcan o queden ilegibles en diagramas vistos desde iPhone/Safari y mantener scroll horizontal cuando el ancho sea limitado.
   - Resultado esperado: Diagramas con texto visible, contraste consistente y mejor lectura en pantallas pequeñas.
 
+- **Cambio:** Ajuste responsive de la tarjeta del globo en móvil.
+  - Archivos: `style.css`, `AGENTS.md`
+  - Motivo: Incrementar la altura disponible del canvas en pantallas estrechas para que la visualización principal no quede comprimida.
+  - Resultado esperado: El globo se muestra más grande y legible en móvil/tablet en layout de una sola columna.
 - **Cambio:** Homologación visual y narrativa de `explicacion-sitio.html`.
   - Archivos: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
   - Motivo: Corregir captions con bajo contraste, aumentar el tamaño útil de gráficos SVG/Mermaid y reemplazar redacción procedural por una explicación más interpretativa del proyecto.

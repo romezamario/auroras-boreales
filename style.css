@@ -437,8 +437,8 @@ button:focus-visible {
   }
 
   .canvas-card {
-    height: auto;
-    min-height: 0;
+    height: min(72vh, 760px);
+    min-height: 520px;
   }
 }
 
@@ -463,6 +463,11 @@ button:focus-visible {
   .card,
   .canvas-card {
     padding: 14px;
+  }
+
+  .canvas-card {
+    min-height: 460px;
+    height: min(68vh, 620px);
   }
 
   .legend-ticks {
