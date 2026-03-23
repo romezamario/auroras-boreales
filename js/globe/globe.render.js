@@ -64,7 +64,6 @@
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
         if (App.probabilityOverlay) App.probabilityOverlay.draw(g, App.state);
         if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
-        if (App.probabilityOverlay) App.probabilityOverlay.draw(g, App.state);
 
         const vc = App.globeMarkers?.getViewVector(g);
 

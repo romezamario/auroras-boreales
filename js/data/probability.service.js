@@ -94,14 +94,28 @@
     if (!Number.isFinite(intensity) || !Number.isFinite(clouds)) return null;
 
     if (clouds <= 30 && intensity >= 70) {
-      return { label: "Alta", range: "+60%" };
+      return { label: "Alta", range: "+60%", key: "high" };
     }
 
     if (clouds <= 30 && intensity >= 30 && intensity <= 60) {
-      return { label: "Media", range: "31-60%" };
+      return { label: "Media", range: "31-60%", key: "medium" };
     }
 
-    return { label: "Baja", range: "0-30%" };
+    return { label: "Baja", range: "0-30%", key: "low" };
+  }
+
+  function getRelevantIntensityThreshold() {
+    const configuredThreshold = Number(App.config?.probability?.minRelevantIntensity);
+    if (Number.isFinite(configuredThreshold)) return configuredThreshold;
+
+    const stateThreshold = Number(App.state?.thresholdMin);
+    if (Number.isFinite(stateThreshold)) return stateThreshold;
+
+    return Number(App.config?.defaults?.thresholdMin ?? 0);
+  }
+
+  function isRelevantIntensity(intensity) {
+    return Number.isFinite(intensity) && intensity >= getRelevantIntensityThreshold();
   }
 
   function buildAuroraIndex(points) {
@@ -210,13 +224,18 @@
     for (let lat = -90; lat <= 90; lat += normalizedStep) {
       for (let lon = -180; lon <= 180; lon += normalizedStep) {
         const intensity = getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
+        if (!isRelevantIntensity(intensity)) continue;
+
         const clouds = getCloudValue(App.state?.clouds?.grid, lon, lat);
+        const probability = classifyVisibilityProbability(intensity, clouds);
+        if (!probability) continue;
+
         points.push({
           lon,
           lat,
           intensity,
           clouds,
-          probability: classifyVisibilityProbability(intensity, clouds),
+          probability,
           cartesian: versor.cartesian([lon, lat])
         });
       }
@@ -258,9 +277,12 @@
 
       App.on("data:aurora", rebuildCache);
       App.on("data:clouds", rebuildCache);
+      App.on("state:threshold", rebuildCache);
     },
 
     classifyVisibilityProbability,
+    isRelevantIntensity,
+    getRelevantIntensityThreshold,
 
     getAuroraIntensityAt(lon, lat) {
       return getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
