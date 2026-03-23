@@ -70,6 +70,9 @@ Documentar de forma continua:
 - [x] Tarea 14: Refactorizar el flujo de probabilidad/selección para eliminar duplicación y código muerto.
   - Estado: `completada`
   - Evidencia: `js/state.js`, `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/probability.ui.js`, `js/ui/inspector.ui.js`, `js/data/refresh.service.js`, `README.md`, `AGENTS.md`
+- [x] Tarea 15: Adelantar el workflow de Pages a Node.js 24 para evitar la deprecación anunciada por GitHub Actions.
+  - Estado: `completada`
+  - Evidencia: `.github/workflows/static.yml`, `AGENTS.md`
 
 - [x] Tarea 15: Corregir la activación de la capa de probabilidad para que no interrumpa el render auroral y pinte su malla derivada.
   - Estado: `completada`
@@ -78,6 +81,9 @@ Documentar de forma continua:
 - [x] Tarea 16: Intercambiar la posición de los toggles `Nubosidad` y `Probabilidad` en la tarjeta `Capas visibles`.
   - Estado: `completada`
   - Evidencia: `index.html`, `AGENTS.md`
+- [x] Tarea 16: Aplicar a la capa de probabilidad el mismo filtro latitudinal de auroras para ocultar puntos cercanos al ecuador.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -95,6 +101,7 @@ Documentar de forma continua:
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
+- GitHub Actions permite adelantar la migración de acciones JavaScript a Node.js 24 mediante `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, útil cuando aún no existen majors nuevos para todas las acciones oficiales de Pages.
 - La UI de versión puede resolverse con metadata embebida en `App.config.version` y solo consultar remoto de forma opcional/caché, evitando bloquear el arranque por disponibilidad de GitHub.
 - La clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación de una malla global derivada pueden compartirse desde un servicio reutilizable independiente del módulo de picking.
 - Para evitar recalcular vecinos aurorales sobre toda la malla global, conviene indexar los puntos OVATION por celdas enteras de latitud/longitud y consultar primero vecindarios locales antes de caer al arreglo completo.
@@ -110,6 +117,7 @@ Documentar de forma continua:
 - El payload de selección del globo conviene generarlo desde un único helper compartido; así se evita duplicar el cálculo de intensidad, nubosidad, probabilidad e `isDay` entre el click handler y los refrescos de datos.
 - La retrocompatibilidad con `activeCategories` puede mantenerse como alias de `filters`, pero la fuente de verdad operativa debe seguir siendo `App.state.probability.filters`.
 - Un fallo de runtime dentro de `probability.overlay` puede cortar el pipeline de render antes de dibujar auroras si la capa derivada se pinta antes que `auroraOverlay`; por eso los helpers de grilla deben referenciar explícitamente `App.geoUtils.getCloudValue`.
+- La capa `Probabilidad` debe heredar el mismo umbral mínimo de latitud absoluta que usa `auroraOverlay`; así se evita poblar la grilla derivada con puntos cercanos al ecuador que nunca deberían mostrarse visualmente.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -193,15 +201,21 @@ Documentar de forma continua:
 - **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
   - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
   - **Impacto:** El panel izquierdo muestra un contenedor independiente para `Categorías de probabilidad`, manteniendo intacta la lógica reactiva de los checkboxes.
-- **2026-03-23** — Desactivar `Baja` por defecto en los filtros iniciales de la capa `Probabilidad`.
-  - **Motivo:** Priorizar desde el arranque las zonas con visibilidad estimada media/alta y reducir ruido visual cuando el usuario habilita la capa derivada.
-  - **Impacto:** La UI conserva las tres categorías disponibles, pero al inicializarse deja activa solo la combinación `Alta` + `Media` hasta que la persona marque `Baja`.
+- **2026-03-23** — Mantener `Baja` activada por defecto en los filtros iniciales de la capa `Probabilidad`.
+  - **Motivo:** Alinear el estado inicial de la UI con la preferencia actual de mostrar todas las clases disponibles desde el arranque.
+  - **Impacto:** La UI conserva las tres categorías disponibles y las deja activas simultáneamente desde la carga inicial.
+- **2026-03-23** — Reactivar `Baja` en el estado inicial de la capa `Probabilidad`.
+  - **Motivo:** Ajustar el comportamiento inicial de la UI al criterio del usuario para que el filtro no oculte esa clase al abrir el sitio.
+  - **Impacto:** La tarjeta `Categorías de probabilidad` vuelve a iniciar con `Alta`, `Media` y `Baja` marcadas simultáneamente.
 - **2026-03-23** — Sustituir la consulta obligatoria de versión a GitHub por metadata embebida con soporte opcional de caché local TTL.
   - **Motivo:** Evitar una llamada remota en cada `init()` y permitir que la fecha/versión visible se inyecte en build/despliegue o degrade a una etiqueta estática.
   - **Impacto:** La app arranca sin depender de `api.github.com`; si se habilita un refresco remoto, este pasa a ser opcional y cacheable en `localStorage`.
 - **2026-03-23** — Consolidar en `probability.service` la normalización de filtros y la construcción del payload de selección.
   - **Motivo:** El click handler del globo, la UI de filtros y el refresco de datos estaban repitiendo reglas equivalentes y mantenían aliases/propiedades redundantes.
   - **Impacto:** Menos duplicación, eliminación de código muerto, un único punto de mantenimiento para la selección del inspector y retrocompatibilidad explícita para `activeCategories`.
+- **2026-03-23** — Forzar el workflow de GitHub Pages a ejecutar acciones JavaScript con Node.js 24.
+  - **Motivo:** GitHub anunció la deprecación de Node.js 20 en runners; el workflow emitía warnings para `checkout`, `configure-pages`, `upload-pages-artifact` y `deploy-pages`.
+  - **Impacto:** El despliegue se adelanta al cambio de runtime sin esperar nuevos majors de todas las acciones oficiales y evita la advertencia operativa en `static.yml`.
 
 ---
 
@@ -211,6 +225,10 @@ Documentar de forma continua:
 - **2026-03-23** — Intercambiar la posición visual de los toggles `Nubosidad` y `Probabilidad` en la tarjeta `Capas visibles`.
   - **Motivo:** Ajustar el orden de lectura del panel lateral a la preferencia de UX solicitada, dejando `Probabilidad` antes de `Nubosidad`.
   - **Impacto:** La cuadrícula de toggles conserva la misma funcionalidad reactiva, pero cambia la ubicación visual de ambos controles.
+
+- **2026-03-23** — Hacer que la capa `Probabilidad` reutilice la exclusión de latitudes ecuatoriales ya aplicada a `Auroras`.
+  - **Motivo:** Evitar inconsistencias visuales donde la capa derivada mostraba puntos cerca del ecuador aunque la capa auroral los ocultara por regla de negocio.
+  - **Impacto:** La grilla y el overlay de probabilidad quedan alineados con el umbral `auroraMinAbsLatitude`, reduciendo ruido visual en bajas latitudes.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -315,10 +333,10 @@ Documentar de forma continua:
   - Archivos: `index.html`, `style.css`, `README.md`
   - Motivo: Responder a la solicitud de UX de mostrar los filtros de probabilidad como una tarjeta independiente y no como parte del bloque de nubosidad.
   - Resultado esperado: Los controles del panel izquierdo distinguen mejor entre filtros de nubosidad y filtros propios de la capa de probabilidad.
-- **Cambio:** Ajuste del estado inicial de categorías de probabilidad para dejar `Baja` desactivada por defecto.
+- **Cambio:** Reactivación de `Baja` en el estado inicial de categorías de probabilidad.
   - Archivos: `js/state.js`, `README.md`, `AGENTS.md`
-  - Motivo: Responder a la solicitud de UX de priorizar visualmente las clases `Alta` y `Media` al activar la capa derivada.
-  - Resultado esperado: La tarjeta `Categorías de probabilidad` inicia con `Alta` y `Media` activas, mientras `Baja` queda disponible pero sin marcar.
+  - Motivo: Ajustar la configuración inicial de la UI a la preferencia actual del usuario sin alterar la lógica de filtros ni la capa derivada.
+  - Resultado esperado: La tarjeta `Categorías de probabilidad` vuelve a iniciar con `Alta`, `Media` y `Baja` activas.
 - **Cambio:** Refactor de la UI de versión para consumir metadata embebida y usar actualización remota solo de forma opcional.
   - Archivos: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
   - Motivo: Eliminar la dependencia obligatoria de la GitHub API durante el arranque del sitio y preparar inyección de versión/fecha en build o despliegue.
@@ -328,6 +346,10 @@ Documentar de forma continua:
   - Motivo: Responder al ajuste de UX solicitado sin alterar IDs, estado ni la lógica de eventos de las capas.
   - Resultado esperado: `Probabilidad` aparece en la segunda posición del bloque y `Nubosidad` pasa a la cuarta, manteniendo intacto el comportamiento de ambos toggles.
 
+- **Cambio:** Adelanto del workflow de Pages a Node.js 24.
+  - Archivos: `.github/workflows/static.yml`, `AGENTS.md`
+  - Motivo: El despliegue mostraba la advertencia de deprecación de Node.js 20 en acciones oficiales de GitHub Pages.
+  - Resultado esperado: `static.yml` fuerza el runtime Node.js 24 desde ahora y deja de depender del cambio automático programado por GitHub.
 - **Cambio:** Refactor del flujo de probabilidad/selección y limpieza de duplicaciones internas.
   - Archivos: `js/state.js`, `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/probability.ui.js`, `js/ui/inspector.ui.js`, `js/overlays/probability.overlay.js`, `js/data/refresh.service.js`, `README.md`, `AGENTS.md`
   - Motivo: Centralizar la normalización de filtros de probabilidad, mantener `activeCategories` solo como alias retrocompatible, mover la construcción del payload seleccionado a un helper común y retirar propiedades/constantes sin uso real.
@@ -337,6 +359,11 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `AGENTS.md`
   - Motivo: La generación de puntos globales invocaba `getCloudValue` sin namespace, provocando un error de JavaScript al activar la capa `Probabilidad`.
   - Resultado esperado: La capa derivada dibuja sus categorías y el pipeline de render continúa hasta la capa auroral sin interrupciones.
+
+- **Cambio:** Exclusión latitudinal compartida entre `Auroras` y `Probabilidad`.
+  - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
+  - Motivo: Alinear la capa derivada con la misma regla que ya oculta puntos aurorales cercanos al ecuador.
+  - Resultado esperado: La capa `Probabilidad` deja de renderizar o cachear puntos dentro del cinturón ecuatorial excluido.
 
 ---
 
@@ -362,6 +389,7 @@ Documentar de forma continua:
 - [ ] Validar visualmente en distintos breakpoints que futuros cambios de layout no vuelvan a desalinear el tamaño real del canvas.
 - [ ] Verificar con producto/UX si la matriz de probabilidad debe evolucionar a un cálculo continuo o mantenerse como reglas discretas por rangos.
 - [ ] Validar visualmente que la superposición simultánea de `Auroras` y `Probabilidad` mantenga contraste suficiente en desktop y mobile.
+- [ ] Validar visualmente que la exclusión latitudinal compartida entre `Auroras` y `Probabilidad` siga alineada si cambia `auroraMinAbsLatitude`.
 
 ---
 
