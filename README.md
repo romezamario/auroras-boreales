@@ -226,8 +226,8 @@ erDiagram
 - La capa de probabilidad solo dibuja la cara visible del globo y consulta las categorías activas desde `App.state.probability.filters`.
 - La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica por intersección de datos: toma la intensidad OVATION más cercana, la nubosidad MODIS de la celda correspondiente y aplica una matriz discreta.
 - La matriz de negocio actual clasifica `Alta` cuando la intensidad es `>= 70` y la nubosidad `<= 30%`; `Media` cuando la intensidad está entre `30` y `60` con nubosidad `<= 30%`; y `Baja` en cualquier otro caso.
-- La capa `Probabilidad` inicia apagada; al activarse reutiliza simultáneamente los filtros de intensidad y nubosidad ya presentes para pintar solo las categorías habilitadas.
-- El filtro por categorías permite mostrar u ocultar `Alta`, `Media` y `Baja` sin alterar los datos base de aurora o nubosidad.
+- La capa `Probabilidad` inicia apagada; al activarse reutiliza simultáneamente los filtros de intensidad y nubosidad ya presentes para pintar solo las categorías habilitadas, dejando `Baja` desactivada por defecto para priorizar los casos de visibilidad media/alta.
+- El filtro por categorías permite mostrar u ocultar `Alta`, `Media` y `Baja` sin alterar los datos base de aurora o nubosidad; la UI arranca con `Alta` y `Media` activas, y `Baja` desactivada.
 - El resumen cromático de la capa es: `Baja` en verde, `Media` en amarillo y `Alta` en rojo.
 - La capa de probabilidad solo dibuja la cara visible del globo y se regenera cuando cambia cualquiera de las dos fuentes cruzadas (aurora o nubosidad).
 - La lectura auroral reutilizable usa un índice espacial por celdas enteras y compara primero vecinos locales antes de recurrir a un fallback más amplio, para que la grilla global derivada de 1° sea viable en el navegador.
@@ -246,7 +246,7 @@ erDiagram
 - Nueva capa `Probabilidad` derivada del cruce entre intensidad auroral y nubosidad, con estado inicial apagado para no sobrecargar la vista base.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles; la capa de probabilidad reutiliza ambos rangos para definir qué celdas son candidatas a mostrarse.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
-- Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y un bloque de checkboxes bajo `Nubosidad (cobertura)` para filtrar las categorías `Alta`, `Media` y `Baja`.
+- Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y una tarjeta específica de categorías para filtrar `Alta`, `Media` y `Baja`, con `Baja` desactivada por defecto.
 - Resumen visual de colores para la capa derivada: baja en verde, media en amarillo y alta en rojo.
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.

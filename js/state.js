@@ -34,8 +34,16 @@
     probability: {
       enabled: cfg.probability?.enabled ?? false,
       opacity: cfg.probability?.opacity ?? 0.75,
-      filters: probabilityFilters,
-      activeCategories: probabilityFilters,
+      filters: {
+        low: false,
+        medium: true,
+        high: true
+      },
+      activeCategories: {
+        low: false,
+        medium: true,
+        high: true
+      },
       gridCache: null,
       auroraIndex: null,
       globalGridPoints: null,
