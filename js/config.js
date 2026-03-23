@@ -20,7 +20,7 @@
         worldCountries: "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json",
         ipGeo: [
           {
-            url: "https://ipapi.co/json/",
+            url: "https://ipapi.co/jsonp/",
             type: "jsonp",
             callbackParam: "callback"
           }

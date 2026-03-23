@@ -69,7 +69,7 @@ sequenceDiagram
     participant Refresh as refresh.service
     participant NOAA as NOAA OVATION
     participant Clouds as data/clouds.json
-    participant IP as IP Geo API
+    participant IP as ipapi JSONP
 
     B->>App: DOMContentLoaded
     App->>App: Inicializa UI y globo
@@ -115,7 +115,7 @@ sequenceDiagram
 - `js/data/ovation.service.js`: normaliza coordenadas NOAA y extrae `Forecast Time`.
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
-- `js/data/location.service.js`: consulta proveedores IP en cascada.
+- `js/data/location.service.js`: consulta la geolocalización por IP mediante JSONP y normaliza la respuesta al estado de la app.
 - `js/overlays/*.js`: renderizado de auroras, nubes y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos.
 - `scripts/mod08_cloudfraction.py`: pipeline offline para generar la malla global de nubosidad.
@@ -228,7 +228,7 @@ erDiagram
 - **NOAA SWPC:** feed JSON `ovation_aurora_latest.json`.
 - **world-atlas / jsDelivr:** topología mundial para masa continental y fronteras.
 - **GitHub API:** consulta del commit más reciente para mostrar la versión visible.
-- **ipapi / ipwho.is:** estimación geográfica por IP.
+- **ipapi (`/jsonp/`):** estimación geográfica por IP consumida desde el navegador mediante JSONP.
 - **NASA LAADS / Earthdata:** origen del dataset MODIS procesado offline.
 
 ### Diagrama de integraciones
@@ -239,8 +239,7 @@ flowchart TD
     APP --> NOAA[services.swpc.noaa.gov]
     APP --> ATLAS[cdn.jsdelivr.net / world-atlas]
     APP --> GITHUB[api.github.com]
-    APP --> IP1[ipapi.co]
-    APP --> IP2[ipwho.is]
+    APP --> IP1[ipapi.co/jsonp/]
     JOB[Pipeline mod08_cloudfraction.py] --> LAADS[ladsweb.modaps.eosdis.nasa.gov]
     JOB --> CLOUDS[data/clouds.json]
     CLOUDS --> APP
@@ -333,7 +332,7 @@ Actualmente el repositorio no define una suite automatizada formal. La validaci�
 
 ## Resiliencia
 - El refresco usa `Promise.allSettled`, lo que permite tolerar fallos parciales.
-- La geolocalización usa múltiples proveedores en cascada.
+- La geolocalización por IP usa `ipapi.co/jsonp/` para evitar depender de CORS en el navegador.
 - La UI mantiene funcionalidad básica aun sin `clouds.grid`, mostrando al menos cobertura global cuando existe.
 - El sombreado día/noche se recalcula localmente sin depender de APIs externas una vez cargada la app.
 
