@@ -152,6 +152,10 @@ Documentar de forma continua:
 - **2026-03-23** — Incorporar una capa derivada de probabilidad de visibilidad, gobernada por estado propio y cacheada para render incremental.
   - **Motivo:** Separar visualmente la clasificación Baja/Media/Alta sin mezclarla con la capa auroral original y sin recalcularla completa en cada repintado.
   - **Impacto:** El render del globo suma un overlay opcional con filtros por categoría y dependiente tanto de aurora como de nubosidad.
+- **2026-03-23** — Canonicalizar la estructura de probabilidad con claves estables `low`/`medium`/`high` y metadatos compartidos.
+  - **Motivo:** Evitar que overlay, filtros, picking e inspección dependan de etiquetas visibles o acentos para resolver categorías.
+  - **Impacto:** La clasificación de visibilidad queda centralizada en un solo servicio y los cachés/controles consumen una estructura común `{ key, label, range, color }`.
+
 - **2026-03-23** — Extraer a `js/data/probability.service.js` la lógica compartida de probabilidad, lecturas puntuales y grilla global cacheada.
   - **Motivo:** Reutilizar la misma resolución de intensidad/nubosidad tanto en el picking del globo como en futuros overlays o análisis globales, evitando duplicación y preparando una malla explícita de 1 grado.
   - **Impacto:** `globe.pick` queda más simple, el estado incorpora cachés derivados y los cambios de aurora/nubes regeneran la grilla automáticamente.
@@ -237,6 +241,11 @@ Documentar de forma continua:
   - Archivos: `js/overlays/probability.overlay.js`, `js/config.js`, `js/state.js`, `js/globe/globe.render.js`, `js/data/refresh.service.js`, `index.html`, `README.md`
   - Motivo: Pintar categorías Baja/Media/Alta sobre la cara visible del globo usando la grilla derivada de aurora + nubosidad y permitir filtros por categoría desde estado.
   - Resultado esperado: La app puede activar una capa opcional de probabilidad, reutilizando caché y refrescando cuando cambian datos o filtros.
+- **Cambio:** Refactor de la estructura canónica de probabilidad para compartir `key`, `label`, `range` y `color` entre picking, inspector, overlay, filtros y cachés.
+  - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/inspector.ui.js`, `js/ui/probability.ui.js`, `js/overlays/probability.overlay.js`, `js/state.js`, `js/data/refresh.service.js`, `js/globe/globe.render.js`, `README.md`
+  - Motivo: Desacoplar la lógica interna de probabilidad de textos visibles y reutilizar una taxonomía estable en toda la app.
+  - Resultado esperado: El overlay filtra por `key`, el inspector muestra metadatos consistentes y cualquier caché de puntos conserva la categoría canónica.
+
 - **Cambio:** Nuevo servicio reutilizable de probabilidad y muestreo geoespacial.
   - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
   - Motivo: Centralizar la clasificación de visibilidad, las lecturas puntuales de aurora/nubosidad y la generación cacheada de una grilla global de 1 grado.
@@ -263,6 +272,9 @@ Documentar de forma continua:
 - [x] Centralizar la clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación cacheada de la grilla global de 1 grado.
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
+- [x] Canonicalizar la categoría de probabilidad en servicios, UI, overlay y cachés con claves estables independientes del texto visible.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/inspector.ui.js`, `js/ui/probability.ui.js`, `js/overlays/probability.overlay.js`, `js/state.js`
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows, diagramas Mermaid, láminas SVG y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.

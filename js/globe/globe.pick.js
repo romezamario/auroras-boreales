@@ -1,39 +1,6 @@
 (function () {
   window.App = window.App || {};
 
-  function toRad(deg) {
-    return (deg * Math.PI) / 180;
-  }
-
-
-  function getNearestAuroraIntensity(points, lon, lat) {
-    if (!Array.isArray(points) || points.length === 0) return null;
-
-    const lonRad = toRad(lon);
-    const latRad = toRad(lat);
-
-    let bestCos = -Infinity;
-    let bestVal = null;
-
-    for (const point of points) {
-      const [pLon, pLat, val] = point;
-      if (!Number.isFinite(pLon) || !Number.isFinite(pLat)) continue;
-
-      const cosc =
-        Math.sin(latRad) * Math.sin(toRad(pLat)) +
-        Math.cos(latRad) * Math.cos(toRad(pLat)) * Math.cos(lonRad - toRad(pLon));
-
-      if (cosc > bestCos) {
-        bestCos = cosc;
-        bestVal = Number.isFinite(val) ? val : null;
-      }
-    }
-
-    return bestVal;
-  }
-
-
-
   App.globePick = {
     init() {
       const g = App.globe;
@@ -54,23 +21,21 @@
         if (!coords) return;
 
         const [lon, lat] = coords;
-
-        const intensity = App.probabilityService?.getAuroraIntensityAt(lon, lat) ?? null;
-        const clouds = App.probabilityService?.getCloudValueAt(lon, lat) ?? null;
-        const visibility = App.probabilityService?.classifyVisibilityProbability(intensity, clouds) ?? null;
+        const probabilityPoint = App.probabilityService?.getProbabilityAt(lon, lat) ?? { lon, lat, probability: null };
         const isDay = App.utils?.isDayAt ? App.utils.isDayAt(lon, lat, new Date()) : null;
 
-        App.state.selection = { lon, lat, intensity, clouds, visibility, isDay };
-        App.globe?.requestRender();
-
-        App.emit("globe:select", {
+        App.state.selection = {
           lon,
           lat,
-          intensity,
-          clouds,
-          visibility,
+          intensity: probabilityPoint.intensity ?? null,
+          clouds: probabilityPoint.clouds ?? null,
+          probability: probabilityPoint.probability ?? null,
+          visibility: probabilityPoint.probability ?? null,
           isDay
-        });
+        };
+        App.globe?.requestRender();
+
+        App.emit("globe:select", App.state.selection);
       });
     }
   };

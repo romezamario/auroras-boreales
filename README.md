@@ -131,11 +131,11 @@ sequenceDiagram
 - `aurora.forecastTime`: fecha/hora publicada por NOAA.
 - `clouds.gridNormalized`: grid normalizado a valores `[0..1]` listo para render.
 - `clouds.coverage`: porcentaje global de nubosidad.
-- `selection`: punto actualmente inspeccionado, incluida su clasificación de visibilidad estimada.
-- `probability.enabled` y `probability.filters`: controlan la capa visual de probabilidad y las categorías `high`/`medium`/`low` habilitadas.
-- `probability.gridCache`: caché derivada desde aurora + nubosidad para pintar categorías Baja/Media/Alta sin recomputar toda la malla en cada frame.
+- `selection`: punto actualmente inspeccionado, incluida su clasificación canónica de visibilidad `{ key, label, range, color }`.
+- `probability.enabled` y `probability.filters`: controlan la capa visual de probabilidad y las categorías canónicas `high`/`medium`/`low` habilitadas.
+- `probability.gridCache`: caché derivada desde aurora + nubosidad para pintar categorías sin depender de etiquetas visibles ni acentos.
 - `probability.auroraIndex`: índice espacial por celdas enteras para resolver la intensidad más cercana sin recorrer toda la malla derivada.
-- `probability.globalGridPoints`: colección cacheada de puntos `{ lon, lat, intensity, clouds, probability, cartesian }` para la grilla global de 1°.
+- `probability.globalGridPoints`: colección cacheada de puntos `{ lon, lat, intensity, clouds, probability, cartesian }`, donde `probability` expone `{ key, label, range, color }` para la grilla global de 1°.
 - `userLocation`: localización inferida por IP.
 
 ### Feed de auroras esperado
@@ -215,6 +215,10 @@ erDiagram
 - El render de auroras y nubes omite puntos que quedan “detrás” del hemisferio visible mediante producto punto cartesiano.
 - La nube visible se restringe al rango seleccionado por el usuario en porcentaje normalizado.
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
+- La probabilidad de visibilidad se clasifica con una matriz simple y canónica: `high`/`Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `medium`/`Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `low`/`Baja` en cualquier otro caso.
+- Cada categoría de probabilidad comparte la misma estructura `{ key, label, range, color }` para picking, inspector, overlay, filtros y cachés de puntos.
+- La capa `Probabilidad` permanece apagada al iniciar; cuando se activa reutiliza los umbrales de intensidad y nubosidad ya presentes y filtra por las claves canónicas `high`, `medium` y `low`.
+- La capa de probabilidad solo dibuja la cara visible del globo y consulta las categorías activas desde `App.state.probability.filters`.
 - La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica por intersección de datos: toma la intensidad OVATION más cercana, la nubosidad MODIS de la celda correspondiente y aplica una matriz discreta.
 - La matriz de negocio actual clasifica `Alta` cuando la intensidad es `>= 70` y la nubosidad `<= 30%`; `Media` cuando la intensidad está entre `30` y `60` con nubosidad `<= 30%`; y `Baja` en cualquier otro caso.
 - La capa `Probabilidad` inicia apagada; al activarse reutiliza simultáneamente los filtros de intensidad y nubosidad ya presentes para pintar solo las categorías habilitadas.
@@ -310,7 +314,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - Se limita la densidad de puntos renderizados por `sampleStep`/`auroraStep` según el tamaño del viewport.
 - Se topa el device pixel ratio (`dprMax`) para evitar sobrecoste en pantallas densas.
 - Se usa caché de malla de nubes (`gridCache`) para no recalcular puntos en cada frame.
-- La capa de probabilidad reutiliza puntos aurorales enriquecidos con nubosidad y categoría en `App.state.probability.gridCache`, minimizando trabajo durante rotación o drag.
+- La capa de probabilidad reutiliza una caché derivada con puntos enriquecidos por una categoría canónica `{ key, label, range, color }`, minimizando trabajo durante rotación o drag.
 - El grid de nubes se transporta como arreglo plano compacto `values_0_100`.
 - La geolocalización y consulta de versión no bloquean el render principal.
 

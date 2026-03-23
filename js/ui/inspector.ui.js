@@ -33,9 +33,9 @@
         return value ? "Día" : "Noche";
       }
 
-      function fmtVisibility(visibility) {
-        if (!visibility || !visibility.label) return "—";
-        return `${visibility.label} (${visibility.range})`;
+      function fmtProbability(probability) {
+        if (!probability?.key) return "—";
+        return `${probability.label} (${probability.range}, clave: ${probability.key})`;
       }
 
       App.on("globe:select", (selection) => {
@@ -44,7 +44,7 @@
         intensityEl.textContent = fmtIntensity(selection?.intensity);
         cloudsEl.textContent = fmtClouds(selection?.clouds);
         dayNightEl.textContent = fmtDayNight(selection?.isDay);
-        visibilityEl.textContent = fmtVisibility(selection?.visibility);
+        visibilityEl.textContent = fmtProbability(selection?.probability ?? selection?.visibility);
 
         if (hintEl) {
           hintEl.textContent = "Datos actualizados para el punto seleccionado.";
