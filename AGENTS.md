@@ -102,6 +102,9 @@ Documentar de forma continua:
 - [x] Tarea 20: Restaurar la geolocalización por IP incorporando un fallback de proveedor cuando falle el endpoint principal.
   - Estado: `completada`
   - Evidencia: `js/config.js`, `README.md`, `tratamiento-datos.html`, `AGENTS.md`
+- [x] Tarea 20: Refactorizar `js/app.js` para dividir el bootstrap en fases pequeñas y paralelizar assets, refresco inicial y geolocalización.
+  - Estado: `completada`
+  - Evidencia: `js/app.js`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -140,10 +143,12 @@ Documentar de forma continua:
 - Como la visibilidad real depende también del ciclo solar local, conviene aplicar el filtro de día/noche en tiempo de render del overlay y no durante el cacheo de la grilla; así no hace falta invalidar toda la malla cada minuto.
 - Los sliders dobles de min/max en `js/ui/` comparten un ciclo estable de lectura, normalización, fallback y sincronización de labels; conviene encapsularlo en un controller reusable y dejar fuera solo la traducción hacia el estado y el evento emitido.
 - `explicacion-sitio.html` ya embebe Mermaid en cliente, por lo que nuevos diagramas documentales pueden añadirse solo con bloques `<pre class="mermaid">` alineados con el contenido vigente del `README.md`.
+- El bootstrap de `js/app.js` puede separarse por dominios (`UI`, `globo`, `eventos`, `assets`, `background`) y lanzar en paralelo `loadStaticAssets()`, `refreshInitialData()` y `startBackgroundLocationLookup()`; solo la disponibilidad del atlas base debe bloquear el primer `requestRender()`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
 - Riesgo de obsolescencia si el contenido narrativo de `explicacion-sitio.html` deja de sincronizarse con `README.md` o con los documentos en `presentaciones/`.
+- Riesgo de degradar el tiempo hasta primer render si futuros cambios vuelven a serializar la carga del atlas con `refreshAll()` o con tareas auxiliares no críticas.
 
 ---
 
@@ -269,6 +274,10 @@ Documentar de forma continua:
   - **Motivo:** el constructor interno de puntos de probabilidad, el builder interno de selección, el helper público de intensidad puntual, el helper público de nubosidad puntual, el helper público de probabilidad puntual, el getter legacy de la grilla global y el alias legacy de categorías ya no tenían consumidores externos reales y ampliaban innecesariamente la superficie pública/estado.
   - **Impacto:** El servicio conserva solo entradas reutilizadas por UI, overlay y picking; el estado de probabilidad elimina cachés/aliases redundantes y la documentación pasa a reflejar `filters` como única fuente de verdad.
 
+- **2026-03-23** — Reorganizar `js/app.js` en helpers pequeños y paralelizar bootstrap crítico/no crítico.
+  - **Motivo:** El `init()` monolítico dificultaba ver dependencias duras y podía bloquear el primer fetch de datos detrás de la carga del atlas mundial.
+  - **Impacto:** El arranque ahora separa explícitamente inicialización por dominio, dispara en paralelo assets base, `refreshAll()` y geolocalización por IP, y reserva el primer `requestRender()` para cuando el atlas ya está listo.
+
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
 
@@ -296,6 +305,10 @@ Documentar de forma continua:
   - Archivos: `js/ui/range-pair.controller.js`, `js/ui/threshold.ui.js`, `js/ui/clouds.ui.js`, `index.html`
   - Motivo: Reutilizar la lógica compartida de lectura, normalización, fallback, labels y callbacks entre aurora y nubosidad, dejando fuera solo la traducción de unidades y el evento emitido.
   - Resultado esperado: Menos duplicación, comportamiento consistente entre ambos controles y un punto único de mantenimiento para la interacción de rangos.
+- **Cambio:** Refactor del bootstrap principal en helpers pequeños y fases explícitas de arranque.
+  - Archivos: `js/app.js`, `README.md`, `AGENTS.md`
+  - Motivo: Separar responsabilidades del `init()` monolítico, paralelizar tareas sin dependencia dura y evitar que `refreshAll()` espere la descarga del atlas mundial.
+  - Resultado esperado: Arranque más legible, primer frame desbloqueado apenas cargan los assets base y tareas auxiliares ejecutándose en background cuando corresponde.
 - **Cambio:** Ajuste del servicio de geolocalización por IP para usar JSONP en navegador.
   - Archivos: `js/data/location.service.js`, `js/config.js`
   - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.

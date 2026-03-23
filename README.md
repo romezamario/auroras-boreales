@@ -72,14 +72,17 @@ sequenceDiagram
     participant IP as ipapi JSONP
 
     B->>App: DOMContentLoaded
-    App->>App: Inicializa UI y globo
-    App->>World: loadLand() + loadCountryBorders()
-    App->>IP: fetchIpLocation() (async no bloqueante)
-    App->>Refresh: refreshAll()
+    App->>App: initUI() + initGlobe() + bindAppEvents()
+    par tareas independientes
+        App->>World: loadStaticAssets()
+        App->>Refresh: refreshInitialData()
+        App->>IP: startBackgroundLocationLookup()
+    end
+    World->>App: land + countryBorders + graticule
+    App->>B: requestRender() primer frame base
     Refresh->>Clouds: fetchLatest()
     Refresh->>NOAA: fetchLatest()
-    Refresh->>App: Actualiza App.state
-    App->>B: requestRender()
+    Refresh->>App: Actualiza App.state y re-renderiza
 ```
 
 ## Código fuente
@@ -112,7 +115,7 @@ sequenceDiagram
 
 ### Responsabilidades por módulo
 - `js/config.js`: parámetros globales, endpoints, límites, opacidad, sampling y metadatos de versión embebidos para el despliegue.
-- `js/app.js`: composición de módulos, carga de assets base y primer refresco.
+- `js/app.js`: orquesta el bootstrap en fases pequeñas (`initUI`, `initGlobe`, `bindAppEvents`, `loadStaticAssets`, `startBackgroundLocationLookup`, `refreshInitialData`) y separa el primer frame base de las tareas en background.
 - `js/data/ovation.service.js`: normaliza coordenadas NOAA y extrae `Forecast Time`.
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
@@ -214,6 +217,7 @@ erDiagram
 - El render de auroras y nubes omite puntos que quedan “detrás” del hemisferio visible mediante producto punto cartesiano.
 - La nube visible se restringe al rango seleccionado por el usuario en porcentaje normalizado.
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
+- El bootstrap inicial ejecuta en paralelo la carga del atlas base, el primer `refreshAll()` y la localización por IP; solo la disponibilidad de assets base bloquea el primer `requestRender()`.
 - La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica por intersección de datos: toma la intensidad OVATION más cercana, la nubosidad MODIS de la celda correspondiente y aplica una matriz discreta canónica `high`/`medium`/`low` (`Alta`/`Media`/`Baja`).
 - La matriz de negocio actual clasifica `Alta` cuando la intensidad es `>= 70` y la nubosidad `<= 30%`; `Media` cuando la intensidad está entre `30` y `60` con nubosidad `<= 30%`; y `Baja` en cualquier otro caso.
 - Cada categoría de probabilidad comparte la misma estructura `{ key, label, range, color }` para picking, inspector, overlay, filtros y cachés de puntos.
