@@ -3,8 +3,7 @@
 (function () {
   window.App = window.App || {};
 
-  async function init() {
-    // UI
+  function initUI() {
     App.versionUI?.init();
     App.refreshUI?.init();
     App.thresholdUI?.init();
@@ -14,46 +13,82 @@
     App.inspectorUI?.init();
     App.locationUI?.init();
     App.probabilityService?.init();
+  }
 
-    // Globe
+  function initGlobe() {
     App.globeCore?.init();
     App.globeDrag?.init();
     App.globePick?.init();
     App.globeRender?.init();
     App.dayNightOverlay?.init();
+  }
 
-    // Assets
+  function bindAppEvents() {
+    App.on("action:refresh", () => App.refreshService?.refreshAll());
+  }
+
+  async function loadStaticAssets() {
     const [land, countryBorders] = await Promise.all([
       App.worldService.loadLand(),
       App.worldService.loadCountryBorders()
     ]);
+
     App.assets.land = land;
     App.assets.countryBorders = countryBorders;
     App.assets.graticule = d3.geoGraticule10();
 
-    // Ubicación aproximada por IP (no bloquea el render inicial).
-    App.locationService?.fetchIpLocation()
-      .then((location) => {
-        if (location) {
-          App.state.userLocation = location;
-          App.emit("data:location");
-          App.globe?.requestRender();
-        }
-      })
-      .catch((e) => console.warn("[app] ip location error:", e));
+    return App.assets;
+  }
 
-    // Primer render
-    App.globe?.requestRender();
-
-    // Eventos
-    App.on("action:refresh", () => App.refreshService?.refreshAll());
-
-    // Inicial
+  async function refreshInitialData() {
     await App.refreshService?.refreshAll();
+  }
+
+  function startBackgroundLocationLookup() {
+    return App.locationService?.fetchIpLocation()
+      .then((location) => {
+        if (!location) return null;
+
+        App.state.userLocation = location;
+        App.emit("data:location");
+        App.globe?.requestRender();
+        return location;
+      })
+      .catch((error) => {
+        console.warn("[app] ip location error:", error);
+        return null;
+      });
+  }
+
+  function requestInitialRender() {
+    App.globe?.requestRender();
+  }
+
+  async function init() {
+    initUI();
+    initGlobe();
+    bindAppEvents();
+
+    // Fase crítica para el primer frame: el globo y los listeners ya existen,
+    // pero el primer requestRender solo se dispara cuando la base del mapa está lista.
+    const staticAssetsPromise = loadStaticAssets();
+
+    // Fases en paralelo sin dependencia dura entre sí.
+    const initialRefreshPromise = refreshInitialData();
+    const backgroundLocationPromise = startBackgroundLocationLookup();
+
+    await staticAssetsPromise;
+    requestInitialRender();
+
+    // El refresco inicial y la localización pueden completarse después del primer frame.
+    await Promise.allSettled([
+      initialRefreshPromise,
+      backgroundLocationPromise
+    ]);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     // Garantiza que el DOM exista antes de inicializar módulos.
-    init().catch((e) => console.error("[app] init failed:", e));
+    init().catch((error) => console.error("[app] init failed:", error));
   });
 })();
