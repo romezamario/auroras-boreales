@@ -99,6 +99,9 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `js/state.js`, `README.md`, `AGENTS.md`
 
+- [x] Tarea 20: Restaurar la geolocalización por IP incorporando un fallback de proveedor cuando falle el endpoint principal.
+  - Estado: `completada`
+  - Evidencia: `js/config.js`, `README.md`, `tratamiento-datos.html`, `AGENTS.md`
 - [x] Tarea 20: Refactorizar `js/app.js` para dividir el bootstrap en fases pequeñas y paralelizar assets, refresco inicial y geolocalización.
   - Estado: `completada`
   - Evidencia: `js/app.js`, `README.md`, `AGENTS.md`
@@ -119,6 +122,7 @@ Documentar de forma continua:
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
+- Para que la geolocalización por IP no desaparezca ante caídas, bloqueos o rate limits de un proveedor frontend-only, conviene encadenar al menos un fallback compatible con navegador (JSONP o CORS) y normalizar ambos payloads en el mismo servicio.
 - GitHub Actions permite adelantar la migración de acciones JavaScript a Node.js 24 mediante `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, útil cuando aún no existen majors nuevos para todas las acciones oficiales de Pages.
 - La UI de versión puede resolverse con metadata embebida en `App.config.version` y solo consultar remoto de forma opcional/caché, evitando bloquear el arranque por disponibilidad de GitHub.
 - La clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación de una malla global derivada pueden compartirse desde un servicio reutilizable independiente del módulo de picking.
@@ -172,6 +176,10 @@ Documentar de forma continua:
 - **2026-03-23** — Corregir el endpoint JSONP de geolocalización para usar la ruta nativa `/jsonp/` de `ipapi.co`.
   - **Motivo:** La integración estaba llamando `/json/?callback=...`, pero la documentación del proveedor expone JSONP como un formato/ruta separado y eso volvió inconsistente la respuesta esperada por el navegador.
   - **Impacto:** La obtención de ubicación aproximada vuelve a ser compatible con la implementación cliente actual y la documentación queda alineada.
+
+- **2026-03-23** — Añadir un fallback de geolocalización por IP vía GeoJS detrás de `ipapi`.
+  - **Motivo:** La localización dejó de mostrarse nuevamente; al depender de un único proveedor frontend-only, cualquier degradación o bloqueo temporal dejaba al sitio sin marcador ni datos de región/país.
+  - **Impacto:** La app intenta primero `ipapi` por JSONP y, si falla, cae a GeoJS por CORS sin cambiar la API interna del servicio.
 
 - **2026-03-23** — Ajustar el resize del canvas para tomar la altura real de la tarjeta contenedora.
   - **Motivo:** El globo estaba usando una altura limitada por viewport y dejaba un bloque en blanco al pie de la visualización.
@@ -309,6 +317,11 @@ Documentar de forma continua:
   - Archivos: `js/config.js`, `README.md`, `tratamiento-datos.html`
   - Motivo: La integración apuntaba a `/json/` con `callback`, mientras el proveedor documenta JSONP en `/jsonp/`.
   - Resultado esperado: Reanudación de la localización aproximada en frontend y documentación consistente con la implementación real.
+
+- **Cambio:** Incorporación de un fallback de proveedor para la geolocalización por IP.
+  - Archivos: `js/config.js`, `README.md`, `tratamiento-datos.html`, `AGENTS.md`
+  - Motivo: Evitar que una caída, bloqueo o rate limit del proveedor principal vuelva a dejar vacía la localización aproximada en la UI.
+  - Resultado esperado: La app conserva la localización por IP usando `ipapi` como principal y GeoJS como respaldo compatible con navegador.
 
 - **Cambio:** Corrección del cálculo de tamaño del canvas del globo.
   - Archivos: `js/globe/globe.core.js`

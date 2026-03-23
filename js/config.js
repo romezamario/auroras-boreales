@@ -23,6 +23,10 @@
             url: "https://ipapi.co/jsonp/",
             type: "jsonp",
             callbackParam: "callback"
+          },
+          {
+            url: "https://get.geojs.io/v1/ip/geo.json",
+            type: "json"
           }
         ]
       },
