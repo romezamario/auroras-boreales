@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="t d">
+<title id="t">Evaluación crítica y hoja de ruta</title>
+<desc id="d">Fortalezas, limitaciones y fases de evolución del proyecto.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#081520"/>
+    <stop offset="100%" stop-color="#12344a"/>
+  </linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#12344a" stop-opacity="0.96"/>
+    <stop offset="100%" stop-color="#0b2231" stop-opacity="0.96"/>
+  </linearGradient>
+  <style>
+    .title{font:700 30px 'Segoe UI',Arial,sans-serif;fill:#ecf8ff}
+    .subtitle{font:400 16px 'Segoe UI',Arial,sans-serif;fill:#a9dff8}
+    .label{font:700 18px 'Segoe UI',Arial,sans-serif;fill:#f3fbff}
+    .text{font:400 15px 'Segoe UI',Arial,sans-serif;fill:#d6f2ff}
+    .mini{font:600 13px 'Segoe UI',Arial,sans-serif;fill:#82d9ff;letter-spacing:.08em;text-transform:uppercase}
+    .chip{font:700 14px 'Segoe UI',Arial,sans-serif;fill:#081520}
+    .num{font:700 22px 'Segoe UI',Arial,sans-serif;fill:#5bc0ff}
+  </style>
+</defs>
+<rect width="100%" height="100%" rx="28" fill="url(#bg)"/>
+
+<text x="60" y="72" class="mini">Presentación ejecutiva</text>
+<text x="60" y="118" class="title">Evaluación crítica y hoja de ruta</text>
+<g>
+  <rect x="60" y="180" width="330" height="340" rx="26" fill="url(#panel)" stroke="#34d399" stroke-opacity=".5"/>
+  <text x="90" y="224" class="label">Fortalezas</text>
+  <text x="90" y="266" class="text">• Integración de fuentes heterogéneas</text>
+  <text x="90" y="298" class="text">• Contrato intermedio con clouds.json</text>
+  <text x="90" y="330" class="text">• Arquitectura clara y explicable</text>
+  <text x="90" y="362" class="text">• Publicación simple como sitio estático</text>
+  <rect x="435" y="180" width="330" height="340" rx="26" fill="url(#panel)" stroke="#fbbf24" stroke-opacity=".5"/>
+  <text x="465" y="224" class="label">Limitaciones</text>
+  <text x="465" y="266" class="text">• Dependencia de APIs/CDNs externos</text>
+  <text x="465" y="298" class="text">• Sin observabilidad ni suite formal</text>
+  <text x="465" y="330" class="text">• Módulos globales/IIFE</text>
+  <text x="465" y="362" class="text">• Validación operativa principalmente manual</text>
+  <rect x="810" y="180" width="330" height="340" rx="26" fill="url(#panel)" stroke="#60a5fa" stroke-opacity=".5"/>
+  <text x="840" y="224" class="label">Ruta sugerida</text>
+  <text x="840" y="266" class="text">Fase 1 · pruebas y validación de artefactos</text>
+  <text x="840" y="298" class="text">Fase 2 · ES Modules y separación de dominio</text>
+  <text x="840" y="330" class="text">Fase 3 · CI/CD, versionado y observabilidad</text>
+  <text x="840" y="362" class="text">Fase 4 · backend opcional solo si aporta valor</text>
+</g>
+</svg>
