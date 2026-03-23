@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="t d">
+<title id="t">Resumen ejecutivo auroras-boreales</title>
+<desc id="d">Tarjeta resumen del proyecto con fuentes de datos, propuesta de valor y stack.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#081520"/>
+    <stop offset="100%" stop-color="#12344a"/>
+  </linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#12344a" stop-opacity="0.96"/>
+    <stop offset="100%" stop-color="#0b2231" stop-opacity="0.96"/>
+  </linearGradient>
+  <style>
+    .title{font:700 30px 'Segoe UI',Arial,sans-serif;fill:#ecf8ff}
+    .subtitle{font:400 16px 'Segoe UI',Arial,sans-serif;fill:#a9dff8}
+    .label{font:700 18px 'Segoe UI',Arial,sans-serif;fill:#f3fbff}
+    .text{font:400 15px 'Segoe UI',Arial,sans-serif;fill:#d6f2ff}
+    .mini{font:600 13px 'Segoe UI',Arial,sans-serif;fill:#82d9ff;letter-spacing:.08em;text-transform:uppercase}
+    .chip{font:700 14px 'Segoe UI',Arial,sans-serif;fill:#081520}
+    .num{font:700 22px 'Segoe UI',Arial,sans-serif;fill:#5bc0ff}
+  </style>
+</defs>
+<rect width="100%" height="100%" rx="28" fill="url(#bg)"/>
+
+<text x="60" y="72" class="mini">Presentación ejecutiva</text>
+<text x="60" y="120" class="title">auroras-boreales</text>
+<text x="60" y="155" class="subtitle">Visualización de auroras, nubosidad y condición día/noche sobre un globo interactivo.</text>
+<rect x="60" y="200" width="510" height="180" rx="22" fill="url(#panel)" stroke="#5bc0ff" stroke-opacity=".35"/>
+<text x="90" y="240" class="label">Pregunta que responde</text>
+<text x="90" y="280" class="text">¿Dónde podría verse una aurora con mejores</text>
+<text x="90" y="305" class="text">condiciones de observación?</text>
+<text x="90" y="345" class="text">Integra variables geofísicas y atmosféricas en</text>
+<text x="90" y="370" class="text">una sola lectura operativa y explicable.</text>
+<rect x="600" y="200" width="250" height="180" rx="22" fill="url(#panel)" stroke="#5bc0ff" stroke-opacity=".35"/>
+<text x="630" y="240" class="label">Fuentes</text>
+<text x="630" y="280" class="text">• NOAA OVATION</text>
+<text x="630" y="312" class="text">• NASA MODIS / LAADS</text>
+<text x="630" y="344" class="text">• world-atlas + GitHub API</text>
+<rect x="880" y="200" width="260" height="180" rx="22" fill="url(#panel)" stroke="#5bc0ff" stroke-opacity=".35"/>
+<text x="910" y="240" class="label">Runtime</text>
+<text x="910" y="280" class="text">Frontend estático</text>
+<text x="910" y="312" class="text">Canvas + D3</text>
+<text x="910" y="344" class="text">Sin backend transaccional</text>
+<g transform="translate(60 435)">
+  <rect width="160" height="44" rx="22" fill="#a7f3d0"/><text x="80" y="28" text-anchor="middle" class="chip">NOAA OVATION</text>
+  <rect x="184" width="170" height="44" rx="22" fill="#bfdbfe"/><text x="269" y="28" text-anchor="middle" class="chip">NASA / MODIS</text>
+  <rect x="378" width="160" height="44" rx="22" fill="#fde68a"/><text x="458" y="28" text-anchor="middle" class="chip">Canvas + D3</text>
+  <rect x="562" width="220" height="44" rx="22" fill="#f9a8d4"/><text x="672" y="28" text-anchor="middle" class="chip">Sitio estático</text>
+</g>
+<g transform="translate(60 530)">
+  <text x="0" y="0" class="mini">Valor diferencial</text>
+  <text x="0" y="40" class="text">Unifica clima espacial, nubosidad y contexto geográfico en una experiencia visual accesible.</text>
+</g>
+</svg>

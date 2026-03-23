@@ -75,6 +75,8 @@ Documentar de forma continua:
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
+- La clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación de una malla global derivada pueden compartirse desde un servicio reutilizable independiente del módulo de picking.
+- Para evitar recalcular vecinos aurorales sobre toda la malla global, conviene indexar los puntos OVATION por celdas enteras de latitud/longitud y consultar primero vecindarios locales antes de caer al arreglo completo.
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
 - GitHub Pages estaba publicando el repositorio completo; para excluir artefactos recolectados hay que construir un directorio intermedio y subir ese bundle en `actions/upload-pages-artifact`.
 - La agrupación de enlaces de cabecera se controla con `.header-links`; para mantenerlos en una sola fila en escritorio conviene evitar `flex-direction: column` y usar `white-space: nowrap`.
@@ -127,6 +129,9 @@ Documentar de forma continua:
   - **Motivo:** Reunir en una sola narrativa tipo presentación de maestría la explicación funcional, arquitectónica y metodológica del proyecto.
   - **Impacto:** El sitio incorpora una ruta documental integral basada en `README.md` y `presentaciones/`, sin requerir abrir archivos externos.
 
+- **2026-03-23** — Incorporar gráficos Mermaid y láminas SVG derivadas de `presentaciones/` dentro de `explicacion-sitio.html`.
+  - **Motivo:** Convertir la explicación textual en un recurso visual más cercano a una defensa académica y reutilizar material ya producido por el proyecto.
+  - **Impacto:** La página documental gana diagramas embebidos, figuras ilustrativas versionables en GitHub y mejor capacidad de comunicación sin depender de abrir el PPTX o el DOCX por separado.
 - **2026-03-23** — Reorganizar los enlaces de cabecera en una sola fila dentro del bloque de acciones.
   - **Motivo:** Evitar que “Tratamiento de datos” y “Explicación del sitio” se separen en dos renglones debajo del botón principal.
   - **Impacto:** La cabecera conserva una jerarquía más compacta y estable en escritorio sin alterar el comportamiento responsive existente.
@@ -136,6 +141,9 @@ Documentar de forma continua:
 - **2026-03-23** — Incorporar una capa derivada de probabilidad de visibilidad, gobernada por estado propio y cacheada para render incremental.
   - **Motivo:** Separar visualmente la clasificación Baja/Media/Alta sin mezclarla con la capa auroral original y sin recalcularla completa en cada repintado.
   - **Impacto:** El render del globo suma un overlay opcional con filtros por categoría y dependiente tanto de aurora como de nubosidad.
+- **2026-03-23** — Extraer a `js/data/probability.service.js` la lógica compartida de probabilidad, lecturas puntuales y grilla global cacheada.
+  - **Motivo:** Reutilizar la misma resolución de intensidad/nubosidad tanto en el picking del globo como en futuros overlays o análisis globales, evitando duplicación y preparando una malla explícita de 1 grado.
+  - **Impacto:** `globe.pick` queda más simple, el estado incorpora cachés derivados y los cambios de aurora/nubes regeneran la grilla automáticamente.
 
 ---
 
@@ -191,6 +199,10 @@ Documentar de forma continua:
   - Motivo: Centralizar en el sitio la documentación del proyecto usando como base el README y los archivos de `presentaciones/`.
   - Resultado esperado: Cualquier persona puede revisar el contexto, la metodología, la arquitectura y la hoja de ruta sin salir del sitio.
 
+- **Cambio:** Inclusión de diagramas Mermaid y láminas SVG derivadas de documentos académicos en la explicación del sitio.
+  - Archivos: `explicacion-sitio.html`, `style.css`, `assets/explicacion/*.svg`, `README.md`
+  - Motivo: Responder a la solicitud de enriquecer la explicación visual con gráficos basados en `presentaciones/`, pero en formato SVG más amigable para versionado y revisión en GitHub.
+  - Resultado esperado: Página documental más pedagógica, con evidencia visual integrada y activos textuales más fáciles de revisar, versionar y ajustar.
 - **Cambio:** Ajuste del bloque de enlaces de la cabecera para mostrarlos en una sola fila bajo el botón de refresco.
   - Archivos: `style.css`
   - Motivo: Corregir el quiebre visual que separaba los accesos a "Tratamiento de datos" y "Explicación del sitio" en dos renglones.
@@ -203,6 +215,10 @@ Documentar de forma continua:
   - Archivos: `js/overlays/probability.overlay.js`, `js/config.js`, `js/state.js`, `js/globe/globe.render.js`, `js/data/refresh.service.js`, `index.html`, `README.md`
   - Motivo: Pintar categorías Baja/Media/Alta sobre la cara visible del globo usando la grilla derivada de aurora + nubosidad y permitir filtros por categoría desde estado.
   - Resultado esperado: La app puede activar una capa opcional de probabilidad, reutilizando caché y refrescando cuando cambian datos o filtros.
+- **Cambio:** Nuevo servicio reutilizable de probabilidad y muestreo geoespacial.
+  - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
+  - Motivo: Centralizar la clasificación de visibilidad, las lecturas puntuales de aurora/nubosidad y la generación cacheada de una grilla global de 1 grado.
+  - Resultado esperado: La app puede reutilizar el mismo cálculo en picking y en futuras capas derivadas, regenerando automáticamente la malla cuando cambian auroras o nubes.
 
 ---
 
@@ -213,7 +229,11 @@ Documentar de forma continua:
 - [x] Hacer que la visualización ocupe mejor los espacios vacíos del layout de escritorio.
   - Estado: `completada`
   - Evidencia: `style.css`
+- [x] Centralizar la clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación cacheada de la grilla global de 1 grado.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
+- [ ] Revisar periódicamente que la documentación de fuentes, workflows, diagramas Mermaid, láminas SVG y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
 - [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
