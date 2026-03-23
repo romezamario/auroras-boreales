@@ -136,11 +136,11 @@ sequenceDiagram
 - `aurora.forecastTime`: fecha/hora publicada por NOAA.
 - `clouds.gridNormalized`: grid normalizado a valores `[0..1]` listo para render.
 - `clouds.coverage`: porcentaje global de nubosidad.
-- `selection`: punto actualmente inspeccionado, incluida su clasificación de visibilidad estimada.
-- `probability.enabled` y `probability.filters`: controlan la capa visual de probabilidad y las categorías `high`/`medium`/`low` habilitadas.
-- `probability.gridCache`: caché derivada desde aurora + nubosidad para pintar categorías Baja/Media/Alta sin recomputar toda la malla en cada frame.
+- `selection`: punto actualmente inspeccionado, incluida su clasificación canónica de visibilidad `{ key, label, range, color }`.
+- `probability.enabled` y `probability.filters`: controlan la capa visual de probabilidad y las categorías canónicas `high`/`medium`/`low` habilitadas.
+- `probability.gridCache`: caché derivada desde aurora + nubosidad para pintar categorías sin depender de etiquetas visibles ni acentos.
 - `probability.auroraIndex`: índice espacial por celdas enteras para resolver la intensidad más cercana sin recorrer toda la malla derivada.
-- `probability.globalGridPoints`: colección cacheada de puntos `{ lon, lat, intensity, clouds, probability, cartesian }` para la grilla global de 1°.
+- `probability.globalGridPoints`: colección cacheada de puntos `{ lon, lat, intensity, clouds, probability, cartesian }`, donde `probability` expone `{ key, label, range, color }` para la grilla global de 1°.
 - `userLocation`: localización inferida por IP.
 
 ### Feed de auroras esperado
@@ -220,11 +220,10 @@ erDiagram
 - El render de auroras y nubes omite puntos que quedan “detrás” del hemisferio visible mediante producto punto cartesiano.
 - La nube visible se restringe al rango seleccionado por el usuario en porcentaje normalizado.
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
-- La probabilidad de visibilidad del punto inspeccionado y de la capa opcional se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
-- La capa `Probabilidad` permanece apagada al iniciar; cuando se activa reutiliza los umbrales de intensidad y nubosidad ya presentes y permite filtrar visualmente las categorías `Alta`, `Media` y `Baja`.
-- La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
-- La capa de probabilidad solo dibuja la cara visible del globo y permite filtrar categorías activas desde `App.state.probability.activeCategories`.
-- La probabilidad de visibilidad del punto inspeccionado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
+- La probabilidad de visibilidad se clasifica con una matriz simple y canónica: `high`/`Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `medium`/`Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `low`/`Baja` en cualquier otro caso.
+- Cada categoría de probabilidad comparte la misma estructura `{ key, label, range, color }` para picking, inspector, overlay, filtros y cachés de puntos.
+- La capa `Probabilidad` permanece apagada al iniciar; cuando se activa reutiliza los umbrales de intensidad y nubosidad ya presentes y filtra por las claves canónicas `high`, `medium` y `low`.
+- La capa de probabilidad solo dibuja la cara visible del globo y consulta las categorías activas desde `App.state.probability.filters`.
 - La lectura auroral reutilizable usa un índice espacial por celdas enteras y compara primero vecinos locales antes de recurrir a un fallback más amplio, para que la grilla global derivada de 1° sea viable en el navegador.
 - La colección global derivada se regenera automáticamente cuando cambian `data:aurora` o `data:clouds`.
 - El refresco de datos acepta degradación parcial: si falla nubosidad, la app puede seguir mostrando auroras.
@@ -234,8 +233,8 @@ erDiagram
 ## Funcionalidad
 - Visualización del globo interactivo con arrastre y selección de puntos, ajustada al alto útil del panel principal.
 - Activación/desactivación de capas de aurora, nubosidad, probabilidad derivada y máscara día/noche.
-- Servicio reutilizable para muestrear cualquier coordenada `(lon, lat)` y producir una grilla global cacheada de probabilidad a resolución explícita de 1°.
-- Activación/desactivación de capas de aurora, nubosidad y máscara día/noche.
+- Servicio reutilizable para muestrear cualquier coordenada `(lon, lat)` y producir una grilla global cacheada de probabilidad a resolución explícita de 1°, con categorías canónicas reutilizables en toda la UI.
+- Activación/desactivación de capas de aurora, nubosidad, probabilidad derivada y máscara día/noche.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
 - Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y un bloque de checkboxes bajo `Nubosidad (cobertura)` para filtrar las categorías `Alta`, `Media` y `Baja`.
@@ -313,7 +312,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - Se limita la densidad de puntos renderizados por `sampleStep`/`auroraStep` según el tamaño del viewport.
 - Se topa el device pixel ratio (`dprMax`) para evitar sobrecoste en pantallas densas.
 - Se usa caché de malla de nubes (`gridCache`) para no recalcular puntos en cada frame.
-- La capa de probabilidad reutiliza puntos aurorales enriquecidos con nubosidad y categoría en `App.state.probability.gridCache`, minimizando trabajo durante rotación o drag.
+- La capa de probabilidad reutiliza una caché derivada con puntos enriquecidos por una categoría canónica `{ key, label, range, color }`, minimizando trabajo durante rotación o drag.
 - El grid de nubes se transporta como arreglo plano compacto `values_0_100`.
 - La geolocalización y consulta de versión no bloquean el render principal.
 
