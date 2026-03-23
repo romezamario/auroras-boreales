@@ -201,6 +201,10 @@ button:focus-visible {
   gap: 10px;
 }
 
+.probability-filter-items {
+  grid-template-columns: 1fr;
+}
+
 .toggle {
   position: relative;
   display: flex;
