@@ -35,7 +35,7 @@
 
       function fmtProbability(probability) {
         if (!probability?.key) return "—";
-        return `${probability.label} (${probability.range}, clave: ${probability.key})`;
+        return `${probability.label} (${probability.range})`;
       }
 
       App.on("globe:select", (selection) => {
