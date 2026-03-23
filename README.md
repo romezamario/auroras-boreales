@@ -248,7 +248,8 @@ erDiagram
 - **NOAA SWPC:** feed JSON `ovation_aurora_latest.json`.
 - **world-atlas / jsDelivr:** topología mundial para masa continental y fronteras.
 - **Metadata de versión embebida:** `js/config.js` publica la etiqueta/fecha visible y puede inyectarse durante build o despliegue; el refresco remoto hacia GitHub queda deshabilitado por defecto y es opcional.
-- **ipapi (`/jsonp/`):** estimación geográfica por IP consumida desde el navegador mediante JSONP.
+- **ipapi (`/jsonp/`):** proveedor principal de estimación geográfica por IP consumido desde el navegador mediante JSONP.
+- **GeoJS (`/v1/ip/geo.json`):** fallback por CORS para mantener la geolocalización disponible si el proveedor principal falla o degrada.
 - **NASA LAADS / Earthdata:** origen del dataset MODIS procesado offline.
 
 ### Diagrama de integraciones
@@ -259,6 +260,7 @@ flowchart TD
     APP --> NOAA[services.swpc.noaa.gov]
     APP --> ATLAS[cdn.jsdelivr.net / world-atlas]
     APP --> IP1[ipapi.co/jsonp/]
+    APP --> IP2[get.geojs.io/v1/ip/geo.json]
     JOB[Pipeline mod08_cloudfraction.py] --> LAADS[ladsweb.modaps.eosdis.nasa.gov]
     JOB --> CLOUDS[data/clouds.json]
     CLOUDS --> APP
@@ -362,7 +364,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 
 ## Resiliencia
 - El refresco usa `Promise.allSettled`, lo que permite tolerar fallos parciales.
-- La geolocalización por IP usa `ipapi.co/jsonp/` para evitar depender de CORS en el navegador.
+- La geolocalización por IP usa `ipapi.co/jsonp/` como proveedor principal y `get.geojs.io/v1/ip/geo.json` como fallback por CORS para evitar que una caída puntual deje la UI sin localización aproximada.
 - La UI mantiene funcionalidad básica aun sin `clouds.grid`, mostrando al menos cobertura global cuando existe.
 - El sombreado día/noche se recalcula localmente sin depender de APIs externas una vez cargada la app.
 
