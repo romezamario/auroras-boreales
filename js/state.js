@@ -35,6 +35,12 @@
       },
       // Último punto seleccionado en el globo.
       selection: null,
+      // Estado derivado para probabilidad/lecturas geoespaciales reutilizables.
+      probability: {
+        auroraIndex: null,
+        globalGridPoints: null,
+        globalGridStep: null
+      },
       // Ubicación aproximada del usuario (por IP o Geolocation API).
       userLocation: {
         lon: null,
