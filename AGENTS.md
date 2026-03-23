@@ -117,6 +117,10 @@ Documentar de forma continua:
   - **Motivo:** Reunir en una sola narrativa tipo presentación de maestría la explicación funcional, arquitectónica y metodológica del proyecto.
   - **Impacto:** El sitio incorpora una ruta documental integral basada en `README.md` y `presentaciones/`, sin requerir abrir archivos externos.
 
+- **2026-03-23** — Incorporar gráficos Mermaid y láminas SVG derivadas de `presentaciones/` dentro de `explicacion-sitio.html`.
+  - **Motivo:** Convertir la explicación textual en un recurso visual más cercano a una defensa académica y reutilizar material ya producido por el proyecto.
+  - **Impacto:** La página documental gana diagramas embebidos, figuras ilustrativas versionables en GitHub y mejor capacidad de comunicación sin depender de abrir el PPTX o el DOCX por separado.
+
 ---
 
 ## 5) Registro de cambios realizados
@@ -171,6 +175,11 @@ Documentar de forma continua:
   - Motivo: Centralizar en el sitio la documentación del proyecto usando como base el README y los archivos de `presentaciones/`.
   - Resultado esperado: Cualquier persona puede revisar el contexto, la metodología, la arquitectura y la hoja de ruta sin salir del sitio.
 
+- **Cambio:** Inclusión de diagramas Mermaid y láminas SVG derivadas de documentos académicos en la explicación del sitio.
+  - Archivos: `explicacion-sitio.html`, `style.css`, `assets/explicacion/*.svg`, `README.md`
+  - Motivo: Responder a la solicitud de enriquecer la explicación visual con gráficos basados en `presentaciones/`, pero en formato SVG más amigable para versionado y revisión en GitHub.
+  - Resultado esperado: Página documental más pedagógica, con evidencia visual integrada y activos textuales más fáciles de revisar, versionar y ajustar.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
@@ -180,7 +189,7 @@ Documentar de forma continua:
 - [x] Hacer que la visualización ocupe mejor los espacios vacíos del layout de escritorio.
   - Estado: `completada`
   - Evidencia: `style.css`
-- [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
+- [ ] Revisar periódicamente que la documentación de fuentes, workflows, diagramas Mermaid, láminas SVG y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
 - [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.

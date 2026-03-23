@@ -5,6 +5,23 @@
   <title>Explicación del sitio · Visualización de Auroras</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '#163a52',
+        primaryTextColor: '#ecf8ff',
+        primaryBorderColor: '#5bc0ff',
+        lineColor: '#82d9ff',
+        secondaryColor: '#1d4f6d',
+        tertiaryColor: '#0e2738',
+        background: '#081520'
+      }
+    });
+  </script>
 </head>
 <body>
   <div class="app-shell">
@@ -37,6 +54,29 @@
           <span>NASA / MODIS</span>
           <span>Canvas + D3</span>
           <span>Frontend estático</span>
+        </div>
+      </section>
+
+
+      <section class="card presentation-section visual-story-section">
+        <div class="section-heading">
+          <span class="section-kicker">0. Galería visual</span>
+          <h2>Gráficos e imágenes incorporados desde la documentación del proyecto</h2>
+          <p>La explicación ahora combina narrativa textual con material visual reinterpretado en SVG a partir de <code>presentaciones/</code> y diagramas Mermaid embebidos para que la lectura sea más parecida a una defensa académica y los activos puedan versionarse mejor en GitHub.</p>
+        </div>
+        <div class="figure-grid">
+          <figure class="document-figure figure-featured">
+            <img src="assets/explicacion/executive-slide-overview.svg" alt="Resumen ejecutivo del proyecto auroras-boreales extraído de la presentación ejecutiva">
+            <figcaption>Resumen ejecutivo sintetizado en SVG a partir de la presentación original: valor diferencial, fuentes principales y propuesta de visualización integradora.</figcaption>
+          </figure>
+          <figure class="document-figure">
+            <img src="assets/explicacion/doc-architecture-diagram.svg" alt="Diagrama arquitectónico extraído del documento académico del proyecto">
+            <figcaption>Diagrama reinterpretado en SVG a partir del documento académico para reforzar la separación entre adquisición, procesamiento y consumo visual.</figcaption>
+          </figure>
+          <figure class="document-figure">
+            <img src="assets/explicacion/doc-deployment-flow.svg" alt="Flujo de despliegue o secuencia operativa extraído del documento académico del proyecto">
+            <figcaption>Flujo metodológico reinterpretado en SVG para explicar cómo la solución conecta la parte analítica con la publicación web.</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -95,6 +135,28 @@
           <span class="section-kicker">3. Arquitectura</span>
           <h2>Separación entre runtime web y procesamiento offline</h2>
         </div>
+        <div class="mermaid-card">
+          <div class="mermaid-caption-block">
+            <h3>Diagrama de arquitectura del sitio</h3>
+            <p>Este gráfico resume la relación entre frontend, estado compartido, servicios remotos y pipeline offline de <code>clouds.json</code>.</p>
+          </div>
+          <pre class="mermaid">
+flowchart LR
+    U[Usuario] --> H[index.html + style.css]
+    H --> APP[js/app.js]
+    APP --> STATE[js/state.js]
+    APP --> DATA[js/data/*.js]
+    APP --> GLOBE[js/globe/*.js]
+    APP --> UI[js/ui/*.js]
+    DATA --> NOAA[NOAA OVATION]
+    DATA --> CLOUDS[data/clouds.json]
+    DATA --> IP[ipapi JSONP]
+    JOB[scripts/mod08_cloudfraction.py] --> MODIS[NASA LAADS / MODIS]
+    JOB --> CLOUDS
+    GLOBE --> CANVAS[Canvas interactivo]
+    UI --> CANVAS
+          </pre>
+        </div>
         <div class="architecture-grid">
           <article class="info-panel accent-panel">
             <h3>Frontend modular</h3>
@@ -119,6 +181,32 @@
         <div class="section-heading">
           <span class="section-kicker">4. Flujo funcional</span>
           <h2>Del arranque del navegador al render del globo</h2>
+        </div>
+        <div class="mermaid-card">
+          <div class="mermaid-caption-block">
+            <h3>Secuencia de carga e interacción</h3>
+            <p>Mermaid ayuda a visualizar el orden real en que el navegador inicializa la experiencia, obtiene datos y solicita el primer render.</p>
+          </div>
+          <pre class="mermaid">
+sequenceDiagram
+    participant B as Browser
+    participant App as js/app.js
+    participant Refresh as refresh.service
+    participant NOAA as NOAA
+    participant Clouds as clouds.json
+    participant IP as ipapi
+
+    B->>App: DOMContentLoaded
+    App->>App: Inicializa UI, canvas y globo
+    App->>IP: Solicita localización aproximada
+    App->>Refresh: refreshAll()
+    par Carga concurrente
+      Refresh->>NOAA: fetchLatest()
+      Refresh->>Clouds: fetchLatest()
+    end
+    Refresh-->>App: Actualiza App.state
+    App-->>B: requestRender()
+          </pre>
         </div>
         <ol class="process-list">
           <li><strong>Inicialización:</strong> el navegador carga la shell visual y prepara canvas, paneles y controles.</li>
@@ -201,6 +289,16 @@
         <div class="section-heading">
           <span class="section-kicker">8. Evaluación crítica</span>
           <h2>Qué se ha logrado y qué falta para una siguiente etapa</h2>
+        </div>
+        <div class="figure-grid roadmap-gallery">
+          <figure class="document-figure">
+            <img src="assets/explicacion/executive-slide-architecture.svg" alt="Lámina de arquitectura lógica extraída de la presentación ejecutiva">
+            <figcaption>Lámina de arquitectura lógica reinterpretada en SVG para reforzar la lectura modular y la partición runtime/offline.</figcaption>
+          </figure>
+          <figure class="document-figure">
+            <img src="assets/explicacion/executive-slide-roadmap.svg" alt="Lámina de evaluación crítica y hoja de ruta extraída de la presentación ejecutiva">
+            <figcaption>Hoja de ruta visual reinterpretada en SVG con fortalezas, limitaciones y evolución sugerida para futuras fases del proyecto.</figcaption>
+          </figure>
         </div>
         <div class="two-column-grid">
           <article class="info-panel">
