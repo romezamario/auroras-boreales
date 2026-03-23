@@ -116,7 +116,8 @@ sequenceDiagram
 - `js/data/ovation.service.js`: normaliza coordenadas NOAA y extrae `Forecast Time`.
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
-- `js/data/probability.service.js`: centraliza la clasificación de visibilidad, la lectura puntual de aurora/nubes y la generación cacheada de una grilla global de 1°.
+- `js/data/geo.utils.js`: concentra helpers geoespaciales compartidos como normalización de longitud, clamp y lectura de celdas de nubosidad para evitar duplicación entre servicios.
+- `js/data/probability.service.js`: centraliza la clasificación de visibilidad, la lectura puntual de aurora/nubes y la generación cacheada de una grilla global de 1°, reutilizando `js/data/geo.utils.js` para helpers espaciales comunes.
 - `js/data/location.service.js`: consulta la geolocalización por IP mediante JSONP y normaliza la respuesta al estado de la app.
 - `js/overlays/*.js`: renderizado de auroras, nubes, probabilidad derivada y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos, incluyendo toggles de capas, sliders y filtros de probabilidad.

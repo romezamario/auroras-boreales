@@ -90,6 +90,7 @@ Documentar de forma continua:
 - Las capas derivadas pueden reutilizar la malla auroral ya normalizada y cachear puntos enriquecidos con nubosidad/categoría para evitar recomputar la clasificación en cada frame.
 - La grilla global de probabilidad debe filtrar primero por relevancia auroral; si la intensidad queda por debajo del umbral mínimo configurable, la coordenada no debe entrar en caché ni en el overlay.
 - La capa `Probabilidad` se genera por intersección de dos fuentes heterogéneas: toma la intensidad auroral más cercana desde el índice espacial OVATION, cruza ese valor con la celda MODIS de nubosidad y produce una categoría discreta reutilizable tanto en el overlay como en el inspector.
+- Los helpers geoespaciales transversales (por ejemplo, normalización de longitud y lectura de celdas de nube) conviene centralizarlos en un módulo dedicado para evitar divergencias entre `utils`, `ovation.service` y `probability.service`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -166,6 +167,9 @@ Documentar de forma continua:
 - **2026-03-23** — Sincronizar la documentación principal con la capa `Probabilidad` como funcionalidad derivada apagada por defecto y filtrable por categorías.
   - **Motivo:** Dejar explícitas en `README.md` y `AGENTS.md` la regla de negocio, la interacción entre intensidad/nubosidad/probabilidad y la convención visual de colores para evitar deriva documental.
   - **Impacto:** No cambia el código de runtime, pero sí consolida la arquitectura derivada de la capa, reduce ambigüedades funcionales y fija una referencia única para futuras evoluciones del negocio.
+- **2026-03-23** — Centralizar en `js/data/geo.utils.js` los helpers geoespaciales compartidos y retirar utilidades de probabilidad sin uso desde `js/utils.js`.
+  - **Motivo:** Evitar lógica duplicada para normalizar longitudes y leer celdas MODIS, además de eliminar APIs legacy que ya no participan en el flujo activo.
+  - **Impacto:** `ovation.service`, `probability.service` y `utils` consumen una única fuente de verdad para helpers geográficos y se reduce deuda técnica.
 
 - **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
   - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
@@ -262,6 +266,10 @@ Documentar de forma continua:
   - Archivos: `README.md`, `AGENTS.md`
   - Motivo: Documentar en paralelo la nueva capa funcional, su control de UI, la interacción entre intensidad/nubosidad/probabilidad, el código de colores (baja verde, media amarillo, alta rojo), el estado inicial apagado y el filtro por categorías.
   - Resultado esperado: Documentación operativa y bitácora alineadas con la implementación real, incluyendo el aprendizaje técnico y el impacto arquitectónico/regulatorio de la nueva regla derivada.
+- **Cambio:** Centralización de helpers geoespaciales y limpieza de utilidades legacy sin uso.
+  - Archivos: `js/data/geo.utils.js`, `js/data/ovation.service.js`, `js/data/probability.service.js`, `js/utils.js`, `index.html`, `README.md`, `AGENTS.md`
+  - Motivo: Unificar `normalizeLon` y `getCloudValue` en un solo módulo, eliminar `App.utils.getVisibilityProbability` sin referencias y dejar un único punto de mantenimiento para helpers compartidos.
+  - Resultado esperado: Menor duplicación, menor riesgo de divergencia entre servicios geoespaciales y documentación alineada con la nueva responsabilidad modular.
 
 - **Cambio:** Separación visual de la caja `Categorías de probabilidad` respecto de la tarjeta de nubosidad.
   - Archivos: `index.html`, `style.css`, `README.md`

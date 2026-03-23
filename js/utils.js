@@ -22,10 +22,6 @@
     return ((angle % 360) + 360) % 360;
   }
 
-  function normalizeLon(lon) {
-    const normalized = ((lon + 540) % 360) - 180;
-    return normalized === -180 ? 180 : normalized;
-  }
 
   function toRad(deg) {
     return (deg * Math.PI) / 180;
@@ -76,7 +72,7 @@
     );
 
     const gha = normalizeAngle(gmst - rightAscension);
-    const subsolarLon = normalizeLon(-gha);
+    const subsolarLon = App.geoUtils.normalizeLon(-gha);
 
     return { lat: declination, lon: subsolarLon };
   };
@@ -100,41 +96,9 @@
   };
 
 
-  App.utils.getCloudValue = function (grid, lon, lat) {
-    if (!grid || !grid.w || !grid.h || !grid.values_0_100) return null;
-
-    const w = Number(grid.w);
-    const h = Number(grid.h);
-    if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return null;
-
-    const x = Math.max(0, Math.min(w - 1, Math.floor(((lon + 180) / 360) * w)));
-    const y = Math.max(0, Math.min(h - 1, Math.floor(((90 - lat) / 180) * h)));
-
-    const values = grid.values_0_100;
-    if (Array.isArray(values[0])) {
-      return Number(values[y]?.[x]) ?? null;
-    }
-
-    if (Array.isArray(values) && values.length === w * h) {
-      return Number(values[y * w + x]) ?? null;
-    }
-
-    return null;
-  };
-
-  App.utils.getVisibilityProbability = function (intensity, clouds) {
-    if (!Number.isFinite(intensity) || !Number.isFinite(clouds)) return null;
-
-    if (clouds <= 30 && intensity >= 70) {
-      return { label: "Alta", key: "high", range: "+60%" };
-    }
-
-    if (clouds <= 30 && intensity >= 30 && intensity <= 60) {
-      return { label: "Media", key: "medium", range: "31-60%" };
-    }
-
-    return { label: "Baja", key: "low", range: "0-30%" };
-  };
+  // Aliases retrocompatibles de helpers geoespaciales centralizados.
+  App.utils.normalizeLon = App.geoUtils.normalizeLon;
+  App.utils.getCloudValue = App.geoUtils.getCloudValue;
 
   // Valida la rejilla de nubes y normaliza su formato (2D o 1D).
   App.utils.normalizeCloudGrid = function (grid) {
