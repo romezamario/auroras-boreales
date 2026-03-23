@@ -91,6 +91,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `explicacion-sitio.html`, `AGENTS.md`
 
+- [x] Tarea 18: Extraer a un helper reusable la lógica compartida de los pares min/max en los controles de aurora y nubosidad.
+  - Estado: `completada`
+  - Evidencia: `js/ui/range-pair.controller.js`, `js/ui/threshold.ui.js`, `js/ui/clouds.ui.js`, `index.html`, `AGENTS.md`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -125,6 +129,7 @@ Documentar de forma continua:
 - Un fallo de runtime dentro de `probability.overlay` puede cortar el pipeline de render antes de dibujar auroras si la capa derivada se pinta antes que `auroraOverlay`; por eso los helpers de grilla deben referenciar explícitamente `App.geoUtils.getCloudValue`.
 - La capa `Probabilidad` debe heredar el mismo umbral mínimo de latitud absoluta que usa `auroraOverlay`; así se evita poblar la grilla derivada con puntos cercanos al ecuador que nunca deberían mostrarse visualmente.
 - Como la visibilidad real depende también del ciclo solar local, conviene aplicar el filtro de día/noche en tiempo de render del overlay y no durante el cacheo de la grilla; así no hace falta invalidar toda la malla cada minuto.
+- Los sliders dobles de min/max en `js/ui/` comparten un ciclo estable de lectura, normalización, fallback y sincronización de labels; conviene encapsularlo en un controller reusable y dejar fuera solo la traducción hacia el estado y el evento emitido.
 - `explicacion-sitio.html` ya embebe Mermaid en cliente, por lo que nuevos diagramas documentales pueden añadirse solo con bloques `<pre class="mermaid">` alineados con el contenido vigente del `README.md`.
 
 ### Riesgos / deuda técnica detectada
@@ -240,6 +245,9 @@ Documentar de forma continua:
 - **2026-03-23** — Ocultar en la capa `Probabilidad` cualquier punto donde sea de día al momento del render.
   - **Motivo:** Si una localización está iluminada por el Sol, no existe probabilidad útil de visibilidad auroral para el usuario aunque la intensidad y la nubosidad sean favorables.
   - **Impacto:** El overlay derivado mantiene su caché espacial, pero filtra dinámicamente coordenadas diurnas usando la geometría solar actual antes de dibujarlas.
+- **2026-03-23** — Extraer un controller reusable para sliders dobles min/max en la UI.
+  - **Motivo:** `threshold.ui` y `clouds.ui` repetían la misma normalización, fallback y sincronización de labels, con distinto mapeo de valores hacia el estado global.
+  - **Impacto:** La duplicación baja, el comportamiento queda homogéneo y cada módulo conserva solo la traducción específica (`0-100` vs `0-1`) y el evento de dominio que debe emitir.
 - **2026-03-23** — Añadir un diagrama Mermaid específico para la sección "Reglas de negocio" en `explicacion-sitio.html`.
   - **Motivo:** Traducir visualmente la lógica descrita en `README.md` para que la explicación del sitio sea más clara y trazable sin obligar a leer solo listas de texto.
   - **Impacto:** La documentación secundaria incorpora una vista de flujo sobre filtros, degradaciones y clasificación de probabilidad.
@@ -267,6 +275,10 @@ Documentar de forma continua:
   - Archivos: `index.html`, `style.css`, `js/ui/inspector.ui.js`, `js/ui/location.ui.js`
   - Motivo: Mostrar siempre la información clave y evitar pasos innecesarios en la interacción.
   - Resultado esperado: Paneles de detalle y localización visibles de forma permanente.
+- **Cambio:** Extracción de un helper reusable para pares de sliders min/max en la UI.
+  - Archivos: `js/ui/range-pair.controller.js`, `js/ui/threshold.ui.js`, `js/ui/clouds.ui.js`, `index.html`
+  - Motivo: Reutilizar la lógica compartida de lectura, normalización, fallback, labels y callbacks entre aurora y nubosidad, dejando fuera solo la traducción de unidades y el evento emitido.
+  - Resultado esperado: Menos duplicación, comportamiento consistente entre ambos controles y un punto único de mantenimiento para la interacción de rangos.
 - **Cambio:** Ajuste del servicio de geolocalización por IP para usar JSONP en navegador.
   - Archivos: `js/data/location.service.js`, `js/config.js`
   - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.
