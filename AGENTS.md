@@ -71,6 +71,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/state.js`, `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/probability.ui.js`, `js/ui/inspector.ui.js`, `js/data/refresh.service.js`, `README.md`, `AGENTS.md`
 
+- [x] Tarea 15: Corregir la activación de la capa de probabilidad para que no interrumpa el render auroral y pinte su malla derivada.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `AGENTS.md`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -101,6 +105,7 @@ Documentar de forma continua:
 - `App.state` debe conservar una única raíz canónica para `dayNight`, `selection` y `userLocation`; dentro de `probability` solo deben permanecer los metadatos propios de la capa y un único mapa compartido de categorías activas (`filters`/`activeCategories`).
 - El payload de selección del globo conviene generarlo desde un único helper compartido; así se evita duplicar el cálculo de intensidad, nubosidad, probabilidad e `isDay` entre el click handler y los refrescos de datos.
 - La retrocompatibilidad con `activeCategories` puede mantenerse como alias de `filters`, pero la fuente de verdad operativa debe seguir siendo `App.state.probability.filters`.
+- Un fallo de runtime dentro de `probability.overlay` puede cortar el pipeline de render antes de dibujar auroras si la capa derivada se pinta antes que `auroraOverlay`; por eso los helpers de grilla deben referenciar explícitamente `App.geoUtils.getCloudValue`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -195,6 +200,10 @@ Documentar de forma continua:
   - **Impacto:** Menos duplicación, eliminación de código muerto, un único punto de mantenimiento para la selección del inspector y retrocompatibilidad explícita para `activeCategories`.
 
 ---
+
+- **2026-03-23** — Corregir la generación de la grilla de probabilidad para usar el helper geoespacial compartido de nubosidad.
+  - **Motivo:** La capa derivada estaba llamando un símbolo inexistente (`getCloudValue`) y eso lanzaba una excepción al activarla, interrumpiendo también el render posterior de auroras.
+  - **Impacto:** La activación de `Probabilidad` vuelve a mostrar puntos derivados sin apagar visualmente la capa auroral.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -311,6 +320,11 @@ Documentar de forma continua:
   - Archivos: `js/state.js`, `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/probability.ui.js`, `js/ui/inspector.ui.js`, `js/overlays/probability.overlay.js`, `js/data/refresh.service.js`, `README.md`, `AGENTS.md`
   - Motivo: Centralizar la normalización de filtros de probabilidad, mantener `activeCategories` solo como alias retrocompatible, mover la construcción del payload seleccionado a un helper común y retirar propiedades/constantes sin uso real.
   - Resultado esperado: Menor deuda técnica, menos riesgo de inconsistencias entre overlay/UI/inspector y un flujo de selección más fácil de mantener.
+
+- **Cambio:** Corrección del muestreo de nubosidad usado por la grilla derivada de probabilidad.
+  - Archivos: `js/data/probability.service.js`, `AGENTS.md`
+  - Motivo: La generación de puntos globales invocaba `getCloudValue` sin namespace, provocando un error de JavaScript al activar la capa `Probabilidad`.
+  - Resultado esperado: La capa derivada dibuja sus categorías y el pipeline de render continúa hasta la capa auroral sin interrupciones.
 
 ---
 
