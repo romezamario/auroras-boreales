@@ -59,6 +59,7 @@
       probability: {
         enabled: false,
         opacity: 0.75,
+        minRelevantIntensity: 5,
         sampleStepMobile: 4,
         sampleStepDesktop: 2,
         pointRadiusMobile: 2.4,

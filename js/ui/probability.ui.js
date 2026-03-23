@@ -8,7 +8,7 @@
         categoryKeys.map((key) => [key, document.getElementById(`probability-filter-${key}`)])
       );
 
-      const filters = App.state.probability?.filters ?? {};
+      const filters = App.state.probability?.filters ?? App.state.probability?.activeCategories ?? {};
 
       Object.entries(this.filterInputs).forEach(([key, input]) => {
         if (!input) return;
@@ -22,6 +22,7 @@
         input.checked = filters[key] !== false;
         input.addEventListener("change", () => {
           App.state.probability.filters[key] = input.checked;
+          App.state.probability.activeCategories[key] = input.checked;
           App.emit("state:probabilityFilter", {
             filters: { ...App.state.probability.filters }
           });

@@ -241,6 +241,8 @@
     for (let lat = -90; lat <= 90; lat += normalizedStep) {
       for (let lon = -180; lon <= 180; lon += normalizedStep) {
         const intensity = getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
+        if (!isRelevantIntensity(intensity)) continue;
+
         const clouds = getCloudValue(App.state?.clouds?.grid, lon, lat);
         points.push(createProbabilityPoint(lon, lat, intensity, clouds));
       }
@@ -293,11 +295,14 @@
       rebuildCache();
       App.on("data:aurora", rebuildCache);
       App.on("data:clouds", rebuildCache);
+      App.on("state:threshold", rebuildCache);
     },
 
     categories: VISIBILITY_CATEGORIES,
     categoryKeys: VISIBILITY_CATEGORY_KEYS,
     classifyVisibilityProbability,
+    isRelevantIntensity,
+    getRelevantIntensityThreshold,
     getVisibilityCategory,
 
     createProbabilityPoint,

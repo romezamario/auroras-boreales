@@ -88,6 +88,7 @@ Documentar de forma continua:
 - La agrupación de enlaces de cabecera se controla con `.header-links`; para mantenerlos en una sola fila en escritorio conviene evitar `flex-direction: column` y usar `white-space: nowrap`.
 - Los controles reactivos del panel izquierdo siguen un patrón consistente: leen el estado inicial desde `App.state`, sincronizan el DOM y emiten eventos `state:*` para disparar el re-render del globo.
 - Las capas derivadas pueden reutilizar la malla auroral ya normalizada y cachear puntos enriquecidos con nubosidad/categoría para evitar recomputar la clasificación en cada frame.
+- La grilla global de probabilidad debe filtrar primero por relevancia auroral; si la intensidad queda por debajo del umbral mínimo configurable, la coordenada no debe entrar en caché ni en el overlay.
 - La capa `Probabilidad` se genera por intersección de dos fuentes heterogéneas: toma la intensidad auroral más cercana desde el índice espacial OVATION, cruza ese valor con la celda MODIS de nubosidad y produce una categoría discreta reutilizable tanto en el overlay como en el inspector.
 
 ### Riesgos / deuda técnica detectada
@@ -159,6 +160,9 @@ Documentar de forma continua:
 - **2026-03-23** — Extraer a `js/data/probability.service.js` la lógica compartida de probabilidad, lecturas puntuales y grilla global cacheada.
   - **Motivo:** Reutilizar la misma resolución de intensidad/nubosidad tanto en el picking del globo como en futuros overlays o análisis globales, evitando duplicación y preparando una malla explícita de 1 grado.
   - **Impacto:** `globe.pick` queda más simple, el estado incorpora cachés derivados y los cambios de aurora/nubes regeneran la grilla automáticamente.
+- **2026-03-23** — Filtrar la grilla global de probabilidad por relevancia auroral antes de clasificar categorías.
+  - **Motivo:** Evitar que la caché y el overlay incluyan coordenadas sin señal auroral suficiente, reduciendo ruido visual y haciendo que los filtros actúen sobre zonas candidatas reales.
+  - **Impacto:** `globalGridPoints` solo conserva coordenadas con intensidad relevante y la capa `Probabilidad` renderiza directamente ese subconjunto.
 - **2026-03-23** — Sincronizar la documentación principal con la capa `Probabilidad` como funcionalidad derivada apagada por defecto y filtrable por categorías.
   - **Motivo:** Dejar explícitas en `README.md` y `AGENTS.md` la regla de negocio, la interacción entre intensidad/nubosidad/probabilidad y la convención visual de colores para evitar deriva documental.
   - **Impacto:** No cambia el código de runtime, pero sí consolida la arquitectura derivada de la capa, reduce ambigüedades funcionales y fija una referencia única para futuras evoluciones del negocio.
@@ -250,6 +254,10 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
   - Motivo: Centralizar la clasificación de visibilidad, las lecturas puntuales de aurora/nubosidad y la generación cacheada de una grilla global de 1 grado.
   - Resultado esperado: La app puede reutilizar el mismo cálculo en picking y en futuras capas derivadas, regenerando automáticamente la malla cuando cambian auroras o nubes.
+- **Cambio:** Filtrado por relevancia auroral previo a la clasificación de la grilla de probabilidad.
+  - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `js/state.js`, `js/config.js`, `js/globe/globe.render.js`, `README.md`
+  - Motivo: Asegurar que la caché derivada y el overlay ignoren coordenadas con intensidad inferior al umbral mínimo relevante antes de clasificar `Baja`/`Media`/`Alta`.
+  - Resultado esperado: Menos ruido visual, filtros de probabilidad aplicados sobre un subconjunto significativo y estado coherente para la capa derivada.
 - **Cambio:** Sincronización documental completa de la capa `Probabilidad`.
   - Archivos: `README.md`, `AGENTS.md`
   - Motivo: Documentar en paralelo la nueva capa funcional, su control de UI, la interacción entre intensidad/nubosidad/probabilidad, el código de colores (baja verde, media amarillo, alta rojo), el estado inicial apagado y el filtro por categorías.
