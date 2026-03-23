@@ -125,6 +125,9 @@ Documentar de forma continua:
   - **Motivo:** Reunir en una sola narrativa tipo presentación de maestría la explicación funcional, arquitectónica y metodológica del proyecto.
   - **Impacto:** El sitio incorpora una ruta documental integral basada en `README.md` y `presentaciones/`, sin requerir abrir archivos externos.
 
+- **2026-03-23** — Incorporar gráficos Mermaid y láminas SVG derivadas de `presentaciones/` dentro de `explicacion-sitio.html`.
+  - **Motivo:** Convertir la explicación textual en un recurso visual más cercano a una defensa académica y reutilizar material ya producido por el proyecto.
+  - **Impacto:** La página documental gana diagramas embebidos, figuras ilustrativas versionables en GitHub y mejor capacidad de comunicación sin depender de abrir el PPTX o el DOCX por separado.
 - **2026-03-23** — Reorganizar los enlaces de cabecera en una sola fila dentro del bloque de acciones.
   - **Motivo:** Evitar que “Tratamiento de datos” y “Explicación del sitio” se separen en dos renglones debajo del botón principal.
   - **Impacto:** La cabecera conserva una jerarquía más compacta y estable en escritorio sin alterar el comportamiento responsive existente.
@@ -189,6 +192,10 @@ Documentar de forma continua:
   - Motivo: Centralizar en el sitio la documentación del proyecto usando como base el README y los archivos de `presentaciones/`.
   - Resultado esperado: Cualquier persona puede revisar el contexto, la metodología, la arquitectura y la hoja de ruta sin salir del sitio.
 
+- **Cambio:** Inclusión de diagramas Mermaid y láminas SVG derivadas de documentos académicos en la explicación del sitio.
+  - Archivos: `explicacion-sitio.html`, `style.css`, `assets/explicacion/*.svg`, `README.md`
+  - Motivo: Responder a la solicitud de enriquecer la explicación visual con gráficos basados en `presentaciones/`, pero en formato SVG más amigable para versionado y revisión en GitHub.
+  - Resultado esperado: Página documental más pedagógica, con evidencia visual integrada y activos textuales más fáciles de revisar, versionar y ajustar.
 - **Cambio:** Ajuste del bloque de enlaces de la cabecera para mostrarlos en una sola fila bajo el botón de refresco.
   - Archivos: `style.css`
   - Motivo: Corregir el quiebre visual que separaba los accesos a "Tratamiento de datos" y "Explicación del sitio" en dos renglones.
@@ -215,6 +222,7 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
+- [ ] Revisar periódicamente que la documentación de fuentes, workflows, diagramas Mermaid, láminas SVG y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
 - [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
