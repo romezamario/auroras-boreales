@@ -78,6 +78,9 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `AGENTS.md`
 
+- [x] Tarea 16: Intercambiar la posición de los toggles `Nubosidad` y `Probabilidad` en la tarjeta `Capas visibles`.
+  - Estado: `completada`
+  - Evidencia: `index.html`, `AGENTS.md`
 - [x] Tarea 16: Aplicar a la capa de probabilidad el mismo filtro latitudinal de auroras para ocultar puntos cercanos al ecuador.
   - Estado: `completada`
   - Evidencia: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
@@ -219,6 +222,9 @@ Documentar de forma continua:
 - **2026-03-23** — Corregir la generación de la grilla de probabilidad para usar el helper geoespacial compartido de nubosidad.
   - **Motivo:** La capa derivada estaba llamando un símbolo inexistente (`getCloudValue`) y eso lanzaba una excepción al activarla, interrumpiendo también el render posterior de auroras.
   - **Impacto:** La activación de `Probabilidad` vuelve a mostrar puntos derivados sin apagar visualmente la capa auroral.
+- **2026-03-23** — Intercambiar la posición visual de los toggles `Nubosidad` y `Probabilidad` en la tarjeta `Capas visibles`.
+  - **Motivo:** Ajustar el orden de lectura del panel lateral a la preferencia de UX solicitada, dejando `Probabilidad` antes de `Nubosidad`.
+  - **Impacto:** La cuadrícula de toggles conserva la misma funcionalidad reactiva, pero cambia la ubicación visual de ambos controles.
 
 - **2026-03-23** — Hacer que la capa `Probabilidad` reutilice la exclusión de latitudes ecuatoriales ya aplicada a `Auroras`.
   - **Motivo:** Evitar inconsistencias visuales donde la capa derivada mostraba puntos cerca del ecuador aunque la capa auroral los ocultara por regla de negocio.
@@ -335,6 +341,11 @@ Documentar de forma continua:
   - Archivos: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
   - Motivo: Eliminar la dependencia obligatoria de la GitHub API durante el arranque del sitio y preparar inyección de versión/fecha en build o despliegue.
   - Resultado esperado: El panel de estado muestra una versión local inmediata, con degradación estática y posibilidad de cachear metadata remota mediante `localStorage` con TTL si más adelante se habilita.
+- **Cambio:** Intercambio de posición entre los toggles `Nubosidad` y `Probabilidad` en la tarjeta `Capas visibles`.
+  - Archivos: `index.html`, `AGENTS.md`
+  - Motivo: Responder al ajuste de UX solicitado sin alterar IDs, estado ni la lógica de eventos de las capas.
+  - Resultado esperado: `Probabilidad` aparece en la segunda posición del bloque y `Nubosidad` pasa a la cuarta, manteniendo intacto el comportamiento de ambos toggles.
+
 - **Cambio:** Adelanto del workflow de Pages a Node.js 24.
   - Archivos: `.github/workflows/static.yml`, `AGENTS.md`
   - Motivo: El despliegue mostraba la advertencia de deprecación de Node.js 20 en acciones oficiales de GitHub Pages.
