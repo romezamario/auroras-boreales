@@ -1,6 +1,39 @@
 (function () {
   window.App = window.App || {};
 
+  function toRad(deg) {
+    return (deg * Math.PI) / 180;
+  }
+
+
+  function getNearestAuroraIntensity(points, lon, lat) {
+    if (!Array.isArray(points) || points.length === 0) return null;
+
+    const lonRad = toRad(lon);
+    const latRad = toRad(lat);
+
+    let bestCos = -Infinity;
+    let bestVal = null;
+
+    for (const point of points) {
+      const [pLon, pLat, val] = point;
+      if (!Number.isFinite(pLon) || !Number.isFinite(pLat)) continue;
+
+      const cosc =
+        Math.sin(latRad) * Math.sin(toRad(pLat)) +
+        Math.cos(latRad) * Math.cos(toRad(pLat)) * Math.cos(lonRad - toRad(pLon));
+
+      if (cosc > bestCos) {
+        bestCos = cosc;
+        bestVal = Number.isFinite(val) ? val : null;
+      }
+    }
+
+    return bestVal;
+  }
+
+
+
   App.globePick = {
     init() {
       const g = App.globe;

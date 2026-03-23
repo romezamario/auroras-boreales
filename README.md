@@ -121,6 +121,8 @@ sequenceDiagram
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
 - `js/data/probability.service.js`: centraliza la clasificación de visibilidad, la lectura puntual de aurora/nubes y la generación cacheada de una grilla global de 1°.
 - `js/data/location.service.js`: consulta la geolocalización por IP mediante JSONP y normaliza la respuesta al estado de la app.
+- `js/overlays/*.js`: renderizado de auroras, nubes y sombra nocturna.
+- `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos, incluyendo toggles de capas, sliders y filtros de probabilidad.
 - `js/overlays/*.js`: renderizado de auroras, nubes, probabilidad derivada y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos.
 - `scripts/mod08_cloudfraction.py`: pipeline offline para generar la malla global de nubosidad.
@@ -135,6 +137,7 @@ sequenceDiagram
 - `clouds.gridNormalized`: grid normalizado a valores `[0..1]` listo para render.
 - `clouds.coverage`: porcentaje global de nubosidad.
 - `selection`: punto actualmente inspeccionado, incluida su clasificación de visibilidad estimada.
+- `probability.enabled` y `probability.filters`: controlan la capa visual de probabilidad y las categorías `high`/`medium`/`low` habilitadas.
 - `probability.gridCache`: caché derivada desde aurora + nubosidad para pintar categorías Baja/Media/Alta sin recomputar toda la malla en cada frame.
 - `probability.auroraIndex`: índice espacial por celdas enteras para resolver la intensidad más cercana sin recorrer toda la malla derivada.
 - `probability.globalGridPoints`: colección cacheada de puntos `{ lon, lat, intensity, clouds, probability, cartesian }` para la grilla global de 1°.
@@ -217,6 +220,8 @@ erDiagram
 - El render de auroras y nubes omite puntos que quedan “detrás” del hemisferio visible mediante producto punto cartesiano.
 - La nube visible se restringe al rango seleccionado por el usuario en porcentaje normalizado.
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
+- La probabilidad de visibilidad del punto inspeccionado y de la capa opcional se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
+- La capa `Probabilidad` permanece apagada al iniciar; cuando se activa reutiliza los umbrales de intensidad y nubosidad ya presentes y permite filtrar visualmente las categorías `Alta`, `Media` y `Baja`.
 - La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
 - La capa de probabilidad solo dibuja la cara visible del globo y permite filtrar categorías activas desde `App.state.probability.activeCategories`.
 - La probabilidad de visibilidad del punto inspeccionado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
@@ -233,6 +238,7 @@ erDiagram
 - Activación/desactivación de capas de aurora, nubosidad y máscara día/noche.
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
+- Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y un bloque de checkboxes bajo `Nubosidad (cobertura)` para filtrar las categorías `Alta`, `Media` y `Baja`.
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.
 - Página secundaria `tratamiento-datos.html` con documentación de fuentes y tratamiento.
