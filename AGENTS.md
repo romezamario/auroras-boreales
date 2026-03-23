@@ -29,6 +29,9 @@ Documentar de forma continua:
 - [x] Tarea 3: Incluir direcciones (URLs) explícitas en las secciones de fuentes y geolocalización.
   - Estado: `completada`
   - Evidencia: `tratamiento-datos.html`, `js/config.js`
+- [x] Tarea 4: Revisar y corregir la geolocalización aproximada por IP en frontend.
+  - Estado: `completada`
+  - Evidencia: `js/data/location.service.js`, `js/config.js`
 
 ---
 
@@ -44,6 +47,7 @@ Documentar de forma continua:
 ### Dependencias / herramientas
 - El repo no requiere build para editar esta sección; basta con modificar HTML estático.
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
+- La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -62,6 +66,9 @@ Documentar de forma continua:
 - **2026-03-22** — Reorganizar el dashboard en tres columnas para escritorio y llevar los paneles informativos al lado derecho del globo.
   - **Motivo:** Reducir espacios vacíos y priorizar visualmente la visualización principal.
   - **Impacto:** Mejor aprovechamiento horizontal en desktop, manteniendo un apilado adaptativo en breakpoints menores.
+- **2026-03-23** — Sustituir la consulta directa JSON a proveedores IP por un flujo JSONP compatible con navegador.
+  - **Motivo:** El endpoint gratuito de `ipwho.is` ya no permite CORS en frontend y la geolocalización dejó de resolverse desde el cliente.
+  - **Impacto:** La app vuelve a obtener una ubicación aproximada por IP sin introducir backend ni exponer claves.
 
 ---
 
@@ -80,6 +87,10 @@ Documentar de forma continua:
   - Archivos: `index.html`, `style.css`
   - Motivo: Mover paneles de detalle/estado a la derecha del globo y permitir que la visualización ocupe más área útil.
   - Resultado esperado: Mejor jerarquía visual y menor espacio en blanco en pantallas de escritorio.
+- **Cambio:** Ajuste del servicio de geolocalización por IP para usar JSONP en navegador.
+  - Archivos: `js/data/location.service.js`, `js/config.js`
+  - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.
+  - Resultado esperado: Vuelta del marcador de ubicación y del panel de localización sin depender de backend.
 
 ---
 
@@ -92,6 +103,7 @@ Documentar de forma continua:
   - Evidencia: `style.css`
 - [ ] Revisar periódicamente que la documentación de fuentes coincida con endpoints implementados en `js/data/*`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
+- [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
 
 ---
 

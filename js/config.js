@@ -19,8 +19,11 @@
         worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json",
         worldCountries: "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json",
         ipGeo: [
-          "https://ipapi.co/json/",
-          "https://ipwho.is/"
+          {
+            url: "https://ipapi.co/json/",
+            type: "jsonp",
+            callbackParam: "callback"
+          }
         ]
       },
       // Valores base para umbrales, rotación y ajustes de rendimiento.
@@ -66,4 +69,3 @@
       }
     };
   })();
-  
