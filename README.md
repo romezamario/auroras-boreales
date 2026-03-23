@@ -91,6 +91,7 @@ sequenceDiagram
 ├── index.html
 ├── style.css
 ├── tratamiento-datos.html
+├── explicacion-sitio.html
 ├── data/
 │   ├── clouds.json
 │   └── history/
@@ -222,6 +223,7 @@ erDiagram
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.
 - Página secundaria `tratamiento-datos.html` con documentación de fuentes y tratamiento.
+- Página secundaria `explicacion-sitio.html` que consolida la explicación ejecutiva y académica del proyecto a partir del README y los materiales de la carpeta `presentaciones/`.
 
 ## Integraciones
 
@@ -332,6 +334,9 @@ Actualmente el repositorio no define una suite automatizada formal. La validaci�
 - El despliegue de GitHub Pages empaqueta una carpeta `dist/` y excluye `data/history/` para evitar publicar históricos o derivados de recolección.
 
 ## Gestión de cambio
+
+- La documentación visible del sitio debe mantenerse alineada entre `README.md`, `tratamiento-datos.html`, `explicacion-sitio.html` y los materiales base en `presentaciones/`.
+
 - Cualquier cambio en arquitectura, fuentes, endpoints, reglas de negocio, operación o cumplimiento debe reflejarse en `README.md`.
 - Cualquier cambio relevante de contexto, decisiones, pendientes o riesgos debe registrarse en `AGENTS.md`.
 - Cuando una actualización toque documentación de tratamiento, también debe revisarse la coherencia entre `README.md`, `AGENTS.md` y `tratamiento-datos.html`.

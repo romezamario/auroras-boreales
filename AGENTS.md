@@ -48,11 +48,16 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `.github/workflows/static.yml`, `README.md`, `.gitignore`
 
+- [x] Tarea 8: Crear una página secundaria "Explicación del sitio" enlazada desde la app y consolidar en ella la documentación del README y de `presentaciones/`.
+  - Estado: `completada`
+  - Evidencia: `explicacion-sitio.html`, `index.html`, `README.md`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
 ### Arquitectura
 - La documentación de privacidad/tratamiento se publica en `tratamiento-datos.html` como una página estática enlazada al mapa principal.
+- El sitio admite páginas secundarias puramente estáticas reutilizando `style.css`, lo que permite publicar documentación extensa sin introducir nuevas dependencias ni build.
 
 ### Convenciones
 - El contenido descriptivo está redactado en español formal y con enfoque técnico-regulatorio.
@@ -67,6 +72,7 @@ Documentar de forma continua:
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
+- Riesgo de obsolescencia si el contenido narrativo de `explicacion-sitio.html` deja de sincronizarse con `README.md` o con los documentos en `presentaciones/`.
 
 ---
 
@@ -106,6 +112,10 @@ Documentar de forma continua:
 - **2026-03-23** — Retirar los workflows de snapshots/merge de OVATION y excluir históricos del artefacto de Pages.
   - **Motivo:** La app ya consulta OVATION en vivo desde NOAA y el despliegue no necesita publicar ni reconstruir históricos recolectados.
   - **Impacto:** Se simplifica la operación, se evita ejecutar pipelines innecesarios y GitHub Pages deja de incluir `data/history/` en el sitio público.
+
+- **2026-03-23** — Crear la página secundaria `explicacion-sitio.html` y enlazarla desde la cabecera del sitio.
+  - **Motivo:** Reunir en una sola narrativa tipo presentación de maestría la explicación funcional, arquitectónica y metodológica del proyecto.
+  - **Impacto:** El sitio incorpora una ruta documental integral basada en `README.md` y `presentaciones/`, sin requerir abrir archivos externos.
 
 ---
 
@@ -156,6 +166,11 @@ Documentar de forma continua:
   - Motivo: Dejar de ejecutar automatizaciones innecesarias y evitar que GitHub Pages publique artefactos recolectados.
   - Resultado esperado: Menor complejidad operativa y despliegues públicos sin `data/history/`.
 
+- **Cambio:** Nueva página secundaria "Explicación del sitio" con narrativa académica y ejecutiva.
+  - Archivos: `explicacion-sitio.html`, `index.html`, `tratamiento-datos.html`, `style.css`, `README.md`
+  - Motivo: Centralizar en el sitio la documentación del proyecto usando como base el README y los archivos de `presentaciones/`.
+  - Resultado esperado: Cualquier persona puede revisar el contexto, la metodología, la arquitectura y la hoja de ruta sin salir del sitio.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
@@ -165,7 +180,7 @@ Documentar de forma continua:
 - [x] Hacer que la visualización ocupe mejor los espacios vacíos del layout de escritorio.
   - Estado: `completada`
   - Evidencia: `style.css`
-- [ ] Revisar periódicamente que la documentación de fuentes y workflows coincida con endpoints implementados en `js/data/*` y `.github/workflows/*`.
+- [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
 - [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
