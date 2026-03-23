@@ -64,6 +64,9 @@ Documentar de forma continua:
 - [x] Tarea 12: Sincronizar `README.md` y `AGENTS.md` con la funcionalidad final de la capa `Probabilidad`.
   - Estado: `completada`
   - Evidencia: `README.md`, `AGENTS.md`
+- [x] Tarea 13: Eliminar la dependencia obligatoria de la GitHub API para mostrar la versión del sitio.
+  - Estado: `completada`
+  - Evidencia: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -81,6 +84,7 @@ Documentar de forma continua:
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
+- La UI de versión puede resolverse con metadata embebida en `App.config.version` y solo consultar remoto de forma opcional/caché, evitando bloquear el arranque por disponibilidad de GitHub.
 - La clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación de una malla global derivada pueden compartirse desde un servicio reutilizable independiente del módulo de picking.
 - Para evitar recalcular vecinos aurorales sobre toda la malla global, conviene indexar los puntos OVATION por celdas enteras de latitud/longitud y consultar primero vecindarios locales antes de caer al arreglo completo.
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
@@ -90,6 +94,8 @@ Documentar de forma continua:
 - Las capas derivadas pueden reutilizar la malla auroral ya normalizada y cachear puntos enriquecidos con nubosidad/categoría para evitar recomputar la clasificación en cada frame.
 - La grilla global de probabilidad debe filtrar primero por relevancia auroral; si la intensidad queda por debajo del umbral mínimo configurable, la coordenada no debe entrar en caché ni en el overlay.
 - La capa `Probabilidad` se genera por intersección de dos fuentes heterogéneas: toma la intensidad auroral más cercana desde el índice espacial OVATION, cruza ese valor con la celda MODIS de nubosidad y produce una categoría discreta reutilizable tanto en el overlay como en el inspector.
+- Los helpers geoespaciales transversales (por ejemplo, normalización de longitud y lectura de celdas de nube) conviene centralizarlos en un módulo dedicado para evitar divergencias entre `utils`, `ovation.service` y `probability.service`.
+- `App.state` debe conservar una única raíz canónica para `dayNight`, `selection` y `userLocation`; dentro de `probability` solo deben permanecer los metadatos propios de la capa y un único mapa compartido de categorías activas (`filters`/`activeCategories`).
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -166,6 +172,9 @@ Documentar de forma continua:
 - **2026-03-23** — Sincronizar la documentación principal con la capa `Probabilidad` como funcionalidad derivada apagada por defecto y filtrable por categorías.
   - **Motivo:** Dejar explícitas en `README.md` y `AGENTS.md` la regla de negocio, la interacción entre intensidad/nubosidad/probabilidad y la convención visual de colores para evitar deriva documental.
   - **Impacto:** No cambia el código de runtime, pero sí consolida la arquitectura derivada de la capa, reduce ambigüedades funcionales y fija una referencia única para futuras evoluciones del negocio.
+- **2026-03-23** — Centralizar en `js/data/geo.utils.js` los helpers geoespaciales compartidos y retirar utilidades de probabilidad sin uso desde `js/utils.js`.
+  - **Motivo:** Evitar lógica duplicada para normalizar longitudes y leer celdas MODIS, además de eliminar APIs legacy que ya no participan en el flujo activo.
+  - **Impacto:** `ovation.service`, `probability.service` y `utils` consumen una única fuente de verdad para helpers geográficos y se reduce deuda técnica.
 
 - **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
   - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
@@ -173,6 +182,9 @@ Documentar de forma continua:
 - **2026-03-23** — Desactivar `Baja` por defecto en los filtros iniciales de la capa `Probabilidad`.
   - **Motivo:** Priorizar desde el arranque las zonas con visibilidad estimada media/alta y reducir ruido visual cuando el usuario habilita la capa derivada.
   - **Impacto:** La UI conserva las tres categorías disponibles, pero al inicializarse deja activa solo la combinación `Alta` + `Media` hasta que la persona marque `Baja`.
+- **2026-03-23** — Sustituir la consulta obligatoria de versión a GitHub por metadata embebida con soporte opcional de caché local TTL.
+  - **Motivo:** Evitar una llamada remota en cada `init()` y permitir que la fecha/versión visible se inyecte en build/despliegue o degrade a una etiqueta estática.
+  - **Impacto:** La app arranca sin depender de `api.github.com`; si se habilita un refresco remoto, este pasa a ser opcional y cacheable en `localStorage`.
 
 ---
 
@@ -261,10 +273,19 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `js/state.js`, `js/config.js`, `js/globe/globe.render.js`, `README.md`
   - Motivo: Asegurar que la caché derivada y el overlay ignoren coordenadas con intensidad inferior al umbral mínimo relevante antes de clasificar `Baja`/`Media`/`Alta`.
   - Resultado esperado: Menos ruido visual, filtros de probabilidad aplicados sobre un subconjunto significativo y estado coherente para la capa derivada.
+- **Cambio:** Limpieza de `App.state` para dejar una sola estructura canónica sin duplicados anidados dentro de `probability`.
+  - Archivos: `js/state.js`, `js/ui/probability.ui.js`, `README.md`
+  - Motivo: Evitar fragmentos duplicados de `clouds`, `dayNight`, `selection` y `userLocation`, y asegurar que los consumidores compartan el mismo mapa de categorías activas.
+  - Resultado esperado: Todos los módulos leen/escriben un único `App.state` válido y consistente para probabilidad, selección, ciclo día/noche y localización.
+
 - **Cambio:** Sincronización documental completa de la capa `Probabilidad`.
   - Archivos: `README.md`, `AGENTS.md`
   - Motivo: Documentar en paralelo la nueva capa funcional, su control de UI, la interacción entre intensidad/nubosidad/probabilidad, el código de colores (baja verde, media amarillo, alta rojo), el estado inicial apagado y el filtro por categorías.
   - Resultado esperado: Documentación operativa y bitácora alineadas con la implementación real, incluyendo el aprendizaje técnico y el impacto arquitectónico/regulatorio de la nueva regla derivada.
+- **Cambio:** Centralización de helpers geoespaciales y limpieza de utilidades legacy sin uso.
+  - Archivos: `js/data/geo.utils.js`, `js/data/ovation.service.js`, `js/data/probability.service.js`, `js/utils.js`, `index.html`, `README.md`, `AGENTS.md`
+  - Motivo: Unificar `normalizeLon` y `getCloudValue` en un solo módulo, eliminar `App.utils.getVisibilityProbability` sin referencias y dejar un único punto de mantenimiento para helpers compartidos.
+  - Resultado esperado: Menor duplicación, menor riesgo de divergencia entre servicios geoespaciales y documentación alineada con la nueva responsabilidad modular.
 
 - **Cambio:** Separación visual de la caja `Categorías de probabilidad` respecto de la tarjeta de nubosidad.
   - Archivos: `index.html`, `style.css`, `README.md`
@@ -274,6 +295,10 @@ Documentar de forma continua:
   - Archivos: `js/state.js`, `README.md`, `AGENTS.md`
   - Motivo: Responder a la solicitud de UX de priorizar visualmente las clases `Alta` y `Media` al activar la capa derivada.
   - Resultado esperado: La tarjeta `Categorías de probabilidad` inicia con `Alta` y `Media` activas, mientras `Baja` queda disponible pero sin marcar.
+- **Cambio:** Refactor de la UI de versión para consumir metadata embebida y usar actualización remota solo de forma opcional.
+  - Archivos: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
+  - Motivo: Eliminar la dependencia obligatoria de la GitHub API durante el arranque del sitio y preparar inyección de versión/fecha en build o despliegue.
+  - Resultado esperado: El panel de estado muestra una versión local inmediata, con degradación estática y posibilidad de cachear metadata remota mediante `localStorage` con TTL si más adelante se habilita.
 
 ---
 

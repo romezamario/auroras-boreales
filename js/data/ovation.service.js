@@ -1,13 +1,6 @@
 (function () {
     window.App = window.App || {};
   
-    // Normaliza longitudes al rango [-180, 180].
-    function normalizeLon(lon) {
-      if (lon > 180) return lon - 360;
-      if (lon < -180) return lon + 360;
-      return lon;
-    }
-
     // Valida y normaliza una entrada del arreglo de coordenadas NOAA.
     function parsePoint(entry) {
       if (!entry || entry.length < 3) return null;
@@ -24,7 +17,7 @@
         [lon, lat] = [lat, lon];
       }
 
-      lon = normalizeLon(lon);
+      lon = App.geoUtils.normalizeLon(lon);
       if (Math.abs(lat) > 90) return null;
 
       return [lon, lat, val, versor.cartesian([lon, lat])];

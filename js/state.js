@@ -2,6 +2,12 @@
   window.App = window.App || {};
   const cfg = App.config;
 
+  const probabilityFilters = {
+    low: true,
+    medium: true,
+    high: true
+  };
+
   App.state = {
     thresholdMin: cfg.defaults.thresholdMin,
     thresholdMax: cfg.defaults.thresholdMax,
