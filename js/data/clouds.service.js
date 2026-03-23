@@ -8,7 +8,14 @@
         // Fuerza la descarga sin caché para evitar datos stale.
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error(`clouds.json HTTP ${res.status} (${url})`);
-        return await res.json();
+
+        const payload = await res.json();
+        const extractedAt = payload.retrieved_at ?? payload.retrievedAt ?? res.headers.get("last-modified") ?? null;
+
+        return {
+          ...payload,
+          extractedAt
+        };
       }
     };
   })();

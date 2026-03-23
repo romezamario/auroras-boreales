@@ -5,6 +5,15 @@
     function fmtLocal() {
       return App.utils?.formatDateTime?.(new Date()) ?? new Date().toLocaleString();
     }
+
+    function fmtDateTime(value) {
+      if (!value) return null;
+
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return value;
+
+      return App.utils?.formatDateTime?.(parsed) ?? parsed.toLocaleString();
+    }
   
     // UI del botón de refresco y etiqueta de última actualización.
     App.refreshUI = {
@@ -35,8 +44,12 @@
         const st = App.state;
         const local = st.aurora.lastLocalUpdate ? st.aurora.lastLocalUpdate : "—";
         const forecast = st.aurora.forecastTime ? ` | Forecast NOAA: ${st.aurora.forecastTime}` : "";
+        const cloudsDate = st.clouds.lastDate ? ` ${st.clouds.lastDate}` : "";
+        const cloudsCoverage = ` (${st.clouds.coverage ?? 0}%)`;
+        const cloudsExtractedAt = fmtDateTime(st.clouds.extractedAt);
+        const cloudsExtraction = cloudsExtractedAt ? ` | Extracción nubes: ${cloudsExtractedAt}` : "";
         const clouds = st.clouds.textureReady
-            ? ` | Nubes: ${st.clouds.lastDate} (${st.clouds.coverage ?? 0}%)`
+            ? ` | Nubes:${cloudsDate}${cloudsCoverage}${cloudsExtraction}`
             : "";
         this.last.textContent = `Última actualización: ${local}${forecast}${clouds}`;
       },

@@ -50,6 +50,7 @@ def main():
     days_back = int(os.getenv("DAYS_BACK", "2"))
 
     target_date = iso_days_back(days_back)
+    extraction_time = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     temporal = f"{target_date}..{target_date}"
 
     # 1) Buscar el archivo en LAADS API V2 (metadata JSON)
@@ -158,6 +159,7 @@ def main():
         "product": product,
         "collection": collection,
         "date": target_date,
+        "retrieved_at": extraction_time,
         "sds": "Cloud_Fraction_Mean",
         "coverage_percent_global": coverage_percent_global,
         "grid": {

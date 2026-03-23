@@ -5,6 +5,7 @@
     if (result.status === "fulfilled") {
       const clouds = result.value;
       App.state.clouds.lastDate = clouds.date ?? null;
+      App.state.clouds.extractedAt = clouds.extractedAt ?? null;
       App.state.clouds.coverage = Math.round(Number(clouds.coverage_percent_global ?? 0));
       App.state.clouds.grid = clouds.grid ?? null;
       App.state.clouds.gridNormalized = App.utils.normalizeCloudGrid(clouds.grid);
@@ -12,6 +13,7 @@
       App.state.clouds.textureReady = true;
     } else {
       App.state.clouds.textureReady = false;
+      App.state.clouds.extractedAt = null;
       App.state.clouds.gridNormalized = null;
     }
 

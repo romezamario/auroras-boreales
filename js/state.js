@@ -26,6 +26,7 @@
         gridCache: null,
         textureReady: false,
         lastDate: null,
+        extractedAt: null,
         coverage: 0
       },
       // Estado específico para la máscara día/noche.
