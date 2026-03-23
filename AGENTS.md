@@ -58,6 +58,7 @@ Documentar de forma continua:
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
+- El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -92,6 +93,10 @@ Documentar de forma continua:
 - **2026-03-23** — Ajustar el resize del canvas para tomar la altura real de la tarjeta contenedora.
   - **Motivo:** El globo estaba usando una altura limitada por viewport y dejaba un bloque en blanco al pie de la visualización.
   - **Impacto:** El canvas vuelve a ocupar toda el área disponible del panel principal y responde mejor a cambios de layout.
+
+- **2026-03-23** — Añadir clasificación de probabilidad de visibilidad al detalle del punto seleccionado.
+  - **Motivo:** Mostrar al usuario una lectura accionable combinando intensidad auroral y nubosidad según la matriz de visibilidad definida para la interfaz.
+  - **Impacto:** El panel de inspección ahora resume si la visibilidad estimada es baja, media o alta sin obligar a interpretar ambas métricas por separado.
 
 ---
 
@@ -132,6 +137,11 @@ Documentar de forma continua:
   - Motivo: Evitar que el canvas se quede más bajo que la tarjeta visual y aparezca espacio en blanco sobrante.
   - Resultado esperado: El globo aprovecha toda la altura útil del panel y se reajusta cuando cambia el contenedor.
 
+- **Cambio:** Inclusión de probabilidad de visibilidad en el detalle del punto.
+  - Archivos: `index.html`, `js/ui/inspector.ui.js`, `js/globe/globe.pick.js`, `README.md`
+  - Motivo: Traducir la combinación de intensidad y nubosidad a una categoría simple basada en la matriz suministrada.
+  - Resultado esperado: El usuario identifica más rápido si un punto ofrece visibilidad baja, media o alta al hacer clic en el globo.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
@@ -147,6 +157,7 @@ Documentar de forma continua:
 - [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
 
 - [ ] Validar visualmente en distintos breakpoints que futuros cambios de layout no vuelvan a desalinear el tamaño real del canvas.
+- [ ] Verificar con producto/UX si la matriz de probabilidad debe evolucionar a un cálculo continuo o mantenerse como reglas discretas por rangos.
 
 ---
 
