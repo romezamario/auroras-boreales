@@ -16,7 +16,7 @@
       const step = isMobile ? (cfg.sampleStepMobile ?? 4) : (cfg.sampleStepDesktop ?? 2);
       const radius = isMobile ? (cfg.pointRadiusMobile ?? 2.4) : (cfg.pointRadiusDesktop ?? 3.2);
       const opacity = Number(state?.probability?.opacity ?? cfg.opacity ?? 0.75);
-      const activeFilters = state?.probability?.filters ?? state?.probability?.activeCategories ?? {};
+      const activeFilters = App.probabilityService?.ensureProbabilityFilters?.() ?? {};
       const points = App.probabilityService?.getOverlayCache?.(step)?.points ?? [];
 
       if (!points.length) return;

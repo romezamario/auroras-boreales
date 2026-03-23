@@ -1,21 +1,6 @@
 (function () {
   window.App = window.App || {};
 
-  function ensureSharedCategoryState() {
-    const probabilityState = App.state?.probability;
-    if (!probabilityState) return {};
-
-    const baseFilters = probabilityState.filters ?? probabilityState.activeCategories ?? {
-      high: true,
-      medium: true,
-      low: true
-    };
-
-    probabilityState.filters = baseFilters;
-    probabilityState.activeCategories = baseFilters;
-    return baseFilters;
-  }
-
   App.probabilityUI = {
     init() {
       const categoryKeys = App.probabilityService?.categoryKeys ?? ["high", "medium", "low"];
@@ -23,7 +8,7 @@
         categoryKeys.map((key) => [key, document.getElementById(`probability-filter-${key}`)])
       );
 
-      const filters = ensureSharedCategoryState();
+      const filters = App.probabilityService?.ensureProbabilityFilters?.() ?? {};
 
       Object.entries(this.filterInputs).forEach(([key, input]) => {
         if (!input) return;
@@ -36,7 +21,7 @@
 
         input.checked = filters[key] !== false;
         input.addEventListener("change", () => {
-          const sharedFilters = ensureSharedCategoryState();
+          const sharedFilters = App.probabilityService?.ensureProbabilityFilters?.() ?? {};
           sharedFilters[key] = input.checked;
           App.emit("state:probabilityFilter", {
             filters: { ...sharedFilters }

@@ -75,6 +75,28 @@
     return VISIBILITY_CATEGORIES[key] ?? null;
   }
 
+  function getDefaultCategoryFilters() {
+    return {
+      low: false,
+      medium: true,
+      high: true
+    };
+  }
+
+  function ensureProbabilityFilters() {
+    const probabilityState = App.state?.probability;
+    if (!probabilityState) return getDefaultCategoryFilters();
+
+    const baseFilters = probabilityState.filters ?? probabilityState.activeCategories;
+    const normalizedFilters = {
+      ...getDefaultCategoryFilters(),
+      ...(baseFilters ?? {})
+    };
+
+    probabilityState.filters = normalizedFilters;
+    return normalizedFilters;
+  }
+
   function getRelevantIntensityThreshold() {
     const configuredThreshold = Number(App.config?.probability?.minRelevantIntensity);
     if (Number.isFinite(configuredThreshold)) return configuredThreshold;
@@ -206,6 +228,24 @@
     };
   }
 
+  function buildSelection(lon, lat, sample = null) {
+    const probabilityPoint = sample ?? createProbabilityPoint(
+      lon,
+      lat,
+      getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat),
+      App.geoUtils.getCloudValue(App.state?.clouds?.grid, lon, lat)
+    );
+
+    return {
+      lon,
+      lat,
+      intensity: probabilityPoint.intensity ?? null,
+      clouds: probabilityPoint.clouds ?? null,
+      probability: probabilityPoint.probability ?? null,
+      isDay: App.utils?.isDayAt ? App.utils.isDayAt(lon, lat, new Date()) : null
+    };
+  }
+
   function getCacheInputs() {
     return {
       auroraPoints: App.state?.aurora?.points ?? null,
@@ -271,19 +311,7 @@
     const currentSelection = App.state?.selection;
     if (!currentSelection) return;
 
-    const lon = currentSelection.lon;
-    const lat = currentSelection.lat;
-    const intensity = getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
-    const clouds = App.geoUtils.getCloudValue(App.state?.clouds?.grid, lon, lat);
-    const probability = classifyVisibilityProbability(intensity, clouds);
-
-    App.state.selection = {
-      ...currentSelection,
-      intensity,
-      clouds,
-      probability,
-      visibility: probability
-    };
+    App.state.selection = buildSelection(currentSelection.lon, currentSelection.lat);
 
     App.emit("globe:select", App.state.selection);
   }
@@ -308,8 +336,10 @@
     isRelevantIntensity,
     getRelevantIntensityThreshold,
     getVisibilityCategory,
+    ensureProbabilityFilters,
 
     createProbabilityPoint,
+    buildSelection,
 
     invalidateCache() {
       invalidateGridCaches();
@@ -327,6 +357,12 @@
       const intensity = getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
       const clouds = App.geoUtils.getCloudValue(App.state?.clouds?.grid, lon, lat);
       return createProbabilityPoint(lon, lat, intensity, clouds);
+    },
+
+    selectPoint(lon, lat) {
+      App.state.selection = buildSelection(lon, lat);
+      App.emit("globe:select", App.state.selection);
+      return App.state.selection;
     },
 
     getGlobalGridPoints(step = DEFAULT_STEP) {

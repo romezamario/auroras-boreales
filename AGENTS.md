@@ -67,6 +67,9 @@ Documentar de forma continua:
 - [x] Tarea 13: Eliminar la dependencia obligatoria de la GitHub API para mostrar la versión del sitio.
   - Estado: `completada`
   - Evidencia: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
+- [x] Tarea 14: Refactorizar el flujo de probabilidad/selección para eliminar duplicación y código muerto.
+  - Estado: `completada`
+  - Evidencia: `js/state.js`, `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/probability.ui.js`, `js/ui/inspector.ui.js`, `js/data/refresh.service.js`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -96,6 +99,8 @@ Documentar de forma continua:
 - La capa `Probabilidad` se genera por intersección de dos fuentes heterogéneas: toma la intensidad auroral más cercana desde el índice espacial OVATION, cruza ese valor con la celda MODIS de nubosidad y produce una categoría discreta reutilizable tanto en el overlay como en el inspector.
 - Los helpers geoespaciales transversales (por ejemplo, normalización de longitud y lectura de celdas de nube) conviene centralizarlos en un módulo dedicado para evitar divergencias entre `utils`, `ovation.service` y `probability.service`.
 - `App.state` debe conservar una única raíz canónica para `dayNight`, `selection` y `userLocation`; dentro de `probability` solo deben permanecer los metadatos propios de la capa y un único mapa compartido de categorías activas (`filters`/`activeCategories`).
+- El payload de selección del globo conviene generarlo desde un único helper compartido; así se evita duplicar el cálculo de intensidad, nubosidad, probabilidad e `isDay` entre el click handler y los refrescos de datos.
+- La retrocompatibilidad con `activeCategories` puede mantenerse como alias de `filters`, pero la fuente de verdad operativa debe seguir siendo `App.state.probability.filters`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -185,6 +190,9 @@ Documentar de forma continua:
 - **2026-03-23** — Sustituir la consulta obligatoria de versión a GitHub por metadata embebida con soporte opcional de caché local TTL.
   - **Motivo:** Evitar una llamada remota en cada `init()` y permitir que la fecha/versión visible se inyecte en build/despliegue o degrade a una etiqueta estática.
   - **Impacto:** La app arranca sin depender de `api.github.com`; si se habilita un refresco remoto, este pasa a ser opcional y cacheable en `localStorage`.
+- **2026-03-23** — Consolidar en `probability.service` la normalización de filtros y la construcción del payload de selección.
+  - **Motivo:** El click handler del globo, la UI de filtros y el refresco de datos estaban repitiendo reglas equivalentes y mantenían aliases/propiedades redundantes.
+  - **Impacto:** Menos duplicación, eliminación de código muerto, un único punto de mantenimiento para la selección del inspector y retrocompatibilidad explícita para `activeCategories`.
 
 ---
 
@@ -299,6 +307,10 @@ Documentar de forma continua:
   - Archivos: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
   - Motivo: Eliminar la dependencia obligatoria de la GitHub API durante el arranque del sitio y preparar inyección de versión/fecha en build o despliegue.
   - Resultado esperado: El panel de estado muestra una versión local inmediata, con degradación estática y posibilidad de cachear metadata remota mediante `localStorage` con TTL si más adelante se habilita.
+- **Cambio:** Refactor del flujo de probabilidad/selección y limpieza de duplicaciones internas.
+  - Archivos: `js/state.js`, `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/probability.ui.js`, `js/ui/inspector.ui.js`, `js/overlays/probability.overlay.js`, `js/data/refresh.service.js`, `README.md`, `AGENTS.md`
+  - Motivo: Centralizar la normalización de filtros de probabilidad, mantener `activeCategories` solo como alias retrocompatible, mover la construcción del payload seleccionado a un helper común y retirar propiedades/constantes sin uso real.
+  - Resultado esperado: Menor deuda técnica, menos riesgo de inconsistencias entre overlay/UI/inspector y un flujo de selección más fácil de mantener.
 
 ---
 

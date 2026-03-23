@@ -2,11 +2,28 @@
   window.App = window.App || {};
   const cfg = App.config;
 
-  const probabilityFilters = {
-    low: true,
-    medium: true,
-    high: true
-  };
+  function createProbabilityFilters() {
+    return {
+      low: false,
+      medium: true,
+      high: true
+    };
+  }
+
+  function createProbabilityState() {
+    const filters = createProbabilityFilters();
+
+    return {
+      enabled: cfg.probability?.enabled ?? false,
+      opacity: cfg.probability?.opacity ?? 0.75,
+      filters,
+      gridCache: null,
+      auroraIndex: null,
+      globalGridPoints: null,
+      globalGridStep: null,
+      cacheInputs: null
+    };
+  }
 
   App.state = {
     thresholdMin: cfg.defaults.thresholdMin,
@@ -32,22 +49,7 @@
       coverage: 0
     },
     probability: {
-      enabled: cfg.probability?.enabled ?? false,
-      opacity: cfg.probability?.opacity ?? 0.75,
-      filters: {
-        low: false,
-        medium: true,
-        high: true
-      },
-      activeCategories: {
-        low: false,
-        medium: true,
-        high: true
-      },
-      gridCache: null,
-      auroraIndex: null,
-      globalGridPoints: null,
-      globalGridStep: null
+      ...createProbabilityState()
     },
     dayNight: {
       enabled: cfg.dayNight?.enabled ?? true
@@ -67,4 +69,15 @@
   };
 
   App.globe = null;
+
+  Object.defineProperty(App.state.probability, "activeCategories", {
+    configurable: true,
+    enumerable: true,
+    get() {
+      return this.filters;
+    },
+    set(nextFilters) {
+      this.filters = nextFilters;
+    }
+  });
 })();
