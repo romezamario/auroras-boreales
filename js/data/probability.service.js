@@ -292,7 +292,7 @@
         const intensity = getAuroraIntensity(auroraIndex, lon, lat);
         if (!isRelevantIntensity(intensity)) continue;
 
-        const clouds = getCloudValue(cloudsGrid, lon, lat);
+        const clouds = App.geoUtils.getCloudValue(cloudsGrid, lon, lat);
         points.push(createProbabilityPoint(lon, lat, intensity, clouds));
       }
     }
