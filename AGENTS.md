@@ -198,9 +198,12 @@ Documentar de forma continua:
 - **2026-03-23** — Separar la tarjeta de categorías de probabilidad de la tarjeta de nubosidad dentro del panel de controles.
   - **Motivo:** Evitar que ambos filtros parezcan parte del mismo bloque funcional y reforzar la jerarquía visual solicitada para la capa derivada de probabilidad.
   - **Impacto:** El panel izquierdo muestra un contenedor independiente para `Categorías de probabilidad`, manteniendo intacta la lógica reactiva de los checkboxes.
-- **2026-03-23** — Desactivar `Baja` por defecto en los filtros iniciales de la capa `Probabilidad`.
-  - **Motivo:** Priorizar desde el arranque las zonas con visibilidad estimada media/alta y reducir ruido visual cuando el usuario habilita la capa derivada.
-  - **Impacto:** La UI conserva las tres categorías disponibles, pero al inicializarse deja activa solo la combinación `Alta` + `Media` hasta que la persona marque `Baja`.
+- **2026-03-23** — Mantener `Baja` activada por defecto en los filtros iniciales de la capa `Probabilidad`.
+  - **Motivo:** Alinear el estado inicial de la UI con la preferencia actual de mostrar todas las clases disponibles desde el arranque.
+  - **Impacto:** La UI conserva las tres categorías disponibles y las deja activas simultáneamente desde la carga inicial.
+- **2026-03-23** — Reactivar `Baja` en el estado inicial de la capa `Probabilidad`.
+  - **Motivo:** Ajustar el comportamiento inicial de la UI al criterio del usuario para que el filtro no oculte esa clase al abrir el sitio.
+  - **Impacto:** La tarjeta `Categorías de probabilidad` vuelve a iniciar con `Alta`, `Media` y `Baja` marcadas simultáneamente.
 - **2026-03-23** — Sustituir la consulta obligatoria de versión a GitHub por metadata embebida con soporte opcional de caché local TTL.
   - **Motivo:** Evitar una llamada remota en cada `init()` y permitir que la fecha/versión visible se inyecte en build/despliegue o degrade a una etiqueta estática.
   - **Impacto:** La app arranca sin depender de `api.github.com`; si se habilita un refresco remoto, este pasa a ser opcional y cacheable en `localStorage`.
@@ -324,10 +327,10 @@ Documentar de forma continua:
   - Archivos: `index.html`, `style.css`, `README.md`
   - Motivo: Responder a la solicitud de UX de mostrar los filtros de probabilidad como una tarjeta independiente y no como parte del bloque de nubosidad.
   - Resultado esperado: Los controles del panel izquierdo distinguen mejor entre filtros de nubosidad y filtros propios de la capa de probabilidad.
-- **Cambio:** Ajuste del estado inicial de categorías de probabilidad para dejar `Baja` desactivada por defecto.
+- **Cambio:** Reactivación de `Baja` en el estado inicial de categorías de probabilidad.
   - Archivos: `js/state.js`, `README.md`, `AGENTS.md`
-  - Motivo: Responder a la solicitud de UX de priorizar visualmente las clases `Alta` y `Media` al activar la capa derivada.
-  - Resultado esperado: La tarjeta `Categorías de probabilidad` inicia con `Alta` y `Media` activas, mientras `Baja` queda disponible pero sin marcar.
+  - Motivo: Ajustar la configuración inicial de la UI a la preferencia actual del usuario sin alterar la lógica de filtros ni la capa derivada.
+  - Resultado esperado: La tarjeta `Categorías de probabilidad` vuelve a iniciar con `Alta`, `Media` y `Baja` activas.
 - **Cambio:** Refactor de la UI de versión para consumir metadata embebida y usar actualización remota solo de forma opcional.
   - Archivos: `js/ui/version.ui.js`, `js/config.js`, `README.md`, `AGENTS.md`
   - Motivo: Eliminar la dependencia obligatoria de la GitHub API durante el arranque del sitio y preparar inyección de versión/fecha en build o despliegue.

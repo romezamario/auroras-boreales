@@ -4,7 +4,7 @@
 
   function createProbabilityFilters() {
     return {
-      low: false,
+      low: true,
       medium: true,
       high: true
     };
