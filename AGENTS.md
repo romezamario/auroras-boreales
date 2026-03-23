@@ -105,6 +105,9 @@ Documentar de forma continua:
 - [x] Tarea 20: Refactorizar `js/app.js` para dividir el bootstrap en fases pequeñas y paralelizar assets, refresco inicial y geolocalización.
   - Estado: `completada`
   - Evidencia: `js/app.js`, `README.md`, `AGENTS.md`
+- [x] Tarea 21: Homologar la página `explicacion-sitio.html` corrigiendo contraste, escala de gráficos y tono narrativo explicativo.
+  - Estado: `completada`
+  - Evidencia: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -143,6 +146,7 @@ Documentar de forma continua:
 - Como la visibilidad real depende también del ciclo solar local, conviene aplicar el filtro de día/noche en tiempo de render del overlay y no durante el cacheo de la grilla; así no hace falta invalidar toda la malla cada minuto.
 - Los sliders dobles de min/max en `js/ui/` comparten un ciclo estable de lectura, normalización, fallback y sincronización de labels; conviene encapsularlo en un controller reusable y dejar fuera solo la traducción hacia el estado y el evento emitido.
 - `explicacion-sitio.html` ya embebe Mermaid en cliente, por lo que nuevos diagramas documentales pueden añadirse solo con bloques `<pre class="mermaid">` alineados con el contenido vigente del `README.md`.
+- En la página `explicacion-sitio.html`, si los captions o textos sobre tarjetas oscuras usan variables CSS no definidas (por ejemplo `var(--muted)` sin fallback), el contraste puede degradarse hasta volver ilegibles las descripciones; conviene declarar tokens locales y tamaños mínimos explícitos para SVG/Mermaid.
 - El bootstrap de `js/app.js` puede separarse por dominios (`UI`, `globo`, `eventos`, `assets`, `background`) y lanzar en paralelo `loadStaticAssets()`, `refreshInitialData()` y `startBackgroundLocationLookup()`; solo la disponibilidad del atlas base debe bloquear el primer `requestRender()`.
 
 ### Riesgos / deuda técnica detectada
@@ -277,6 +281,9 @@ Documentar de forma continua:
 - **2026-03-23** — Reorganizar `js/app.js` en helpers pequeños y paralelizar bootstrap crítico/no crítico.
   - **Motivo:** El `init()` monolítico dificultaba ver dependencias duras y podía bloquear el primer fetch de datos detrás de la carga del atlas mundial.
   - **Impacto:** El arranque ahora separa explícitamente inicialización por dominio, dispara en paralelo assets base, `refreshAll()` y geolocalización por IP, y reserva el primer `requestRender()` para cuando el atlas ya está listo.
+- **2026-03-23** — Homologar la presentación visual de `explicacion-sitio.html` con tokens propios de contraste, escalado mínimo de figuras y redacción explicativa.
+  - **Motivo:** Algunos SVG/captions quedaban demasiado pequeños o con color insuficiente, y parte del texto narraba cómo se generó la página en vez de explicar el proyecto.
+  - **Impacto:** La página documental mejora legibilidad, consistencia visual y tono académico-explicativo sin cambiar la arquitectura del sitio.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -309,6 +316,10 @@ Documentar de forma continua:
   - Archivos: `js/app.js`, `README.md`, `AGENTS.md`
   - Motivo: Separar responsabilidades del `init()` monolítico, paralelizar tareas sin dependencia dura y evitar que `refreshAll()` espere la descarga del atlas mundial.
   - Resultado esperado: Arranque más legible, primer frame desbloqueado apenas cargan los assets base y tareas auxiliares ejecutándose en background cuando corresponde.
+- **Cambio:** Homologación visual y narrativa de `explicacion-sitio.html`.
+  - Archivos: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
+  - Motivo: Corregir captions con bajo contraste, aumentar el tamaño útil de gráficos SVG/Mermaid y reemplazar redacción procedural por una explicación más interpretativa del proyecto.
+  - Resultado esperado: Página documental más legible, consistente y adecuada para lectura académica o ejecutiva.
 - **Cambio:** Ajuste del servicio de geolocalización por IP para usar JSONP en navegador.
   - Archivos: `js/data/location.service.js`, `js/config.js`
   - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.

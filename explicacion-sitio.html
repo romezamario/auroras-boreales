@@ -48,6 +48,9 @@
             El sitio integra pronóstico auroral, nubosidad global, condición día/noche y localización aproximada para responder una pregunta operativa:
             <strong>¿dónde podría verse una aurora con mejores condiciones de observación?</strong>
           </p>
+          <p>
+            La página reúne en una sola narrativa los fundamentos del proyecto, la forma en que circulan los datos y las decisiones de diseño que convierten información geoespacial compleja en una lectura útil para consulta pública.
+          </p>
         </div>
         <div class="hero-badges">
           <span>NOAA OVATION</span>
@@ -57,25 +60,24 @@
         </div>
       </section>
 
-
       <section class="card presentation-section visual-story-section">
         <div class="section-heading">
           <span class="section-kicker">0. Galería visual</span>
-          <h2>Gráficos e imágenes incorporados desde la documentación del proyecto</h2>
-          <p>La explicación ahora combina narrativa textual con material visual reinterpretado en SVG a partir de <code>presentaciones/</code> y diagramas Mermaid embebidos para que la lectura sea más parecida a una defensa académica y los activos puedan versionarse mejor en GitHub.</p>
+          <h2>Recursos visuales que sintetizan el proyecto</h2>
+          <p>Esta galería funciona como una lectura rápida del proyecto: resume su propuesta de valor, muestra cómo se organiza técnicamente la solución y anticipa la hoja de ruta sin obligar a recorrer primero todos los documentos fuente.</p>
         </div>
-        <div class="figure-grid">
+        <div class="figure-grid figure-grid-emphasis">
           <figure class="document-figure figure-featured">
             <img src="assets/explicacion/executive-slide-overview.svg" alt="Resumen ejecutivo del proyecto auroras-boreales extraído de la presentación ejecutiva">
-            <figcaption>Resumen ejecutivo sintetizado en SVG a partir de la presentación original: valor diferencial, fuentes principales y propuesta de visualización integradora.</figcaption>
+            <figcaption>Vista de conjunto del sitio: explica el problema que resuelve, las fuentes de datos principales y la razón por la que el globo interactivo sirve como interfaz para interpretar visibilidad auroral.</figcaption>
           </figure>
-          <figure class="document-figure">
+          <figure class="document-figure figure-tall">
             <img src="assets/explicacion/doc-architecture-diagram.svg" alt="Diagrama arquitectónico extraído del documento académico del proyecto">
-            <figcaption>Diagrama reinterpretado en SVG a partir del documento académico para reforzar la separación entre adquisición, procesamiento y consumo visual.</figcaption>
+            <figcaption>Esquema conceptual de la arquitectura. Ayuda a distinguir la adquisición de datos, su transformación y el consumo final dentro del navegador.</figcaption>
           </figure>
-          <figure class="document-figure">
+          <figure class="document-figure figure-tall">
             <img src="assets/explicacion/doc-deployment-flow.svg" alt="Flujo de despliegue o secuencia operativa extraído del documento académico del proyecto">
-            <figcaption>Flujo metodológico reinterpretado en SVG para explicar cómo la solución conecta la parte analítica con la publicación web.</figcaption>
+            <figcaption>Secuencia general del proceso. Resume cómo las fuentes externas, el procesamiento previo y el sitio publicado convergen en una experiencia web estable y trazable.</figcaption>
           </figure>
         </div>
       </section>
@@ -84,13 +86,14 @@
         <div class="section-heading">
           <span class="section-kicker">1. Contexto del problema</span>
           <h2>Motivación, objetivos y alcance</h2>
+          <p>Antes de entrar en la implementación, conviene entender qué necesidad atiende la aplicación y qué tipo de respuesta puede ofrecer con los datos disponibles.</p>
         </div>
         <div class="two-column-grid">
           <article class="info-panel">
             <h3>Problema de investigación</h3>
-            <p>Las personas interesadas en observar auroras deben consultar múltiples fuentes para combinar actividad geomagnética, nubosidad y oscuridad ambiental. El proyecto reduce esa fragmentación al unificar dichas variables en una sola experiencia visual.</p>
+            <p>Las personas interesadas en observar auroras suelen depender de varias fuentes separadas para interpretar actividad geomagnética, nubosidad y oscuridad local. El proyecto reduce esa fragmentación al reunir esas variables en una sola lectura visual, más fácil de consultar y comparar.</p>
             <h3>Objetivo general</h3>
-            <p>Desarrollar una visualización interactiva de libre acceso que ayude a identificar regiones con mayor probabilidad de observar auroras boreales mediante la integración de actividad auroral y nubosidad.</p>
+            <p>Desarrollar una visualización interactiva de libre acceso que ayude a identificar regiones con mejores condiciones estimadas para observar auroras boreales mediante la integración de actividad auroral y nubosidad.</p>
           </article>
           <article class="info-panel">
             <h3>Objetivos específicos</h3>
@@ -101,7 +104,7 @@
               <li>Publicar el resultado como sitio web estático accesible por internet.</li>
             </ul>
             <h3>Alcance</h3>
-            <p>La solución ofrece una lectura global aproximada, orientada a interpretación visual y apoyo a decisiones, no a predicción científica de alta resolución ni a análisis atmosférico local detallado.</p>
+            <p>La solución ofrece una lectura global aproximada, orientada a interpretación visual y apoyo a decisiones. No pretende reemplazar modelos científicos de alta resolución ni estudios atmosféricos locales especializados.</p>
           </article>
         </div>
       </section>
@@ -110,22 +113,23 @@
         <div class="section-heading">
           <span class="section-kicker">2. Fuentes y datos</span>
           <h2>Qué información consume el sitio y cómo se transforma</h2>
+          <p>Cada capa visible del globo depende de una fuente distinta. La utilidad del sitio surge precisamente de combinar esas fuentes bajo un mismo modelo de lectura.</p>
         </div>
         <div class="timeline-grid">
           <article class="timeline-step">
             <h3>Auroras boreales</h3>
-            <p>Se usa el feed <strong>OVATION Aurora Forecast</strong> de NOAA, consumido en JSON y actualizado de forma casi continua. Cada punto aporta longitud, latitud e intensidad auroral.</p>
-            <p class="mini-note">Uso en el sitio: filtro por umbrales, render sobre hemisferio visible y cálculo contextual del punto seleccionado.</p>
+            <p>Se usa el feed <strong>OVATION Aurora Forecast</strong> de NOAA, consumido en JSON y actualizado de forma casi continua. Cada punto aporta longitud, latitud e intensidad auroral para construir la capa principal del globo.</p>
+            <p class="mini-note">Aporte a la interpretación: permite estimar dónde existe señal auroral suficiente y filtrar visualmente zonas con mayor relevancia.</p>
           </article>
           <article class="timeline-step">
             <h3>Nubosidad global</h3>
             <p>La capa de nubes se deriva de MODIS/Earthdata y se publica como <code>data/clouds.json</code>, un artefacto ya normalizado para consumo directo desde el frontend.</p>
-            <p class="mini-note">Uso en el sitio: superposición visual de cobertura, cálculo de visibilidad y metadatos de actualización.</p>
+            <p class="mini-note">Aporte a la interpretación: incorpora una restricción atmosférica clave, porque una aurora intensa puede seguir siendo difícil de observar bajo cielos muy cubiertos.</p>
           </article>
           <article class="timeline-step">
             <h3>Contexto auxiliar</h3>
-            <p>El sistema incorpora world-atlas para continentes y fronteras, GitHub API para mostrar versión visible, y geolocalización aproximada por IP mediante JSONP.</p>
-            <p class="mini-note">Uso en el sitio: orientación espacial, trazabilidad del despliegue y marcador contextual del usuario.</p>
+            <p>El sistema incorpora world-atlas para continentes y fronteras, metadata de versión del despliegue y geolocalización aproximada por IP para contextualizar la experiencia del usuario.</p>
+            <p class="mini-note">Aporte a la interpretación: agrega referencia geográfica, trazabilidad del sitio publicado y un punto de comparación con la ubicación aproximada de quien consulta.</p>
           </article>
         </div>
       </section>
@@ -134,11 +138,12 @@
         <div class="section-heading">
           <span class="section-kicker">3. Arquitectura</span>
           <h2>Separación entre runtime web y procesamiento offline</h2>
+          <p>La arquitectura privilegia claridad operativa: el navegador resuelve la interacción y el render, mientras que la preparación más costosa de nubosidad ocurre fuera del runtime público.</p>
         </div>
         <div class="mermaid-card">
           <div class="mermaid-caption-block">
             <h3>Diagrama de arquitectura del sitio</h3>
-            <p>Este gráfico resume la relación entre frontend, estado compartido, servicios remotos y pipeline offline de <code>clouds.json</code>.</p>
+            <p>El gráfico muestra cómo el frontend coordina estado, servicios remotos y el artefacto intermedio <code>clouds.json</code> para sostener una experiencia estática pero informativamente rica.</p>
           </div>
           <pre class="mermaid">
 flowchart LR
@@ -170,9 +175,9 @@ flowchart LR
           </article>
           <article class="info-panel">
             <h3>Pipeline offline</h3>
-            <p><code>scripts/mod08_cloudfraction.py</code> transforma productos MODIS/LAADS en una cuadrícula homogénea y versionable. Esto desacopla la adquisición del dataset de la experiencia interactiva.</p>
+            <p><code>scripts/mod08_cloudfraction.py</code> transforma productos MODIS/LAADS en una cuadrícula homogénea y versionable. Esto desacopla la adquisición del dataset de la experiencia interactiva y evita cargar en el navegador tareas pesadas de preparación.</p>
             <h3>Ventaja de diseño</h3>
-            <p>El contrato intermedio <code>clouds.json</code> hace posible publicar el proyecto como sitio estático simple, portable y económico, manteniendo además claridad entre ingestión y visualización.</p>
+            <p>El contrato intermedio <code>clouds.json</code> hace posible publicar el proyecto como sitio estático simple, portable y económico, manteniendo además claridad entre ingestión, transformación y visualización final.</p>
           </article>
         </div>
       </section>
@@ -181,11 +186,12 @@ flowchart LR
         <div class="section-heading">
           <span class="section-kicker">4. Flujo funcional</span>
           <h2>Del arranque del navegador al render del globo</h2>
+          <p>El comportamiento observable del sitio depende de un arranque escalonado: primero se prepara la interfaz base y luego se completan en paralelo las capas de datos y el contexto adicional.</p>
         </div>
         <div class="mermaid-card">
           <div class="mermaid-caption-block">
             <h3>Secuencia de carga e interacción</h3>
-            <p>Mermaid ayuda a visualizar el orden real en que el navegador inicializa la experiencia, obtiene datos y solicita el primer render.</p>
+            <p>La secuencia resume el orden práctico en que la aplicación inicializa la experiencia, consulta datasets y habilita la primera vista operativa del globo.</p>
           </div>
           <pre class="mermaid">
 sequenceDiagram
@@ -222,11 +228,12 @@ sequenceDiagram
         <div class="section-heading">
           <span class="section-kicker">5. Modelo analítico</span>
           <h2>Reglas de negocio y lógica de visibilidad</h2>
+          <p>El valor explicativo del sitio no está solo en mostrar capas, sino en declarar con claridad qué criterios se usan para ocultar ruido, conservar relevancia y derivar la categoría de visibilidad.</p>
         </div>
         <div class="mermaid-card">
           <div class="mermaid-caption-block">
             <h3>Diagrama de reglas de negocio</h3>
-            <p>Este diagrama resume la lógica descrita en el <code>README.md</code>: filtros de render, tolerancia a fallos y clasificación discreta de la capa <code>Probabilidad</code>.</p>
+            <p>Este flujo traduce en términos visuales las reglas descritas en el <code>README.md</code>: filtros de render, degradación parcial y clasificación discreta de la capa <code>Probabilidad</code>.</p>
           </div>
           <pre class="mermaid">
 flowchart TD
@@ -284,7 +291,7 @@ flowchart TD
               <li><strong>Media:</strong> intensidad entre 30 y 60 con nubosidad ≤ 30%.</li>
               <li><strong>Baja:</strong> cualquier otra combinación.</li>
             </ul>
-            <p>Esta clasificación hace que el sitio sea interpretable para perfiles no expertos sin sacrificar trazabilidad de la decisión.</p>
+            <p>La clasificación no reemplaza el dato original, pero sí reduce la carga interpretativa y vuelve más comprensible la decisión para personas no expertas.</p>
           </article>
         </div>
       </section>
@@ -293,12 +300,13 @@ flowchart TD
         <div class="section-heading">
           <span class="section-kicker">6. Experiencia de usuario</span>
           <h2>Qué puede revisar la persona usuaria dentro del sitio</h2>
+          <p>La interfaz combina exploración libre, filtros de lectura y paneles de contexto para que la consulta no dependa únicamente de interpretar el color sobre el globo.</p>
         </div>
         <div class="feature-grid">
-          <article class="feature-card"><h3>Globo interactivo</h3><p>Representa continentes, auroras, nubosidad y ciclo día/noche sobre un canvas responsive que prioriza el panel visual principal.</p></article>
-          <article class="feature-card"><h3>Filtros y capas</h3><p>Permite encender o apagar fuentes y ajustar umbrales de intensidad auroral y porcentaje de nubosidad.</p></article>
-          <article class="feature-card"><h3>Detalle de puntos</h3><p>Informa latitud, longitud, intensidad, nubosidad, estado día/noche y probabilidad de visibilidad al hacer clic sobre el globo.</p></article>
-          <article class="feature-card"><h3>Contexto adicional</h3><p>Incluye localización aproximada por IP y estado de actualización de datos y versión del despliegue.</p></article>
+          <article class="feature-card"><h3>Globo interactivo</h3><p>Representa continentes, auroras, nubosidad y ciclo día/noche sobre un canvas responsive que concentra la atención en la relación espacial entre fenómenos.</p></article>
+          <article class="feature-card"><h3>Filtros y capas</h3><p>Permite encender o apagar fuentes y ajustar umbrales de intensidad auroral y porcentaje de nubosidad para adaptar la lectura al interés de cada consulta.</p></article>
+          <article class="feature-card"><h3>Detalle de puntos</h3><p>Informa latitud, longitud, intensidad, nubosidad, estado día/noche y probabilidad de visibilidad al seleccionar una ubicación del globo.</p></article>
+          <article class="feature-card"><h3>Contexto adicional</h3><p>Incluye localización aproximada por IP y estado de actualización de datos y versión del despliegue, lo que mejora la trazabilidad de lo que se está observando.</p></article>
         </div>
       </section>
 
@@ -306,6 +314,7 @@ flowchart TD
         <div class="section-heading">
           <span class="section-kicker">7. Seguridad, resiliencia y operación</span>
           <h2>Fortalezas actuales y condiciones de uso responsable</h2>
+          <p>Al ser un frontend estático, el sitio reduce superficie operativa, pero igualmente exige prácticas claras de privacidad, manejo de secretos y degradación ante fallos externos.</p>
         </div>
         <div class="two-column-grid">
           <article class="info-panel">
@@ -331,15 +340,16 @@ flowchart TD
         <div class="section-heading">
           <span class="section-kicker">8. Evaluación crítica</span>
           <h2>Qué se ha logrado y qué falta para una siguiente etapa</h2>
+          <p>La evaluación crítica permite leer el proyecto no solo como una demo visual, sino como una propuesta técnica con fortalezas actuales y márgenes claros de mejora.</p>
         </div>
         <div class="figure-grid roadmap-gallery">
           <figure class="document-figure">
             <img src="assets/explicacion/executive-slide-architecture.svg" alt="Lámina de arquitectura lógica extraída de la presentación ejecutiva">
-            <figcaption>Lámina de arquitectura lógica reinterpretada en SVG para reforzar la lectura modular y la partición runtime/offline.</figcaption>
+            <figcaption>Resumen visual de la arquitectura lógica. Refuerza la lectura modular del sistema y muestra cómo se relacionan frontend, servicios y procesamiento previo.</figcaption>
           </figure>
           <figure class="document-figure">
             <img src="assets/explicacion/executive-slide-roadmap.svg" alt="Lámina de evaluación crítica y hoja de ruta extraída de la presentación ejecutiva">
-            <figcaption>Hoja de ruta visual reinterpretada en SVG con fortalezas, limitaciones y evolución sugerida para futuras fases del proyecto.</figcaption>
+            <figcaption>Hoja de ruta del proyecto. Permite identificar con rapidez qué ya está consolidado, qué deuda técnica permanece abierta y qué evolución sería razonable en fases futuras.</figcaption>
           </figure>
         </div>
         <div class="two-column-grid">
@@ -367,6 +377,7 @@ flowchart TD
         <div class="section-heading">
           <span class="section-kicker">9. Base documental</span>
           <h2>Fuentes utilizadas para construir esta explicación</h2>
+          <p>Esta sección deja explícito de dónde proviene la narrativa de la página y cómo se conectan los documentos del repositorio con el contenido publicado para lectura rápida.</p>
         </div>
         <ul class="reference-list">
           <li><strong>README del repositorio:</strong> arquitectura, modelo de datos, reglas de negocio, integraciones, operación y evolución.</li>
