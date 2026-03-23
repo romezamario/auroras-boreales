@@ -6,6 +6,7 @@ Documentar de forma continua:
 2. Qué aprendí del repositorio.
 3. Decisiones tomadas y su justificación.
 4. Pendientes y riesgos.
+5. Qué cambios deben reflejarse también en `README.md` para mantener la documentación integral del proyecto.
 
 ---
 
@@ -29,6 +30,9 @@ Documentar de forma continua:
 - [x] Tarea 3: Incluir direcciones (URLs) explícitas en las secciones de fuentes y geolocalización.
   - Estado: `completada`
   - Evidencia: `tratamiento-datos.html`, `js/config.js`
+- [x] Tarea 4: Revisar y corregir la geolocalización aproximada por IP en frontend.
+  - Estado: `completada`
+  - Evidencia: `js/data/location.service.js`, `js/config.js`
 
 ---
 
@@ -44,6 +48,7 @@ Documentar de forma continua:
 ### Dependencias / herramientas
 - El repo no requiere build para editar esta sección; basta con modificar HTML estático.
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
+- La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -65,6 +70,12 @@ Documentar de forma continua:
 - **2026-03-23** — Mostrar en el estado de datos la fecha/hora de extracción de nubosidad y persistirla en `clouds.json`.
   - **Motivo:** Hacer explícito cuándo se generó la capa de nubes, diferenciando la fecha del dataset MODIS de la fecha de extracción/publicación.
   - **Impacto:** La UI puede auditar mejor la frescura de nubosidad y usar fallback por cabecera HTTP si el JSON aún no trae el nuevo campo.
+- **2026-03-23** — Eliminar los controles de expandir/contraer en las tarjetas laterales de detalle y localización.
+  - **Motivo:** Simplificar la interfaz y dejar visible la información contextual sin interacción extra.
+  - **Impacto:** Menos fricción en la lectura del estado del punto y de la localización inferida.
+- **2026-03-23** — Sustituir la consulta directa JSON a proveedores IP por un flujo JSONP compatible con navegador.
+  - **Motivo:** El endpoint gratuito de `ipwho.is` ya no permite CORS en frontend y la geolocalización dejó de resolverse desde el cliente.
+  - **Impacto:** La app vuelve a obtener una ubicación aproximada por IP sin introducir backend ni exponer claves.
 
 ---
 
@@ -87,6 +98,14 @@ Documentar de forma continua:
   - Archivos: `js/data/clouds.service.js`, `js/data/refresh.service.js`, `js/ui/refresh.ui.js`, `js/state.js`, `scripts/mod08_cloudfraction.py`, `data/clouds.json`
   - Motivo: Distinguir la fecha del producto MODIS de la fecha real en que se extrajo/publicó la capa de nubes.
   - Resultado esperado: Panel de estado más claro y trazable respecto al proceso del workflow/YAML.
+- **Cambio:** Eliminación de botones de expandir/contraer en paneles informativos.
+  - Archivos: `index.html`, `style.css`, `js/ui/inspector.ui.js`, `js/ui/location.ui.js`
+  - Motivo: Mostrar siempre la información clave y evitar pasos innecesarios en la interacción.
+  - Resultado esperado: Paneles de detalle y localización visibles de forma permanente.
+- **Cambio:** Ajuste del servicio de geolocalización por IP para usar JSONP en navegador.
+  - Archivos: `js/data/location.service.js`, `js/config.js`
+  - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.
+  - Resultado esperado: Vuelta del marcador de ubicación y del panel de localización sin depender de backend.
 
 ---
 
@@ -99,6 +118,7 @@ Documentar de forma continua:
   - Evidencia: `style.css`
 - [ ] Revisar periódicamente que la documentación de fuentes coincida con endpoints implementados en `js/data/*`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
+- [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
 
 ---
 
@@ -107,6 +127,14 @@ Documentar de forma continua:
 
 ---
 
-## 8) Glosario del proyecto
+## 8) Sincronización obligatoria con README.md
+- Cada cambio futuro que modifique arquitectura, funcionalidad, flujos de datos, integraciones, operación, seguridad, rendimiento, cumplimiento, gobernanza o evolución del sistema **debe** actualizar también `README.md`.
+- Si se agrega o cambia una fuente de datos, endpoint, pipeline, regla de negocio o dependencia operativa, se debe revisar simultáneamente `README.md`, `AGENTS.md` y, cuando aplique, `tratamiento-datos.html`.
+- Si una actualización altera relaciones entre componentes, se debe regenerar o ajustar el diagrama Mermaid correspondiente en `README.md`.
+- Ninguna tarea documental se considera completa si la bitácora en `AGENTS.md` y la documentación principal en `README.md` quedan desalineadas.
+
+---
+
+## 9) Glosario del proyecto
 - **OVATION:** Modelo/fuente de probabilidad auroral usada para visualizar actividad de auroras.
 - **Earthdata:** Ecosistema de datos de NASA utilizado para consultar capas ambientales, incluida nubosidad.
