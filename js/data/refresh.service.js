@@ -2,9 +2,7 @@
   window.App = window.App || {};
 
   function resetProbabilityCaches() {
-    App.state.probability.gridCache = null;
-    App.state.probability.globalGridPoints = null;
-    App.state.probability.globalGridStep = null;
+    App.probabilityService?.invalidateCache?.();
   }
 
   function applyCloudsResult(result) {

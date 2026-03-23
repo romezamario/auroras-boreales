@@ -21,21 +21,8 @@
         if (!coords) return;
 
         const [lon, lat] = coords;
-        const probabilityPoint = App.probabilityService?.getProbabilityAt(lon, lat) ?? { lon, lat, probability: null };
-        const isDay = App.utils?.isDayAt ? App.utils.isDayAt(lon, lat, new Date()) : null;
-
-        App.state.selection = {
-          lon,
-          lat,
-          intensity: probabilityPoint.intensity ?? null,
-          clouds: probabilityPoint.clouds ?? null,
-          probability: probabilityPoint.probability ?? null,
-          visibility: probabilityPoint.probability ?? null,
-          isDay
-        };
+        App.probabilityService?.selectPoint?.(lon, lat);
         App.globe?.requestRender();
-
-        App.emit("globe:select", App.state.selection);
       });
     }
   };

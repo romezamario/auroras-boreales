@@ -44,7 +44,7 @@
         intensityEl.textContent = fmtIntensity(selection?.intensity);
         cloudsEl.textContent = fmtClouds(selection?.clouds);
         dayNightEl.textContent = fmtDayNight(selection?.isDay);
-        visibilityEl.textContent = fmtProbability(selection?.probability ?? selection?.visibility);
+        visibilityEl.textContent = fmtProbability(selection?.probability);
 
         if (hintEl) {
           hintEl.textContent = "Datos actualizados para el punto seleccionado.";
