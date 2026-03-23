@@ -40,6 +40,10 @@ Documentar de forma continua:
 
 ---
 
+- [x] Tarea 6: Revisar y corregir la geolocalización por IP tras la caída del endpoint en frontend.
+  - Estado: `completada`
+  - Evidencia: `js/config.js`, `README.md`, `tratamiento-datos.html`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -53,6 +57,7 @@ Documentar de forma continua:
 - El repo no requiere build para editar esta sección; basta con modificar HTML estático.
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
+- `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -80,6 +85,9 @@ Documentar de forma continua:
 - **2026-03-23** — Sustituir la consulta directa JSON a proveedores IP por un flujo JSONP compatible con navegador.
   - **Motivo:** El endpoint gratuito de `ipwho.is` ya no permite CORS en frontend y la geolocalización dejó de resolverse desde el cliente.
   - **Impacto:** La app vuelve a obtener una ubicación aproximada por IP sin introducir backend ni exponer claves.
+- **2026-03-23** — Corregir el endpoint JSONP de geolocalización para usar la ruta nativa `/jsonp/` de `ipapi.co`.
+  - **Motivo:** La integración estaba llamando `/json/?callback=...`, pero la documentación del proveedor expone JSONP como un formato/ruta separado y eso volvió inconsistente la respuesta esperada por el navegador.
+  - **Impacto:** La obtención de ubicación aproximada vuelve a ser compatible con la implementación cliente actual y la documentación queda alineada.
 
 - **2026-03-23** — Ajustar el resize del canvas para tomar la altura real de la tarjeta contenedora.
   - **Motivo:** El globo estaba usando una altura limitada por viewport y dejaba un bloque en blanco al pie de la visualización.
@@ -114,6 +122,10 @@ Documentar de forma continua:
   - Archivos: `js/data/location.service.js`, `js/config.js`
   - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.
   - Resultado esperado: Vuelta del marcador de ubicación y del panel de localización sin depender de backend.
+- **Cambio:** Corrección de la URL JSONP usada por la geolocalización por IP y alineación documental.
+  - Archivos: `js/config.js`, `README.md`, `tratamiento-datos.html`
+  - Motivo: La integración apuntaba a `/json/` con `callback`, mientras el proveedor documenta JSONP en `/jsonp/`.
+  - Resultado esperado: Reanudación de la localización aproximada en frontend y documentación consistente con la implementación real.
 
 - **Cambio:** Corrección del cálculo de tamaño del canvas del globo.
   - Archivos: `js/globe/globe.core.js`
@@ -132,6 +144,7 @@ Documentar de forma continua:
 - [ ] Revisar periódicamente que la documentación de fuentes coincida con endpoints implementados en `js/data/*`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
+- [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
 
 - [ ] Validar visualmente en distintos breakpoints que futuros cambios de layout no vuelvan a desalinear el tamaño real del canvas.
 
