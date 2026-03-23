@@ -114,6 +114,18 @@
     return VISIBILITY_CATEGORIES[key] ?? null;
   }
 
+  function getRelevantIntensityThreshold() {
+    const configuredThreshold = Number(App.config?.probability?.minRelevantIntensity);
+    if (Number.isFinite(configuredThreshold)) return configuredThreshold;
+
+    const stateThreshold = Number(App.state?.thresholdMin);
+    return Number.isFinite(stateThreshold) ? stateThreshold : 0;
+  }
+
+  function isRelevantIntensity(intensity) {
+    return Number.isFinite(intensity) && intensity >= getRelevantIntensityThreshold();
+  }
+
   function classifyVisibilityProbability(intensity, clouds) {
     if (!Number.isFinite(intensity) || !Number.isFinite(clouds)) return null;
 
@@ -233,17 +245,53 @@
     };
   }
 
+  function getCacheInputs() {
+    return {
+      auroraPoints: App.state?.aurora?.points ?? null,
+      cloudsGrid: App.state?.clouds?.grid ?? null,
+      relevantIntensityThreshold: getRelevantIntensityThreshold()
+    };
+  }
+
+  function invalidateGridCaches() {
+    if (!App.state?.probability) return;
+
+    App.state.probability.globalGridStep = null;
+    App.state.probability.globalGridPoints = null;
+    App.state.probability.gridCache = null;
+    App.state.probability.cacheInputs = getCacheInputs();
+  }
+
+  function ensureCacheInputsFresh() {
+    const probabilityState = App.state?.probability;
+    if (!probabilityState) return;
+
+    const nextInputs = getCacheInputs();
+    const previousInputs = probabilityState.cacheInputs;
+    if (
+      previousInputs?.auroraPoints !== nextInputs.auroraPoints ||
+      previousInputs?.cloudsGrid !== nextInputs.cloudsGrid ||
+      previousInputs?.relevantIntensityThreshold !== nextInputs.relevantIntensityThreshold
+    ) {
+      invalidateGridCaches();
+    }
+  }
+
   function createGlobalGridPoints(step = DEFAULT_STEP) {
     const normalizedStep = Number(step);
     if (!Number.isFinite(normalizedStep) || normalizedStep <= 0) return [];
 
+    const auroraIndex = App.state?.probability?.auroraIndex;
+    const cloudsGrid = App.state?.clouds?.grid;
+    if (!auroraIndex?.points?.length || !cloudsGrid) return [];
+
     const points = [];
     for (let lat = -90; lat <= 90; lat += normalizedStep) {
       for (let lon = -180; lon <= 180; lon += normalizedStep) {
-        const intensity = getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
+        const intensity = getAuroraIntensity(auroraIndex, lon, lat);
         if (!isRelevantIntensity(intensity)) continue;
 
-        const clouds = getCloudValue(App.state?.clouds?.grid, lon, lat);
+        const clouds = getCloudValue(cloudsGrid, lon, lat);
         points.push(createProbabilityPoint(lon, lat, intensity, clouds));
       }
     }
@@ -281,12 +329,7 @@
 
   function rebuildCache() {
     App.state.probability.auroraIndex = buildAuroraIndex(App.state?.aurora?.points ?? []);
-    App.state.probability.globalGridStep = DEFAULT_STEP;
-    App.state.probability.globalGridPoints = createGlobalGridPoints(DEFAULT_STEP);
-    App.state.probability.gridCache = {
-      step: DEFAULT_STEP,
-      points: App.state.probability.globalGridPoints
-    };
+    invalidateGridCaches();
     updateSelectionFromSources();
   }
 
@@ -307,6 +350,10 @@
 
     createProbabilityPoint,
 
+    invalidateCache() {
+      invalidateGridCaches();
+    },
+
     getAuroraIntensityAt(lon, lat) {
       return getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
     },
@@ -322,6 +369,8 @@
     },
 
     getGlobalGridPoints(step = DEFAULT_STEP) {
+      ensureCacheInputsFresh();
+
       if (
         step !== App.state?.probability?.globalGridStep ||
         !Array.isArray(App.state?.probability?.globalGridPoints)
@@ -334,6 +383,8 @@
     },
 
     getOverlayCache(step = DEFAULT_STEP) {
+      ensureCacheInputsFresh();
+
       if (
         step !== App.state?.probability?.gridCache?.step ||
         !Array.isArray(App.state?.probability?.gridCache?.points)
