@@ -790,6 +790,7 @@ button:focus-visible {
 .mermaid {
   margin: 1rem 0 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background: rgba(3, 11, 19, 0.45);
   border-radius: 14px;
   padding: 12px;
@@ -797,10 +798,29 @@ button:focus-visible {
 
 .mermaid svg {
   display: block;
-  min-width: min(100%, 960px);
-  max-width: 100%;
+  width: 100%;
+  min-width: 720px;
+  max-width: 960px;
   height: auto;
   margin: 0 auto;
+}
+
+.mermaid svg text,
+.mermaid svg tspan,
+.mermaid .nodeLabel,
+.mermaid .edgeLabel,
+.mermaid .label,
+.mermaid .cluster-label,
+.mermaid .messageText,
+.mermaid .actor > text {
+  fill: #ecf8ff !important;
+  color: #ecf8ff !important;
+}
+
+.mermaid .edgeLabel rect,
+.mermaid .labelBox,
+.mermaid .cluster rect {
+  fill: rgba(8, 21, 32, 0.92) !important;
 }
 
 .visual-story-section {
@@ -846,5 +866,13 @@ button:focus-visible {
   .figure-featured img,
   .figure-tall img {
     min-height: 220px;
+  }
+
+  .mermaid {
+    padding: 10px;
+  }
+
+  .mermaid svg {
+    min-width: 640px;
   }
 }

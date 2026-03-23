@@ -108,6 +108,9 @@ Documentar de forma continua:
 - [x] Tarea 21: Homologar la página `explicacion-sitio.html` corrigiendo contraste, escala de gráficos y tono narrativo explicativo.
   - Estado: `completada`
   - Evidencia: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
+- [x] Tarea 22: Corregir la legibilidad de textos Mermaid en móvil/Safari desactivando `htmlLabels` y reforzando el contraste del SVG.
+  - Estado: `completada`
+  - Evidencia: `explicacion-sitio.html`, `style.css`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -148,6 +151,7 @@ Documentar de forma continua:
 - `explicacion-sitio.html` ya embebe Mermaid en cliente, por lo que nuevos diagramas documentales pueden añadirse solo con bloques `<pre class="mermaid">` alineados con el contenido vigente del `README.md`.
 - En la página `explicacion-sitio.html`, si los captions o textos sobre tarjetas oscuras usan variables CSS no definidas (por ejemplo `var(--muted)` sin fallback), el contraste puede degradarse hasta volver ilegibles las descripciones; conviene declarar tokens locales y tamaños mínimos explícitos para SVG/Mermaid.
 - El bootstrap de `js/app.js` puede separarse por dominios (`UI`, `globo`, `eventos`, `assets`, `background`) y lanzar en paralelo `loadStaticAssets()`, `refreshInitialData()` y `startBackgroundLocationLookup()`; solo la disponibilidad del atlas base debe bloquear el primer `requestRender()`.
+- En Mermaid, los `flowchart` con `htmlLabels` pueden fallar o volverse ilegibles en Safari/iOS; para diagramas documentales conviene preferir etiquetas SVG nativas (`htmlLabels: false`) y forzar contraste/fallback por CSS.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -284,6 +288,9 @@ Documentar de forma continua:
 - **2026-03-23** — Homologar la presentación visual de `explicacion-sitio.html` con tokens propios de contraste, escalado mínimo de figuras y redacción explicativa.
   - **Motivo:** Algunos SVG/captions quedaban demasiado pequeños o con color insuficiente, y parte del texto narraba cómo se generó la página en vez de explicar el proyecto.
   - **Impacto:** La página documental mejora legibilidad, consistencia visual y tono académico-explicativo sin cambiar la arquitectura del sitio.
+- **2026-03-23** — Desactivar `htmlLabels` de Mermaid y fijar estilos de texto/scroll horizontal para mejorar compatibilidad en móvil y Safari.
+  - **Motivo:** En iPhone/Safari algunos nodos y etiquetas del SVG quedaban sin texto visible o demasiado comprimidos dentro de los diagramas embebidos.
+  - **Impacto:** Los diagramas de `explicacion-sitio.html` pasan a renderizar etiquetas SVG nativas con contraste explícito y ancho mínimo desplazable en pantallas pequeñas.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -316,6 +323,11 @@ Documentar de forma continua:
   - Archivos: `js/app.js`, `README.md`, `AGENTS.md`
   - Motivo: Separar responsabilidades del `init()` monolítico, paralelizar tareas sin dependencia dura y evitar que `refreshAll()` espere la descarga del atlas mundial.
   - Resultado esperado: Arranque más legible, primer frame desbloqueado apenas cargan los assets base y tareas auxiliares ejecutándose en background cuando corresponde.
+- **Cambio:** Ajuste de Mermaid para legibilidad móvil/Safari.
+  - Archivos: `explicacion-sitio.html`, `style.css`, `AGENTS.md`
+  - Motivo: Evitar que las etiquetas de los nodos desaparezcan o queden ilegibles en diagramas vistos desde iPhone/Safari y mantener scroll horizontal cuando el ancho sea limitado.
+  - Resultado esperado: Diagramas con texto visible, contraste consistente y mejor lectura en pantallas pequeñas.
+
 - **Cambio:** Homologación visual y narrativa de `explicacion-sitio.html`.
   - Archivos: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
   - Motivo: Corregir captions con bajo contraste, aumentar el tamaño útil de gráficos SVG/Mermaid y reemplazar redacción procedural por una explicación más interpretativa del proyecto.
