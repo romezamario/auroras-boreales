@@ -72,6 +72,8 @@ Documentar de forma continua:
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
+- La clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación de una malla global derivada pueden compartirse desde un servicio reutilizable independiente del módulo de picking.
+- Para evitar recalcular vecinos aurorales sobre toda la malla global, conviene indexar los puntos OVATION por celdas enteras de latitud/longitud y consultar primero vecindarios locales antes de caer al arreglo completo.
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
 - GitHub Pages estaba publicando el repositorio completo; para excluir artefactos recolectados hay que construir un directorio intermedio y subir ese bundle en `actions/upload-pages-artifact`.
 - La agrupación de enlaces de cabecera se controla con `.header-links`; para mantenerlos en una sola fila en escritorio conviene evitar `flex-direction: column` y usar `white-space: nowrap`.
@@ -129,6 +131,9 @@ Documentar de forma continua:
 - **2026-03-23** — Hacer obligatoria en `AGENTS.md` la ejecución de pruebas o verificaciones antes de cerrar cualquier intervención.
   - **Motivo:** Evitar cierres sin validación mínima, incluso cuando solo se tocan documentos o configuraciones.
   - **Impacto:** Cada cambio deberá acompañarse de comandos ejecutados y evidencia verificable también reflejada en `README.md`.
+- **2026-03-23** — Extraer a `js/data/probability.service.js` la lógica compartida de probabilidad, lecturas puntuales y grilla global cacheada.
+  - **Motivo:** Reutilizar la misma resolución de intensidad/nubosidad tanto en el picking del globo como en futuros overlays o análisis globales, evitando duplicación y preparando una malla explícita de 1 grado.
+  - **Impacto:** `globe.pick` queda más simple, el estado incorpora cachés derivados y los cambios de aurora/nubes regeneran la grilla automáticamente.
 
 ---
 
@@ -192,6 +197,10 @@ Documentar de forma continua:
   - Archivos: `AGENTS.md`, `README.md`
   - Motivo: Convertir la validación mínima en una obligación explícita y trazable para cualquier intervención futura.
   - Resultado esperado: Ningún cambio se cierra sin ejecutar y reportar comandos de comprobación acordes al alcance.
+- **Cambio:** Nuevo servicio reutilizable de probabilidad y muestreo geoespacial.
+  - Archivos: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
+  - Motivo: Centralizar la clasificación de visibilidad, las lecturas puntuales de aurora/nubosidad y la generación cacheada de una grilla global de 1 grado.
+  - Resultado esperado: La app puede reutilizar el mismo cálculo en picking y en futuras capas derivadas, regenerando automáticamente la malla cuando cambian auroras o nubes.
 
 ---
 
@@ -202,6 +211,9 @@ Documentar de forma continua:
 - [x] Hacer que la visualización ocupe mejor los espacios vacíos del layout de escritorio.
   - Estado: `completada`
   - Evidencia: `style.css`
+- [x] Centralizar la clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación cacheada de la grilla global de 1 grado.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/state.js`, `js/app.js`, `index.html`, `README.md`
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
 - [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
