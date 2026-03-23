@@ -283,7 +283,7 @@ EARTHDATA_TOKEN=*** python scripts/mod08_cloudfraction.py
 4. Revisar `tratamiento-datos.html` y `README.md` cuando cambien fuentes, reglas, pipelines o endpoints.
 
 ## Pruebas
-Actualmente el repositorio no define una suite automatizada formal. La validación operativa recomendada es:
+Actualmente el repositorio no define una suite automatizada formal. Aun así, `AGENTS.md` establece que toda intervención del agente debe ejecutar siempre pruebas, validaciones o checks proporcionales al cambio antes de cerrarlo, y debe reportar el comando exacto usado. La validación operativa recomendada es:
 - Servir el sitio localmente y revisar que el canvas renderiza sin errores en consola.
 - Confirmar que el refresco actualiza auroras aunque falle la fuente de nubes.
 - Probar cambios de umbrales y toggles en desktop y móvil.
@@ -339,6 +339,7 @@ Actualmente el repositorio no define una suite automatizada formal. La validaci�
 
 - Cualquier cambio en arquitectura, fuentes, endpoints, reglas de negocio, operación o cumplimiento debe reflejarse en `README.md`.
 - Cualquier cambio relevante de contexto, decisiones, pendientes o riesgos debe registrarse en `AGENTS.md`.
+- Cualquier cambio debe incluir pruebas o verificaciones ejecutadas de forma proporcional al alcance; si no existe suite formal, deben documentarse checks mínimos reproducibles y su resultado.
 - Cuando una actualización toque documentación de tratamiento, también debe revisarse la coherencia entre `README.md`, `AGENTS.md` y `tratamiento-datos.html`.
 - Los cambios de infraestructura o integración deberían incluir un diagrama Mermaid actualizado cuando alteren el flujo actual.
 

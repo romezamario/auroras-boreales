@@ -7,6 +7,7 @@ Documentar de forma continua:
 3. Decisiones tomadas y su justificación.
 4. Pendientes y riesgos.
 5. Qué cambios deben reflejarse también en `README.md` para mantener la documentación integral del proyecto.
+6. Qué pruebas o verificaciones debo ejecutar siempre antes de cerrar una tarea.
 
 ---
 
@@ -51,6 +52,9 @@ Documentar de forma continua:
 - [x] Tarea 8: Crear una página secundaria "Explicación del sitio" enlazada desde la app y consolidar en ella la documentación del README y de `presentaciones/`.
   - Estado: `completada`
   - Evidencia: `explicacion-sitio.html`, `index.html`, `README.md`
+- [x] Tarea 9: Incorporar en la bitácora la ejecución obligatoria de pruebas/verificaciones en cada intervención del agente.
+  - Estado: `completada`
+  - Evidencia: `AGENTS.md`, `README.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -63,12 +67,14 @@ Documentar de forma continua:
 - El contenido descriptivo está redactado en español formal y con enfoque técnico-regulatorio.
 
 ### Dependencias / herramientas
+- Aunque el repo no tenga una suite automatizada formal, la bitácora del agente debe exigir ejecutar pruebas o verificaciones aplicables en cada cambio y dejar evidencia del comando usado.
 - El repo no requiere build para editar esta sección; basta con modificar HTML estático.
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
 - La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
 - `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
 - GitHub Pages estaba publicando el repositorio completo; para excluir artefactos recolectados hay que construir un directorio intermedio y subir ese bundle en `actions/upload-pages-artifact`.
+- La agrupación de enlaces de cabecera se controla con `.header-links`; para mantenerlos en una sola fila en escritorio conviene evitar `flex-direction: column` y usar `white-space: nowrap`.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -120,6 +126,12 @@ Documentar de forma continua:
 - **2026-03-23** — Incorporar gráficos Mermaid y láminas SVG derivadas de `presentaciones/` dentro de `explicacion-sitio.html`.
   - **Motivo:** Convertir la explicación textual en un recurso visual más cercano a una defensa académica y reutilizar material ya producido por el proyecto.
   - **Impacto:** La página documental gana diagramas embebidos, figuras ilustrativas versionables en GitHub y mejor capacidad de comunicación sin depender de abrir el PPTX o el DOCX por separado.
+- **2026-03-23** — Reorganizar los enlaces de cabecera en una sola fila dentro del bloque de acciones.
+  - **Motivo:** Evitar que “Tratamiento de datos” y “Explicación del sitio” se separen en dos renglones debajo del botón principal.
+  - **Impacto:** La cabecera conserva una jerarquía más compacta y estable en escritorio sin alterar el comportamiento responsive existente.
+- **2026-03-23** — Hacer obligatoria en `AGENTS.md` la ejecución de pruebas o verificaciones antes de cerrar cualquier intervención.
+  - **Motivo:** Evitar cierres sin validación mínima, incluso cuando solo se tocan documentos o configuraciones.
+  - **Impacto:** Cada cambio deberá acompañarse de comandos ejecutados y evidencia verificable también reflejada en `README.md`.
 
 ---
 
@@ -179,6 +191,14 @@ Documentar de forma continua:
   - Archivos: `explicacion-sitio.html`, `style.css`, `assets/explicacion/*.svg`, `README.md`
   - Motivo: Responder a la solicitud de enriquecer la explicación visual con gráficos basados en `presentaciones/`, pero en formato SVG más amigable para versionado y revisión en GitHub.
   - Resultado esperado: Página documental más pedagógica, con evidencia visual integrada y activos textuales más fáciles de revisar, versionar y ajustar.
+- **Cambio:** Ajuste del bloque de enlaces de la cabecera para mostrarlos en una sola fila bajo el botón de refresco.
+  - Archivos: `style.css`
+  - Motivo: Corregir el quiebre visual que separaba los accesos a "Tratamiento de datos" y "Explicación del sitio" en dos renglones.
+  - Resultado esperado: Acciones de cabecera más compactas y legibles en escritorio.
+- **Cambio:** Incorporación de la directiva de ejecutar pruebas o verificaciones siempre desde la bitácora del agente.
+  - Archivos: `AGENTS.md`, `README.md`
+  - Motivo: Convertir la validación mínima en una obligación explícita y trazable para cualquier intervención futura.
+  - Resultado esperado: Ningún cambio se cierra sin ejecutar y reportar comandos de comprobación acordes al alcance.
 
 ---
 
@@ -204,14 +224,23 @@ Documentar de forma continua:
 
 ---
 
-## 8) Sincronización obligatoria con README.md
+## 8) Ejecución obligatoria de pruebas y verificaciones
+- En toda intervención del agente se deben ejecutar siempre pruebas, validaciones o checks proporcionales al cambio realizado antes de cerrar la tarea, aunque el cambio sea solo documental.
+- Si el repositorio no dispone de una suite formal para el alcance tocado, se deben correr al menos verificaciones mínimas reproducibles (por ejemplo, lint, validación sintáctica, arranque local o revisión automatizable del archivo editado) y dejar constancia del comando exacto y su resultado.
+- Solo se admite omitir una prueba cuando exista una limitación real del entorno; en ese caso debe registrarse explícitamente como advertencia junto con el motivo.
+- La sección de pruebas del mensaje final debe reflejar esos comandos, y `README.md` debe mantenerse alineado con esta política.
+
+---
+
+## 9) Sincronización obligatoria con README.md
 - Cada cambio futuro que modifique arquitectura, funcionalidad, flujos de datos, integraciones, operación, seguridad, rendimiento, cumplimiento, gobernanza o evolución del sistema **debe** actualizar también `README.md`.
+- Toda actualización de la bitácora que endurezca el proceso de validación o cambie expectativas sobre pruebas/verificaciones debe reflejarse también en `README.md`.
 - Si se agrega o cambia una fuente de datos, endpoint, pipeline, regla de negocio o dependencia operativa, se debe revisar simultáneamente `README.md`, `AGENTS.md` y, cuando aplique, `tratamiento-datos.html`.
 - Si una actualización altera relaciones entre componentes, se debe regenerar o ajustar el diagrama Mermaid correspondiente en `README.md`.
 - Ninguna tarea documental se considera completa si la bitácora en `AGENTS.md` y la documentación principal en `README.md` quedan desalineadas.
 
 ---
 
-## 9) Glosario del proyecto
+## 10) Glosario del proyecto
 - **OVATION:** Modelo/fuente de probabilidad auroral usada para visualizar actividad de auroras.
 - **Earthdata:** Ecosistema de datos de NASA utilizado para consultar capas ambientales, incluida nubosidad.
