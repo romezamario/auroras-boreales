@@ -116,8 +116,7 @@ sequenceDiagram
 - `js/data/ovation.service.js`: normaliza coordenadas NOAA y extrae `Forecast Time`.
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
-- `js/data/geo.utils.js`: concentra helpers geoespaciales compartidos como normalización de longitud, clamp y lectura de celdas de nubosidad para evitar duplicación entre servicios.
-- `js/data/probability.service.js`: centraliza la clasificación de visibilidad, la lectura puntual de aurora/nubes y la generación cacheada de una grilla global de 1°, reutilizando `js/data/geo.utils.js` para helpers espaciales comunes.
+- `js/data/probability.service.js`: centraliza la clasificación de visibilidad, la lectura puntual de aurora/nubes, el índice auroral y la generación diferida/cacheada de una grilla global de 1°.
 - `js/data/location.service.js`: consulta la geolocalización por IP mediante JSONP y normaliza la respuesta al estado de la app.
 - `js/overlays/*.js`: renderizado de auroras, nubes, probabilidad derivada y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos, incluyendo toggles de capas, sliders y filtros de probabilidad.
@@ -219,7 +218,7 @@ erDiagram
 - La probabilidad de visibilidad del punto inspeccionado y de la capa opcional se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
 - La capa `Probabilidad` permanece apagada al iniciar; cuando se activa reutiliza los umbrales de intensidad y nubosidad ya presentes y permite filtrar visualmente las categorías `Alta`, `Media` y `Baja`.
 - Antes de clasificar `Alta`/`Media`/`Baja`, la grilla derivada descarta cualquier coordenada cuya intensidad no alcance el umbral de relevancia auroral (`App.config.probability.minRelevantIntensity`, con fallback a `App.state.thresholdMin`).
-- La capa de probabilidad solo dibuja la cara visible del globo y permite filtrar categorías activas desde `App.state.probability.activeCategories`, operando sobre ese subconjunto relevante para reducir ruido visual.
+- La capa de probabilidad solo dibuja la cara visible del globo y comparte un único mapa de categorías activas entre `App.state.probability.filters` y `App.state.probability.activeCategories`, operando sobre ese subconjunto relevante para reducir ruido visual.
 - La probabilidad de visibilidad del punto inspeccionado se clasifica con una matriz simple: `Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `Baja` en cualquier otro caso.
 - La probabilidad de visibilidad se clasifica con una matriz simple y canónica: `high`/`Alta` si la intensidad es `>= 70` y la nubosidad `<= 30%`, `medium`/`Media` si la intensidad está entre `30` y `60` con nubosidad `<= 30%`, y `low`/`Baja` en cualquier otro caso.
 - Cada categoría de probabilidad comparte la misma estructura `{ key, label, range, color }` para picking, inspector, overlay, filtros y cachés de puntos.
@@ -232,7 +231,7 @@ erDiagram
 - El resumen cromático de la capa es: `Baja` en verde, `Media` en amarillo y `Alta` en rojo.
 - La capa de probabilidad solo dibuja la cara visible del globo y se regenera cuando cambia cualquiera de las dos fuentes cruzadas (aurora o nubosidad).
 - La lectura auroral reutilizable usa un índice espacial por celdas enteras y compara primero vecinos locales antes de recurrir a un fallback más amplio, para que la grilla global derivada de 1° sea viable en el navegador.
-- La colección global derivada se regenera automáticamente cuando cambian `data:aurora` o `data:clouds`.
+- La colección global derivada invalida su caché cuando cambian `App.state.aurora.points`, `App.state.clouds.grid` o el umbral relevante de probabilidad; la reconstrucción pesada de la grilla se difiere hasta `getGlobalGridPoints(step)` o `getOverlayCache(step)` y no se precalcula al iniciar si la capa `Probabilidad` sigue apagada.
 - El refresco de datos acepta degradación parcial: si falla nubosidad, la app puede seguir mostrando auroras.
 - `clouds.json` se considera una instantánea diaria/preprocesada, no una fuente en vivo de alta frecuencia.
 - La versión visual expuesta al usuario corresponde a la fecha del último commit de la rama configurada en GitHub.

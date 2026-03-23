@@ -91,6 +91,7 @@ Documentar de forma continua:
 - La grilla global de probabilidad debe filtrar primero por relevancia auroral; si la intensidad queda por debajo del umbral mínimo configurable, la coordenada no debe entrar en caché ni en el overlay.
 - La capa `Probabilidad` se genera por intersección de dos fuentes heterogéneas: toma la intensidad auroral más cercana desde el índice espacial OVATION, cruza ese valor con la celda MODIS de nubosidad y produce una categoría discreta reutilizable tanto en el overlay como en el inspector.
 - Los helpers geoespaciales transversales (por ejemplo, normalización de longitud y lectura de celdas de nube) conviene centralizarlos en un módulo dedicado para evitar divergencias entre `utils`, `ovation.service` y `probability.service`.
+- `App.state` debe conservar una única raíz canónica para `dayNight`, `selection` y `userLocation`; dentro de `probability` solo deben permanecer los metadatos propios de la capa y un único mapa compartido de categorías activas (`filters`/`activeCategories`).
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -262,6 +263,11 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `js/state.js`, `js/config.js`, `js/globe/globe.render.js`, `README.md`
   - Motivo: Asegurar que la caché derivada y el overlay ignoren coordenadas con intensidad inferior al umbral mínimo relevante antes de clasificar `Baja`/`Media`/`Alta`.
   - Resultado esperado: Menos ruido visual, filtros de probabilidad aplicados sobre un subconjunto significativo y estado coherente para la capa derivada.
+- **Cambio:** Limpieza de `App.state` para dejar una sola estructura canónica sin duplicados anidados dentro de `probability`.
+  - Archivos: `js/state.js`, `js/ui/probability.ui.js`, `README.md`
+  - Motivo: Evitar fragmentos duplicados de `clouds`, `dayNight`, `selection` y `userLocation`, y asegurar que los consumidores compartan el mismo mapa de categorías activas.
+  - Resultado esperado: Todos los módulos leen/escriben un único `App.state` válido y consistente para probabilidad, selección, ciclo día/noche y localización.
+
 - **Cambio:** Sincronización documental completa de la capa `Probabilidad`.
   - Archivos: `README.md`, `AGENTS.md`
   - Motivo: Documentar en paralelo la nueva capa funcional, su control de UI, la interacción entre intensidad/nubosidad/probabilidad, el código de colores (baja verde, media amarillo, alta rojo), el estado inicial apagado y el filtro por categorías.
