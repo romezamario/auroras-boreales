@@ -118,6 +118,13 @@
     return Number.isFinite(intensity) && intensity >= getRelevantIntensityThreshold();
   }
 
+  function isNightVisibilityCandidate(lon, lat, date = new Date()) {
+    if (!App.utils?.isDayAt) return true;
+
+    const isDay = App.utils.isDayAt(lon, lat, date);
+    return isDay === null ? true : !isDay;
+  }
+
   function classifyVisibilityProbability(intensity, clouds) {
     if (!Number.isFinite(intensity) || !Number.isFinite(clouds)) return null;
 
@@ -350,6 +357,7 @@
     ensureProbabilityFilters,
     getMinimumAuroraAbsLatitude,
     isOutsideEquatorialExclusion,
+    isNightVisibilityCandidate,
 
     createProbabilityPoint,
     buildSelection,

@@ -17,6 +17,7 @@
       const radius = isMobile ? (cfg.pointRadiusMobile ?? 2.4) : (cfg.pointRadiusDesktop ?? 3.2);
       const opacity = Number(state?.probability?.opacity ?? cfg.opacity ?? 0.75);
       const activeFilters = App.probabilityService?.ensureProbabilityFilters?.() ?? {};
+      const visibilityDate = new Date();
       const points = App.probabilityService?.getOverlayCache?.(step)?.points ?? [];
 
       if (!points.length) return;
@@ -31,6 +32,7 @@
         if (!probability?.key) continue;
         if (activeFilters[probability.key] === false) continue;
         if (!App.probabilityService?.isOutsideEquatorialExclusion?.(point.lat)) continue;
+        if (!App.probabilityService?.isNightVisibilityCandidate?.(point.lon, point.lat, visibilityDate)) continue;
 
         if (viewVector) {
           const cartesian = point.cartesian || versor.cartesian([point.lon, point.lat]);
