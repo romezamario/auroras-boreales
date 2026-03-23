@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Explicación del sitio · Visualización de Auroras</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="title-block">
+        <p class="eyebrow">Presentación académica · auroras-boreales</p>
+        <h1>Explicación del sitio</h1>
+        <p class="subtitle">Documento de consulta integral con enfoque de presentación de maestría sobre el problema, la arquitectura, la metodología y los resultados del proyecto.</p>
+      </div>
+      <div class="header-meta">
+        <div class="header-links">
+          <a class="data-processing-link" href="index.html">← Volver al mapa principal</a>
+          <a class="data-processing-link" href="tratamiento-datos.html">Tratamiento de datos</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="visual explanation-page">
+      <section class="hero-card presentation-hero">
+        <div>
+          <span class="section-kicker">Visión ejecutiva</span>
+          <h2>Una visualización científica accesible, trazable y explicable</h2>
+          <p>
+            El sitio integra pronóstico auroral, nubosidad global, condición día/noche y localización aproximada para responder una pregunta operativa:
+            <strong>¿dónde podría verse una aurora con mejores condiciones de observación?</strong>
+          </p>
+        </div>
+        <div class="hero-badges">
+          <span>NOAA OVATION</span>
+          <span>NASA / MODIS</span>
+          <span>Canvas + D3</span>
+          <span>Frontend estático</span>
+        </div>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">1. Contexto del problema</span>
+          <h2>Motivación, objetivos y alcance</h2>
+        </div>
+        <div class="two-column-grid">
+          <article class="info-panel">
+            <h3>Problema de investigación</h3>
+            <p>Las personas interesadas en observar auroras deben consultar múltiples fuentes para combinar actividad geomagnética, nubosidad y oscuridad ambiental. El proyecto reduce esa fragmentación al unificar dichas variables en una sola experiencia visual.</p>
+            <h3>Objetivo general</h3>
+            <p>Desarrollar una visualización interactiva de libre acceso que ayude a identificar regiones con mayor probabilidad de observar auroras boreales mediante la integración de actividad auroral y nubosidad.</p>
+          </article>
+          <article class="info-panel">
+            <h3>Objetivos específicos</h3>
+            <ul>
+              <li>Definir una lógica interpretable para estimar visibilidad a partir de intensidad auroral y nubosidad.</li>
+              <li>Recolectar datos abiertos, periódicos y con cobertura geográfica amplia.</li>
+              <li>Implementar una visualización geoespacial interactiva con efecto de globo 3D sobre canvas 2D.</li>
+              <li>Publicar el resultado como sitio web estático accesible por internet.</li>
+            </ul>
+            <h3>Alcance</h3>
+            <p>La solución ofrece una lectura global aproximada, orientada a interpretación visual y apoyo a decisiones, no a predicción científica de alta resolución ni a análisis atmosférico local detallado.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">2. Fuentes y datos</span>
+          <h2>Qué información consume el sitio y cómo se transforma</h2>
+        </div>
+        <div class="timeline-grid">
+          <article class="timeline-step">
+            <h3>Auroras boreales</h3>
+            <p>Se usa el feed <strong>OVATION Aurora Forecast</strong> de NOAA, consumido en JSON y actualizado de forma casi continua. Cada punto aporta longitud, latitud e intensidad auroral.</p>
+            <p class="mini-note">Uso en el sitio: filtro por umbrales, render sobre hemisferio visible y cálculo contextual del punto seleccionado.</p>
+          </article>
+          <article class="timeline-step">
+            <h3>Nubosidad global</h3>
+            <p>La capa de nubes se deriva de MODIS/Earthdata y se publica como <code>data/clouds.json</code>, un artefacto ya normalizado para consumo directo desde el frontend.</p>
+            <p class="mini-note">Uso en el sitio: superposición visual de cobertura, cálculo de visibilidad y metadatos de actualización.</p>
+          </article>
+          <article class="timeline-step">
+            <h3>Contexto auxiliar</h3>
+            <p>El sistema incorpora world-atlas para continentes y fronteras, GitHub API para mostrar versión visible, y geolocalización aproximada por IP mediante JSONP.</p>
+            <p class="mini-note">Uso en el sitio: orientación espacial, trazabilidad del despliegue y marcador contextual del usuario.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">3. Arquitectura</span>
+          <h2>Separación entre runtime web y procesamiento offline</h2>
+        </div>
+        <div class="architecture-grid">
+          <article class="info-panel accent-panel">
+            <h3>Frontend modular</h3>
+            <ul>
+              <li><strong>Presentación:</strong> <code>index.html</code> y <code>style.css</code>.</li>
+              <li><strong>Orquestación:</strong> <code>js/app.js</code>.</li>
+              <li><strong>Estado compartido:</strong> <code>js/state.js</code>.</li>
+              <li><strong>Servicios:</strong> <code>js/data/*.js</code>.</li>
+              <li><strong>Render y UI:</strong> <code>js/globe/*</code>, <code>js/overlays/*</code> y <code>js/ui/*</code>.</li>
+            </ul>
+          </article>
+          <article class="info-panel">
+            <h3>Pipeline offline</h3>
+            <p><code>scripts/mod08_cloudfraction.py</code> transforma productos MODIS/LAADS en una cuadrícula homogénea y versionable. Esto desacopla la adquisición del dataset de la experiencia interactiva.</p>
+            <h3>Ventaja de diseño</h3>
+            <p>El contrato intermedio <code>clouds.json</code> hace posible publicar el proyecto como sitio estático simple, portable y económico, manteniendo además claridad entre ingestión y visualización.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">4. Flujo funcional</span>
+          <h2>Del arranque del navegador al render del globo</h2>
+        </div>
+        <ol class="process-list">
+          <li><strong>Inicialización:</strong> el navegador carga la shell visual y prepara canvas, paneles y controles.</li>
+          <li><strong>Carga base:</strong> se descargan masas continentales y fronteras para dar contexto geográfico.</li>
+          <li><strong>Consulta no bloqueante:</strong> la localización por IP y la versión del sitio se obtienen sin retrasar la visualización principal.</li>
+          <li><strong>Refresco concurrente:</strong> auroras y nubosidad se cargan en paralelo con tolerancia a fallos parciales.</li>
+          <li><strong>Actualización del estado:</strong> <code>App.state</code> concentra datasets, umbrales, selección y metadatos.</li>
+          <li><strong>Interacción:</strong> el usuario rota el globo, activa capas, filtra rangos y consulta puntos específicos.</li>
+        </ol>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">5. Modelo analítico</span>
+          <h2>Reglas de negocio y lógica de visibilidad</h2>
+        </div>
+        <div class="two-column-grid">
+          <article class="info-panel">
+            <h3>Reglas principales</h3>
+            <ul>
+              <li>Solo se dibujan auroras dentro del umbral configurado por la persona usuaria.</li>
+              <li>Se reduce ruido fuera de latitudes relevantes para observación auroral.</li>
+              <li>Se omiten puntos ocultos detrás del hemisferio visible.</li>
+              <li>La capa de nubes se filtra por rango porcentual visible.</li>
+              <li>La app sigue operando si falla geolocalización o nubosidad.</li>
+            </ul>
+          </article>
+          <article class="info-panel">
+            <h3>Matriz simplificada de visibilidad</h3>
+            <p>El panel de detalle traduce dos variables complejas a una lectura accionable:</p>
+            <ul>
+              <li><strong>Alta:</strong> intensidad ≥ 70 y nubosidad ≤ 30%.</li>
+              <li><strong>Media:</strong> intensidad entre 30 y 60 con nubosidad ≤ 30%.</li>
+              <li><strong>Baja:</strong> cualquier otra combinación.</li>
+            </ul>
+            <p>Esta clasificación hace que el sitio sea interpretable para perfiles no expertos sin sacrificar trazabilidad de la decisión.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">6. Experiencia de usuario</span>
+          <h2>Qué puede revisar la persona usuaria dentro del sitio</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card"><h3>Globo interactivo</h3><p>Representa continentes, auroras, nubosidad y ciclo día/noche sobre un canvas responsive que prioriza el panel visual principal.</p></article>
+          <article class="feature-card"><h3>Filtros y capas</h3><p>Permite encender o apagar fuentes y ajustar umbrales de intensidad auroral y porcentaje de nubosidad.</p></article>
+          <article class="feature-card"><h3>Detalle de puntos</h3><p>Informa latitud, longitud, intensidad, nubosidad, estado día/noche y probabilidad de visibilidad al hacer clic sobre el globo.</p></article>
+          <article class="feature-card"><h3>Contexto adicional</h3><p>Incluye localización aproximada por IP y estado de actualización de datos y versión del despliegue.</p></article>
+        </div>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">7. Seguridad, resiliencia y operación</span>
+          <h2>Fortalezas actuales y condiciones de uso responsable</h2>
+        </div>
+        <div class="two-column-grid">
+          <article class="info-panel">
+            <h3>Seguridad y privacidad</h3>
+            <ul>
+              <li>No hay cuentas ni autenticación, por lo que la superficie de ataque es reducida.</li>
+              <li>La geolocalización es aproximada y basada en IP; no se requiere ubicación precisa del navegador.</li>
+              <li>El token de Earthdata debe permanecer fuera del frontend y limitarse al pipeline offline.</li>
+            </ul>
+          </article>
+          <article class="info-panel">
+            <h3>Resiliencia operativa</h3>
+            <ul>
+              <li>La carga concurrente usa degradación parcial para no derribar la experiencia completa.</li>
+              <li>La máscara día/noche se recalcula localmente, reduciendo dependencia externa continua.</li>
+              <li>El sitio puede publicarse como bundle estático curado, excluyendo artefactos históricos no necesarios.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="card presentation-section">
+        <div class="section-heading">
+          <span class="section-kicker">8. Evaluación crítica</span>
+          <h2>Qué se ha logrado y qué falta para una siguiente etapa</h2>
+        </div>
+        <div class="two-column-grid">
+          <article class="info-panel">
+            <h3>Logros del proyecto</h3>
+            <ul>
+              <li>Integra fuentes heterogéneas bajo una narrativa visual única.</li>
+              <li>Separa adquisición, estado, render e interfaz con una arquitectura clara.</li>
+              <li>Convierte un dominio científico complejo en una herramienta comprensible para consulta abierta.</li>
+            </ul>
+          </article>
+          <article class="info-panel">
+            <h3>Líneas futuras</h3>
+            <ul>
+              <li>Automatizar pruebas de utilidades, render y validación de artefactos.</li>
+              <li>Migrar gradualmente hacia ES Modules o una separación más estricta de dominio.</li>
+              <li>Reforzar observabilidad, CI/CD y validación periódica de endpoints externos.</li>
+              <li>Evaluar un backend opcional solo si aporta resiliencia real sin perder simplicidad.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="card presentation-section references-section">
+        <div class="section-heading">
+          <span class="section-kicker">9. Base documental</span>
+          <h2>Fuentes utilizadas para construir esta explicación</h2>
+        </div>
+        <ul class="reference-list">
+          <li><strong>README del repositorio:</strong> arquitectura, modelo de datos, reglas de negocio, integraciones, operación y evolución.</li>
+          <li><strong>Documento académico del proyecto:</strong> motivación, objetivos, metodología, alcance, conclusiones y estructura tipo trabajo fin de estudio.</li>
+          <li><strong>Presentación ejecutiva:</strong> síntesis de arquitectura, fortalezas, deuda técnica y hoja de ruta.</li>
+        </ul>
+        <p>La intención de esta página es que cualquier persona pueda revisar la documentación central del proyecto en un solo lugar, sin necesidad de recorrer primero archivos externos o documentos de apoyo.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
