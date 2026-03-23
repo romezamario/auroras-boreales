@@ -6,24 +6,8 @@
       const stateEl = document.getElementById("location-state");
       const countryEl = document.getElementById("location-country");
       const hintEl = document.getElementById("location-hint");
-      const inspectorCard = document.getElementById("location-inspector");
-      const toggleBtn = document.getElementById("location-toggle");
-      const toggleLabel = toggleBtn?.querySelector(".inspector-toggle-label");
 
-      if (!stateEl || !countryEl || !inspectorCard || !toggleBtn || !toggleLabel) return;
-
-      function setExpanded(isExpanded) {
-        inspectorCard.classList.toggle("is-collapsed", !isExpanded);
-        toggleBtn.setAttribute("aria-expanded", String(isExpanded));
-        toggleLabel.textContent = isExpanded ? "Contraer" : "Expandir";
-      }
-
-      setExpanded(false);
-
-      toggleBtn.addEventListener("click", () => {
-        const isExpanded = toggleBtn.getAttribute("aria-expanded") !== "true";
-        setExpanded(isExpanded);
-      });
+      if (!stateEl || !countryEl) return;
 
       function fmtValue(value) {
         return value ? String(value) : "—";

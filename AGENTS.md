@@ -67,6 +67,9 @@ Documentar de forma continua:
 - **2026-03-22** — Reorganizar el dashboard en tres columnas para escritorio y llevar los paneles informativos al lado derecho del globo.
   - **Motivo:** Reducir espacios vacíos y priorizar visualmente la visualización principal.
   - **Impacto:** Mejor aprovechamiento horizontal en desktop, manteniendo un apilado adaptativo en breakpoints menores.
+- **2026-03-23** — Eliminar los controles de expandir/contraer en las tarjetas laterales de detalle y localización.
+  - **Motivo:** Simplificar la interfaz y dejar visible la información contextual sin interacción extra.
+  - **Impacto:** Menos fricción en la lectura del estado del punto y de la localización inferida.
 - **2026-03-23** — Sustituir la consulta directa JSON a proveedores IP por un flujo JSONP compatible con navegador.
   - **Motivo:** El endpoint gratuito de `ipwho.is` ya no permite CORS en frontend y la geolocalización dejó de resolverse desde el cliente.
   - **Impacto:** La app vuelve a obtener una ubicación aproximada por IP sin introducir backend ni exponer claves.
@@ -88,6 +91,10 @@ Documentar de forma continua:
   - Archivos: `index.html`, `style.css`
   - Motivo: Mover paneles de detalle/estado a la derecha del globo y permitir que la visualización ocupe más área útil.
   - Resultado esperado: Mejor jerarquía visual y menor espacio en blanco en pantallas de escritorio.
+- **Cambio:** Eliminación de botones de expandir/contraer en paneles informativos.
+  - Archivos: `index.html`, `style.css`, `js/ui/inspector.ui.js`, `js/ui/location.ui.js`
+  - Motivo: Mostrar siempre la información clave y evitar pasos innecesarios en la interacción.
+  - Resultado esperado: Paneles de detalle y localización visibles de forma permanente.
 - **Cambio:** Ajuste del servicio de geolocalización por IP para usar JSONP en navegador.
   - Archivos: `js/data/location.service.js`, `js/config.js`
   - Motivo: Recuperar la geolocalización aproximada tras el bloqueo CORS del proveedor gratuito anterior.
