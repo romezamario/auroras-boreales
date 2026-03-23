@@ -12,6 +12,8 @@
         App.on("state:threshold", () => App.globe?.requestRender());
         App.on("state:cloudsThreshold", () => App.globe?.requestRender());
         App.on("state:layers", () => App.globe?.requestRender());
+        App.on("state:probability", () => App.globe?.requestRender());
+        App.on("state:probabilityFilter", () => App.globe?.requestRender());
         App.on("globe:select", () => App.globe?.requestRender());
       },
   
@@ -60,6 +62,7 @@
         // Overlays (en orden)
         if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
         if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
+        if (App.probabilityOverlay) App.probabilityOverlay.draw(g, App.state);
 
         const vc = App.globeMarkers?.getViewVector(g);
 

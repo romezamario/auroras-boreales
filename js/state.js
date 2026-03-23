@@ -33,6 +33,15 @@
       dayNight: {
         enabled: cfg.dayNight?.enabled ?? true
       },
+      // Estado para la capa/filtros de probabilidad de visibilidad.
+      probability: {
+        enabled: false,
+        filters: {
+          low: true,
+          medium: true,
+          high: true
+        }
+      },
       // Último punto seleccionado en el globo.
       selection: null,
       // Ubicación aproximada del usuario (por IP o Geolocation API).

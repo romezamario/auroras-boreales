@@ -9,6 +9,7 @@
     App.refreshUI?.init();
     App.thresholdUI?.init();
     App.cloudsUI?.init();
+    App.probabilityUI?.init();
     App.layersUI?.init();
     App.inspectorUI?.init();
     App.locationUI?.init();

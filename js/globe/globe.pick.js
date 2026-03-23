@@ -5,9 +5,6 @@
     return (deg * Math.PI) / 180;
   }
 
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
-  }
 
   function getNearestAuroraIntensity(points, lon, lat) {
     if (!Array.isArray(points) || points.length === 0) return null;
@@ -35,50 +32,7 @@
     return bestVal;
   }
 
-  function getCloudValue(grid, lon, lat) {
-    if (!grid || !grid.w || !grid.h || !grid.values_0_100) return null;
 
-    const w = Number(grid.w);
-    const h = Number(grid.h);
-    if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return null;
-
-    const x = clamp(Math.floor(((lon + 180) / 360) * w), 0, w - 1);
-    const y = clamp(Math.floor(((90 - lat) / 180) * h), 0, h - 1);
-
-    const values = grid.values_0_100;
-    if (Array.isArray(values[0])) {
-      return Number(values[y]?.[x]) ?? null;
-    }
-
-    if (Array.isArray(values) && values.length === w * h) {
-      return Number(values[y * w + x]) ?? null;
-    }
-
-    return null;
-  }
-
-  function getVisibilityProbability(intensity, clouds) {
-    if (!Number.isFinite(intensity) || !Number.isFinite(clouds)) return null;
-
-    if (clouds <= 30 && intensity >= 70) {
-      return {
-        label: "Alta",
-        range: "+60%"
-      };
-    }
-
-    if (clouds <= 30 && intensity >= 30 && intensity <= 60) {
-      return {
-        label: "Media",
-        range: "31-60%"
-      };
-    }
-
-    return {
-      label: "Baja",
-      range: "0-30%"
-    };
-  }
 
   App.globePick = {
     init() {
@@ -102,8 +56,8 @@
         const [lon, lat] = coords;
 
         const intensity = getNearestAuroraIntensity(App.state?.aurora?.points ?? [], lon, lat);
-        const clouds = getCloudValue(App.state?.clouds?.grid, lon, lat);
-        const visibility = getVisibilityProbability(intensity, clouds);
+        const clouds = App.utils?.getCloudValue ? App.utils.getCloudValue(App.state?.clouds?.grid, lon, lat) : null;
+        const visibility = App.utils?.getVisibilityProbability ? App.utils.getVisibilityProbability(intensity, clouds) : null;
         const isDay = App.utils?.isDayAt ? App.utils.isDayAt(lon, lat, new Date()) : null;
 
         App.state.selection = { lon, lat, intensity, clouds, visibility, isDay };

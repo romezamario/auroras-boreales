@@ -55,6 +55,9 @@ Documentar de forma continua:
 - [x] Tarea 9: Incorporar en la bitácora la ejecución obligatoria de pruebas/verificaciones en cada intervención del agente.
   - Estado: `completada`
   - Evidencia: `AGENTS.md`, `README.md`
+- [x] Tarea 10: Añadir la capa visual de probabilidad y sus filtros de categorías en la UI principal.
+  - Estado: `completada`
+  - Evidencia: `index.html`, `js/ui/probability.ui.js`, `js/overlays/probability.overlay.js`, `js/state.js`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -75,6 +78,7 @@ Documentar de forma continua:
 - El panel "Detalle del punto" se alimenta del evento `globe:select`; cualquier campo nuevo debe añadirse en `index.html`, `js/ui/inspector.ui.js` y en el payload emitido desde `js/globe/globe.pick.js`.
 - GitHub Pages estaba publicando el repositorio completo; para excluir artefactos recolectados hay que construir un directorio intermedio y subir ese bundle en `actions/upload-pages-artifact`.
 - La agrupación de enlaces de cabecera se controla con `.header-links`; para mantenerlos en una sola fila en escritorio conviene evitar `flex-direction: column` y usar `white-space: nowrap`.
+- Los controles reactivos del panel izquierdo siguen un patrón consistente: leen el estado inicial desde `App.state`, sincronizan el DOM y emiten eventos `state:*` para disparar el re-render del globo.
 
 ### Riesgos / deuda técnica detectada
 - Riesgo de desalineación documental si cambian fuentes reales de datos en `js/data/*` y no se actualiza `tratamiento-datos.html`.
@@ -129,6 +133,9 @@ Documentar de forma continua:
 - **2026-03-23** — Hacer obligatoria en `AGENTS.md` la ejecución de pruebas o verificaciones antes de cerrar cualquier intervención.
   - **Motivo:** Evitar cierres sin validación mínima, incluso cuando solo se tocan documentos o configuraciones.
   - **Impacto:** Cada cambio deberá acompañarse de comandos ejecutados y evidencia verificable también reflejada en `README.md`.
+- **2026-03-23** — Incorporar una capa opcional de probabilidad con filtros discretos `Alta`/`Media`/`Baja` en la UI principal.
+  - **Motivo:** Permitir una lectura visual rápida de la visibilidad estimada reutilizando la lógica ya mostrada en el inspector del punto.
+  - **Impacto:** El globo puede resaltar categorías de probabilidad bajo demanda, manteniendo la reactividad existente basada en `App.state` y eventos `state:*`.
 
 ---
 
@@ -192,6 +199,10 @@ Documentar de forma continua:
   - Archivos: `AGENTS.md`, `README.md`
   - Motivo: Convertir la validación mínima en una obligación explícita y trazable para cualquier intervención futura.
   - Resultado esperado: Ningún cambio se cierra sin ejecutar y reportar comandos de comprobación acordes al alcance.
+- **Cambio:** Nueva capa reactiva de probabilidad con toggle propio y checkboxes de categorías.
+  - Archivos: `index.html`, `js/ui/layers.ui.js`, `js/ui/probability.ui.js`, `js/state.js`, `js/globe/globe.render.js`, `js/overlays/probability.overlay.js`, `js/utils.js`, `js/globe/globe.pick.js`, `README.md`
+  - Motivo: Extender la UI con un filtro visual alineado con la clasificación `Alta`/`Media`/`Baja` ya usada en el detalle del punto.
+  - Resultado esperado: El usuario puede activar la capa `Probabilidad`, combinarla con los filtros de intensidad/nubosidad y ocultar categorías concretas sin romper el patrón reactivo del dashboard.
 
 ---
 
@@ -209,6 +220,7 @@ Documentar de forma continua:
 
 - [ ] Validar visualmente en distintos breakpoints que futuros cambios de layout no vuelvan a desalinear el tamaño real del canvas.
 - [ ] Verificar con producto/UX si la matriz de probabilidad debe evolucionar a un cálculo continuo o mantenerse como reglas discretas por rangos.
+- [ ] Validar visualmente que la superposición simultánea de `Auroras` y `Probabilidad` mantenga contraste suficiente en desktop y mobile.
 
 ---
 

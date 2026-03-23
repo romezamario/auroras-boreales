@@ -7,6 +7,7 @@
       this.cloudsToggle = document.getElementById("toggle-clouds");
       this.auroraToggle = document.getElementById("toggle-aurora");
       this.dayNightToggle = document.getElementById("toggle-day-night");
+      this.probabilityToggle = document.getElementById("toggle-probability");
 
       // Toggle de nubosidad.
       if (this.cloudsToggle) {
@@ -23,6 +24,15 @@
         this.auroraToggle.addEventListener("change", () => {
           App.state.aurora.enabled = this.auroraToggle.checked;
           App.emit("state:layers");
+        });
+      }
+
+      // Toggle de probabilidad.
+      if (this.probabilityToggle) {
+        this.probabilityToggle.checked = !!App.state.probability?.enabled;
+        this.probabilityToggle.addEventListener("change", () => {
+          App.state.probability.enabled = this.probabilityToggle.checked;
+          App.emit("state:probability");
         });
       }
 

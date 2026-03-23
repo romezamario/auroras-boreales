@@ -53,6 +53,10 @@
               <input type="checkbox" id="toggle-day-night" checked>
               <span class="toggle-text">Día / noche</span>
             </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-probability">
+              <span class="toggle-text">Probabilidad</span>
+            </label>
           </div>
         </div>
 
@@ -166,6 +170,25 @@
             <span>75%</span>
             <span>100%</span>
           </div>
+
+          <div class="card-header">
+            <h3>Categorías de probabilidad</h3>
+            <p>Filtra las clases visibles cuando la capa de probabilidad está activa.</p>
+          </div>
+          <div class="layer-controls-items">
+            <label class="toggle">
+              <input type="checkbox" id="probability-filter-high" checked>
+              <span class="toggle-text">Alta</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="probability-filter-medium" checked>
+              <span class="toggle-text">Media</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="probability-filter-low" checked>
+              <span class="toggle-text">Baja</span>
+            </label>
+          </div>
         </div>
       </aside>
 
@@ -276,6 +299,7 @@
   <script src="js/ui/refresh.ui.js"></script>
   <script src="js/ui/threshold.ui.js"></script>
   <script src="js/ui/clouds.ui.js"></script>
+  <script src="js/ui/probability.ui.js"></script>
   <script src="js/ui/layers.ui.js"></script>
   <script src="js/ui/inspector.ui.js"></script>
   <script src="js/ui/location.ui.js"></script>
@@ -285,6 +309,7 @@
   <script src="js/overlays/clouds.overlay.js"></script>
   <script src="js/overlays/day-night.overlay.js"></script>
   <script src="js/overlays/aurora.overlay.js"></script>
+  <script src="js/overlays/probability.overlay.js"></script>
 
   <!-- Globe: core, interacción y render -->
   <script src="js/globe/globe.core.js"></script>
