@@ -87,10 +87,9 @@
     const probabilityState = App.state?.probability;
     if (!probabilityState) return getDefaultCategoryFilters();
 
-    const baseFilters = probabilityState.filters ?? probabilityState.activeCategories;
     const normalizedFilters = {
       ...getDefaultCategoryFilters(),
-      ...(baseFilters ?? {})
+      ...(probabilityState.filters ?? {})
     };
 
     probabilityState.filters = normalizedFilters;
@@ -233,7 +232,7 @@
     );
   }
 
-  function createProbabilityPoint(lon, lat, intensity, clouds, cartesian) {
+  function createDerivedProbabilityPoint(lon, lat, intensity, clouds, cartesian) {
     return {
       lon,
       lat,
@@ -244,8 +243,8 @@
     };
   }
 
-  function buildSelection(lon, lat, sample = null) {
-    const probabilityPoint = sample ?? createProbabilityPoint(
+  function createSelectionPayload(lon, lat, sample = null) {
+    const probabilityPoint = sample ?? createDerivedProbabilityPoint(
       lon,
       lat,
       getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat),
@@ -273,8 +272,6 @@
   function invalidateGridCaches() {
     if (!App.state?.probability) return;
 
-    App.state.probability.globalGridStep = null;
-    App.state.probability.globalGridPoints = null;
     App.state.probability.gridCache = null;
     App.state.probability.cacheInputs = getCacheInputs();
   }
@@ -311,7 +308,7 @@
         if (!isRelevantIntensity(intensity)) continue;
 
         const clouds = App.geoUtils.getCloudValue(cloudsGrid, lon, lat);
-        points.push(createProbabilityPoint(lon, lat, intensity, clouds));
+        points.push(createDerivedProbabilityPoint(lon, lat, intensity, clouds));
       }
     }
 
@@ -329,7 +326,7 @@
     const currentSelection = App.state?.selection;
     if (!currentSelection) return;
 
-    App.state.selection = buildSelection(currentSelection.lon, currentSelection.lat);
+    App.state.selection = createSelectionPayload(currentSelection.lon, currentSelection.lat);
 
     App.emit("globe:select", App.state.selection);
   }
@@ -359,45 +356,14 @@
     isOutsideEquatorialExclusion,
     isNightVisibilityCandidate,
 
-    createProbabilityPoint,
-    buildSelection,
-
     invalidateCache() {
       invalidateGridCaches();
     },
 
-    getAuroraIntensityAt(lon, lat) {
-      return getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
-    },
-
-    getCloudValueAt(lon, lat) {
-      return App.geoUtils.getCloudValue(App.state?.clouds?.grid, lon, lat);
-    },
-
-    getProbabilityAt(lon, lat) {
-      const intensity = getAuroraIntensity(App.state?.probability?.auroraIndex, lon, lat);
-      const clouds = App.geoUtils.getCloudValue(App.state?.clouds?.grid, lon, lat);
-      return createProbabilityPoint(lon, lat, intensity, clouds);
-    },
-
     selectPoint(lon, lat) {
-      App.state.selection = buildSelection(lon, lat);
+      App.state.selection = createSelectionPayload(lon, lat);
       App.emit("globe:select", App.state.selection);
       return App.state.selection;
-    },
-
-    getGlobalGridPoints(step = DEFAULT_STEP) {
-      ensureCacheInputsFresh();
-
-      if (
-        step !== App.state?.probability?.globalGridStep ||
-        !Array.isArray(App.state?.probability?.globalGridPoints)
-      ) {
-        App.state.probability.globalGridStep = step;
-        App.state.probability.globalGridPoints = createGlobalGridPoints(step);
-      }
-
-      return App.state.probability.globalGridPoints;
     },
 
     getOverlayCache(step = DEFAULT_STEP) {

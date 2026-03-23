@@ -19,8 +19,6 @@
       filters,
       gridCache: null,
       auroraIndex: null,
-      globalGridPoints: null,
-      globalGridStep: null,
       cacheInputs: null
     };
   }
@@ -70,14 +68,4 @@
 
   App.globe = null;
 
-  Object.defineProperty(App.state.probability, "activeCategories", {
-    configurable: true,
-    enumerable: true,
-    get() {
-      return this.filters;
-    },
-    set(nextFilters) {
-      this.filters = nextFilters;
-    }
-  });
 })();

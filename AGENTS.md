@@ -95,6 +95,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `js/ui/range-pair.controller.js`, `js/ui/threshold.ui.js`, `js/ui/clouds.ui.js`, `index.html`, `AGENTS.md`
 
+- [x] Tarea 19: Limpiar la API pública de `App.probabilityService` y eliminar aliases/estado legacy sin consumidores.
+  - Estado: `completada`
+  - Evidencia: `js/data/probability.service.js`, `js/state.js`, `README.md`, `AGENTS.md`
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -123,9 +127,9 @@ Documentar de forma continua:
 - La grilla global de probabilidad debe filtrar primero por relevancia auroral; si la intensidad queda por debajo del umbral mínimo configurable, la coordenada no debe entrar en caché ni en el overlay.
 - La capa `Probabilidad` se genera por intersección de dos fuentes heterogéneas: toma la intensidad auroral más cercana desde el índice espacial OVATION, cruza ese valor con la celda MODIS de nubosidad y produce una categoría discreta reutilizable tanto en el overlay como en el inspector.
 - Los helpers geoespaciales transversales (por ejemplo, normalización de longitud y lectura de celdas de nube) conviene centralizarlos en un módulo dedicado para evitar divergencias entre `utils`, `ovation.service` y `probability.service`.
-- `App.state` debe conservar una única raíz canónica para `dayNight`, `selection` y `userLocation`; dentro de `probability` solo deben permanecer los metadatos propios de la capa y un único mapa compartido de categorías activas (`filters`/`activeCategories`).
+- `App.state` debe conservar una única raíz canónica para `dayNight`, `selection` y `userLocation`; dentro de `probability` solo deben permanecer los metadatos propios de la capa y un único mapa canónico de categorías activas (`filters`).
 - El payload de selección del globo conviene generarlo desde un único helper compartido; así se evita duplicar el cálculo de intensidad, nubosidad, probabilidad e `isDay` entre el click handler y los refrescos de datos.
-- La retrocompatibilidad con `activeCategories` puede mantenerse como alias de `filters`, pero la fuente de verdad operativa debe seguir siendo `App.state.probability.filters`.
+- Si ya no existen consumidores legacy, `App.state.probability` debe exponer solo `filters` y evitar aliases como el alias legacy de categorías para reducir superficie pública innecesaria.
 - Un fallo de runtime dentro de `probability.overlay` puede cortar el pipeline de render antes de dibujar auroras si la capa derivada se pinta antes que `auroraOverlay`; por eso los helpers de grilla deben referenciar explícitamente `App.geoUtils.getCloudValue`.
 - La capa `Probabilidad` debe heredar el mismo umbral mínimo de latitud absoluta que usa `auroraOverlay`; así se evita poblar la grilla derivada con puntos cercanos al ecuador que nunca deberían mostrarse visualmente.
 - Como la visibilidad real depende también del ciclo solar local, conviene aplicar el filtro de día/noche en tiempo de render del overlay y no durante el cacheo de la grilla; así no hace falta invalidar toda la malla cada minuto.
@@ -203,7 +207,7 @@ Documentar de forma continua:
   - **Impacto:** `globe.pick` queda más simple, el estado incorpora cachés derivados y los cambios de aurora/nubes regeneran la grilla automáticamente.
 - **2026-03-23** — Filtrar la grilla global de probabilidad por relevancia auroral antes de clasificar categorías.
   - **Motivo:** Evitar que la caché y el overlay incluyan coordenadas sin señal auroral suficiente, reduciendo ruido visual y haciendo que los filtros actúen sobre zonas candidatas reales.
-  - **Impacto:** `globalGridPoints` solo conserva coordenadas con intensidad relevante y la capa `Probabilidad` renderiza directamente ese subconjunto.
+  - **Impacto:** La caché derivada solo conserva coordenadas con intensidad relevante y la capa `Probabilidad` renderiza directamente ese subconjunto.
 - **2026-03-23** — Sincronizar la documentación principal con la capa `Probabilidad` como funcionalidad derivada apagada por defecto y filtrable por categorías.
   - **Motivo:** Dejar explícitas en `README.md` y `AGENTS.md` la regla de negocio, la interacción entre intensidad/nubosidad/probabilidad y la convención visual de colores para evitar deriva documental.
   - **Impacto:** No cambia el código de runtime, pero sí consolida la arquitectura derivada de la capa, reduce ambigüedades funcionales y fija una referencia única para futuras evoluciones del negocio.
@@ -225,7 +229,7 @@ Documentar de forma continua:
   - **Impacto:** La app arranca sin depender de `api.github.com`; si se habilita un refresco remoto, este pasa a ser opcional y cacheable en `localStorage`.
 - **2026-03-23** — Consolidar en `probability.service` la normalización de filtros y la construcción del payload de selección.
   - **Motivo:** El click handler del globo, la UI de filtros y el refresco de datos estaban repitiendo reglas equivalentes y mantenían aliases/propiedades redundantes.
-  - **Impacto:** Menos duplicación, eliminación de código muerto, un único punto de mantenimiento para la selección del inspector y retrocompatibilidad explícita para `activeCategories`.
+  - **Impacto:** Menos duplicación y un único punto de mantenimiento para la selección del inspector.
 - **2026-03-23** — Forzar el workflow de GitHub Pages a ejecutar acciones JavaScript con Node.js 24.
   - **Motivo:** GitHub anunció la deprecación de Node.js 20 en runners; el workflow emitía warnings para `checkout`, `configure-pages`, `upload-pages-artifact` y `deploy-pages`.
   - **Impacto:** El despliegue se adelanta al cambio de runtime sin esperar nuevos majors de todas las acciones oficiales y evita la advertencia operativa en `static.yml`.
@@ -251,6 +255,10 @@ Documentar de forma continua:
 - **2026-03-23** — Añadir un diagrama Mermaid específico para la sección "Reglas de negocio" en `explicacion-sitio.html`.
   - **Motivo:** Traducir visualmente la lógica descrita en `README.md` para que la explicación del sitio sea más clara y trazable sin obligar a leer solo listas de texto.
   - **Impacto:** La documentación secundaria incorpora una vista de flujo sobre filtros, degradaciones y clasificación de probabilidad.
+
+- **2026-03-23** — Reducir la API pública de `App.probabilityService` a helpers realmente consumidos y retirar aliases/estado legacy ya sin referencias.
+  - **Motivo:** el constructor interno de puntos de probabilidad, el builder interno de selección, el helper público de intensidad puntual, el helper público de nubosidad puntual, el helper público de probabilidad puntual, el getter legacy de la grilla global y el alias legacy de categorías ya no tenían consumidores externos reales y ampliaban innecesariamente la superficie pública/estado.
+  - **Impacto:** El servicio conserva solo entradas reutilizadas por UI, overlay y picking; el estado de probabilidad elimina cachés/aliases redundantes y la documentación pasa a reflejar `filters` como única fuente de verdad.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -378,7 +386,7 @@ Documentar de forma continua:
   - Resultado esperado: `static.yml` fuerza el runtime Node.js 24 desde ahora y deja de depender del cambio automático programado por GitHub.
 - **Cambio:** Refactor del flujo de probabilidad/selección y limpieza de duplicaciones internas.
   - Archivos: `js/state.js`, `js/data/probability.service.js`, `js/globe/globe.pick.js`, `js/ui/probability.ui.js`, `js/ui/inspector.ui.js`, `js/overlays/probability.overlay.js`, `js/data/refresh.service.js`, `README.md`, `AGENTS.md`
-  - Motivo: Centralizar la normalización de filtros de probabilidad, mantener `activeCategories` solo como alias retrocompatible, mover la construcción del payload seleccionado a un helper común y retirar propiedades/constantes sin uso real.
+  - Motivo: Centralizar la normalización de filtros de probabilidad, mover la construcción del payload seleccionado a un helper común y retirar propiedades/constantes sin uso real.
   - Resultado esperado: Menor deuda técnica, menos riesgo de inconsistencias entre overlay/UI/inspector y un flujo de selección más fácil de mantener.
 
 - **Cambio:** Corrección del muestreo de nubosidad usado por la grilla derivada de probabilidad.
@@ -394,6 +402,11 @@ Documentar de forma continua:
   - Archivos: `js/data/probability.service.js`, `js/overlays/probability.overlay.js`, `README.md`, `AGENTS.md`
   - Motivo: Evitar mostrar probabilidad de visibilidad en localizaciones donde es de día y, por tanto, la aurora no sería observable aunque existan datos aurorales y baja nubosidad.
   - Resultado esperado: El overlay de probabilidad filtra en tiempo real cualquier coordenada diurna antes de pintarla en el mapa.
+
+- **Cambio:** Limpieza focalizada de la API pública y del estado de probabilidad.
+  - Archivos: `js/data/probability.service.js`, `js/state.js`, `README.md`, `AGENTS.md`
+  - Motivo: Convertir en helpers privados los constructores/muestreos internos sin consumidores, eliminar los caches legacy de la grilla global y retirar el alias legacy de categorías tras verificar que UI y overlay solo usan `filters`.
+  - Resultado esperado: Menor superficie pública en `App.probabilityService`, estado más simple y ausencia de referencias colgantes en módulos/documentación.
 
 ---
 
