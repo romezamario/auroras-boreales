@@ -219,7 +219,7 @@ erDiagram
 - La matriz de negocio actual clasifica `Alta` cuando la intensidad es `>= 70` y la nubosidad `<= 30%`; `Media` cuando la intensidad está entre `30` y `60` con nubosidad `<= 30%`; y `Baja` en cualquier otro caso.
 - Cada categoría de probabilidad comparte la misma estructura `{ key, label, range, color }` para picking, inspector, overlay, filtros y cachés de puntos.
 - Antes de clasificar `Alta`/`Media`/`Baja`, la grilla derivada descarta cualquier coordenada cuya intensidad no alcance el umbral de relevancia auroral (`App.config.probability.minRelevantIntensity`, con fallback a `App.state.thresholdMin`).
-- La capa `Probabilidad` inicia apagada; al activarse reutiliza simultáneamente los filtros de intensidad y nubosidad ya presentes para pintar solo las categorías habilitadas, dejando `Baja` desactivada por defecto para priorizar los casos de visibilidad media/alta.
+- La capa `Probabilidad` inicia apagada; al activarse reutiliza simultáneamente los filtros de intensidad y nubosidad ya presentes para pintar solo las categorías habilitadas, deja `Baja` desactivada por defecto para priorizar los casos de visibilidad media/alta y aplica la misma exclusión latitudinal de auroras para ocultar puntos cercanos al ecuador.
 - El filtro por categorías permite mostrar u ocultar `Alta`, `Media` y `Baja` sin alterar los datos base de aurora o nubosidad; la fuente de verdad operativa es `App.state.probability.filters` y `activeCategories` se mantiene solo como alias retrocompatible.
 - La capa de probabilidad solo dibuja la cara visible del globo, se regenera cuando cambia cualquiera de las dos fuentes cruzadas (aurora o nubosidad) y difiere la reconstrucción pesada de la grilla hasta `getGlobalGridPoints(step)` o `getOverlayCache(step)`.
 - La lectura auroral reutilizable usa un índice espacial por celdas enteras y compara primero vecinos locales antes de recurrir a un fallback más amplio, para que la grilla global derivada de 1° sea viable en el navegador.
@@ -311,7 +311,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - Se limita la densidad de puntos renderizados por `sampleStep`/`auroraStep` según el tamaño del viewport.
 - Se topa el device pixel ratio (`dprMax`) para evitar sobrecoste en pantallas densas.
 - Se usa caché de malla de nubes (`gridCache`) para no recalcular puntos en cada frame.
-- La capa de probabilidad reutiliza la grilla global cacheada en `App.state.probability.globalGridPoints`, evitando recalcular la clasificación completa durante rotación o drag y omitiendo coordenadas no relevantes.
+- La capa de probabilidad reutiliza la grilla global cacheada en `App.state.probability.globalGridPoints`, evitando recalcular la clasificación completa durante rotación o drag, omitiendo coordenadas no relevantes y heredando el mismo umbral latitudinal mínimo de auroras para excluir puntos cercanos al ecuador.
 - La capa de probabilidad reutiliza una caché derivada con puntos enriquecidos por una categoría canónica `{ key, label, range, color }`, minimizando trabajo durante rotación o drag.
 - El grid de nubes se transporta como arreglo plano compacto `values_0_100`.
 - La geolocalización no bloquea el render principal y la versión visible se resuelve localmente antes de cualquier refresco remoto opcional.
