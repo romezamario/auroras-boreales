@@ -6,12 +6,25 @@
       return Math.min(App.config.defaults.dprMax, Math.max(1, window.devicePixelRatio || 1));
     }
   
-    // Calcula el tamaño CSS del canvas considerando el layout disponible.
+    // Calcula el tamaño CSS del canvas considerando el espacio real de la tarjeta contenedora.
     function getCanvasCssSize(canvas) {
-      // usa el ancho real del layout (CSS)
-      const rect = canvas.getBoundingClientRect();
-      const w = rect.width || Math.min(1100, window.innerWidth - 24);
-      const h = Math.min(w, window.innerHeight * 0.7);
+      const parent = canvas.parentElement;
+      const parentStyles = parent ? window.getComputedStyle(parent) : null;
+      const horizontalPadding = parentStyles
+        ? parseFloat(parentStyles.paddingLeft || 0) + parseFloat(parentStyles.paddingRight || 0)
+        : 0;
+      const verticalPadding = parentStyles
+        ? parseFloat(parentStyles.paddingTop || 0) + parseFloat(parentStyles.paddingBottom || 0)
+        : 0;
+
+      const parentWidth = parent ? parent.clientWidth - horizontalPadding : 0;
+      const parentHeight = parent ? parent.clientHeight - verticalPadding : 0;
+      const viewportWidth = Math.max(320, window.innerWidth - 24);
+      const viewportHeight = Math.max(320, window.innerHeight * 0.7);
+
+      const w = parentWidth || canvas.clientWidth || Math.min(1100, viewportWidth);
+      const h = parentHeight || canvas.clientHeight || Math.min(w, viewportHeight);
+
       return { w, h };
     }
   
@@ -76,6 +89,13 @@
         App.globe = globe;
   
         window.addEventListener("resize", globe.resize);
+
+        if (window.ResizeObserver) {
+          const resizeObserver = new ResizeObserver(() => globe.resize());
+          if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
+          globe.resizeObserver = resizeObserver;
+        }
+
         globe.resize();
       }
     };
