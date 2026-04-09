@@ -118,6 +118,9 @@ Documentar de forma continua:
 - [x] Tarea 23: Homologar el color de texto de los diagramas Mermaid de arquitectura y reglas de negocio con el resto de gráficas de `explicacion-sitio.html`.
   - Estado: `completada`
   - Evidencia: `explicacion-sitio.html`, `style.css`, `AGENTS.md`
+- [x] Tarea 24: Endurecer el contraste de tipografías Mermaid para iPad/Safari con overrides adicionales de tema y CSS.
+  - Estado: `completada`
+  - Evidencia: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -160,6 +163,7 @@ Documentar de forma continua:
 - El bootstrap de `js/app.js` puede separarse por dominios (`UI`, `globo`, `eventos`, `assets`, `background`) y lanzar en paralelo `loadStaticAssets()`, `refreshInitialData()` y `startBackgroundLocationLookup()`; solo la disponibilidad del atlas base debe bloquear el primer `requestRender()`.
 - En Mermaid, los `flowchart` con `htmlLabels` pueden fallar o volverse ilegibles en Safari/iOS; para diagramas documentales conviene preferir etiquetas SVG nativas (`htmlLabels: false`) y forzar contraste/fallback por CSS.
 - Para evitar diferencias de legibilidad entre diagramas Mermaid, conviene definir también `textColor` en `themeVariables` y reforzar color de texto para `edgeLabel`/`foreignObject` por CSS.
+- En Safari/iPad puede ser necesario combinar `themeVariables` con `themeCSS` y selectores CSS más específicos (`.flowchart-label`, `.nodeLabel *`, `tspan`) para impedir que el render interno de Mermaid reaplique tonos oscuros.
 - En móvil, la tarjeta `.canvas-card` necesita una `min-height` explícita dentro de las media queries; si se deja en `auto`, el globo puede colapsar visualmente y quedar demasiado pequeño aunque el canvas siga ocupando el 100% del contenedor.
 
 ### Riesgos / deuda técnica detectada
@@ -307,6 +311,9 @@ Documentar de forma continua:
 - **2026-04-09** — Reforzar el color de texto de Mermaid en los diagramas de arquitectura y reglas de negocio.
   - **Motivo:** En esos flowcharts el texto de nodos/enlaces no se distinguía suficientemente frente al fondo oscuro.
   - **Impacto:** Ambos diagramas usan el mismo color de tipografía que el resto de gráficas y recuperan legibilidad.
+- **2026-04-09** — Aplicar overrides combinados de `themeCSS` + CSS específico para etiquetas Mermaid en Safari/iPad.
+  - **Motivo:** Persistían casos donde el renderer mantenía texto oscuro en nodos/aristas pese al `textColor` global.
+  - **Impacto:** Los diagramas de arquitectura y reglas de negocio pasan a forzar tipografía clara en `text`, `tspan`, `nodeLabel` y `edgeLabel`.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -352,6 +359,10 @@ Documentar de forma continua:
   - Archivos: `explicacion-sitio.html`, `style.css`, `AGENTS.md`
   - Motivo: Corregir nodos y etiquetas con bajo contraste para que usen la misma tipografía clara del resto de diagramas/documentos.
   - Resultado esperado: Lectura consistente de todos los diagramas en la sección de explicación del sitio.
+- **Cambio:** Refuerzo de contraste Mermaid para iPad/Safari con overrides adicionales.
+  - Archivos: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
+  - Motivo: Resolver persistencia de texto oscuro en nodos/aristas reportada tras la homologación inicial.
+  - Resultado esperado: Etiquetas de los diagramas visibles de forma consistente en Safari móvil y escritorio.
 - **Cambio:** Homologación visual y narrativa de `explicacion-sitio.html`.
   - Archivos: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
   - Motivo: Corregir captions con bajo contraste, aumentar el tamaño útil de gráficos SVG/Mermaid y reemplazar redacción procedural por una explicación más interpretativa del proyecto.

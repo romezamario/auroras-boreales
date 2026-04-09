@@ -812,8 +812,13 @@ button:focus-visible {
 
 .mermaid svg text,
 .mermaid svg tspan,
+.mermaid .flowchart-label text,
+.mermaid .flowchart-label tspan,
 .mermaid .nodeLabel,
+.mermaid .nodeLabel *,
 .mermaid .edgeLabel,
+.mermaid .edgeLabel text,
+.mermaid .edgeLabel tspan,
 .mermaid .edgeLabel span,
 .mermaid .edgeLabel p,
 .mermaid .label,
@@ -825,6 +830,11 @@ button:focus-visible {
 .mermaid foreignObject div {
   fill: #ecf8ff !important;
   color: #ecf8ff !important;
+}
+
+.mermaid svg text {
+  opacity: 1 !important;
+  stroke: none !important;
 }
 
 .mermaid .edgeLabel rect,

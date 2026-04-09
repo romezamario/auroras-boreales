@@ -244,7 +244,7 @@ erDiagram
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.
 - Página secundaria `tratamiento-datos.html` con documentación de fuentes y tratamiento.
-- Página secundaria `explicacion-sitio.html` que consolida la explicación ejecutiva y académica del proyecto a partir del README y los materiales de la carpeta `presentaciones/`, con diagramas Mermaid y láminas SVG presentados con criterios homogéneos de contraste, escala y narrativa explicativa para facilitar su lectura en web.
+- Página secundaria `explicacion-sitio.html` que consolida la explicación ejecutiva y académica del proyecto a partir del README y los materiales de la carpeta `presentaciones/`, con diagramas Mermaid y láminas SVG presentados con criterios homogéneos de contraste, escala y narrativa explicativa para facilitar su lectura en web; además, fuerza color de tipografía claro en nodos/etiquetas para evitar pérdidas de legibilidad en Safari/iPad.
 
 ## Integraciones
 
