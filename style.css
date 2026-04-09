@@ -814,10 +814,15 @@ button:focus-visible {
 .mermaid svg tspan,
 .mermaid .nodeLabel,
 .mermaid .edgeLabel,
+.mermaid .edgeLabel span,
+.mermaid .edgeLabel p,
 .mermaid .label,
+.mermaid .label text,
 .mermaid .cluster-label,
 .mermaid .messageText,
-.mermaid .actor > text {
+.mermaid .actor > text,
+.mermaid foreignObject,
+.mermaid foreignObject div {
   fill: #ecf8ff !important;
   color: #ecf8ff !important;
 }

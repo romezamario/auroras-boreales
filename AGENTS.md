@@ -115,6 +115,9 @@ Documentar de forma continua:
 - [x] Tarea 22: Aumentar la altura de la caja del globo en la versión móvil para dar más área útil a la visualización.
   - Estado: `completada`
   - Evidencia: `style.css`, `AGENTS.md`
+- [x] Tarea 23: Homologar el color de texto de los diagramas Mermaid de arquitectura y reglas de negocio con el resto de gráficas de `explicacion-sitio.html`.
+  - Estado: `completada`
+  - Evidencia: `explicacion-sitio.html`, `style.css`, `AGENTS.md`
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
@@ -156,6 +159,7 @@ Documentar de forma continua:
 - En la página `explicacion-sitio.html`, si los captions o textos sobre tarjetas oscuras usan variables CSS no definidas (por ejemplo `var(--muted)` sin fallback), el contraste puede degradarse hasta volver ilegibles las descripciones; conviene declarar tokens locales y tamaños mínimos explícitos para SVG/Mermaid.
 - El bootstrap de `js/app.js` puede separarse por dominios (`UI`, `globo`, `eventos`, `assets`, `background`) y lanzar en paralelo `loadStaticAssets()`, `refreshInitialData()` y `startBackgroundLocationLookup()`; solo la disponibilidad del atlas base debe bloquear el primer `requestRender()`.
 - En Mermaid, los `flowchart` con `htmlLabels` pueden fallar o volverse ilegibles en Safari/iOS; para diagramas documentales conviene preferir etiquetas SVG nativas (`htmlLabels: false`) y forzar contraste/fallback por CSS.
+- Para evitar diferencias de legibilidad entre diagramas Mermaid, conviene definir también `textColor` en `themeVariables` y reforzar color de texto para `edgeLabel`/`foreignObject` por CSS.
 - En móvil, la tarjeta `.canvas-card` necesita una `min-height` explícita dentro de las media queries; si se deja en `auto`, el globo puede colapsar visualmente y quedar demasiado pequeño aunque el canvas siga ocupando el 100% del contenedor.
 
 ### Riesgos / deuda técnica detectada
@@ -300,6 +304,9 @@ Documentar de forma continua:
 - **2026-03-23** — Aumentar la altura mínima de `.canvas-card` en breakpoints móviles y tablets apiladas.
   - **Motivo:** En la vista móvil el contenedor del globo estaba heredando `height: auto` y `min-height: 0`, lo que dejaba una visualización demasiado pequeña respecto del resto de tarjetas.
   - **Impacto:** El canvas gana más altura útil en pantallas estrechas sin alterar el layout de escritorio.
+- **2026-04-09** — Reforzar el color de texto de Mermaid en los diagramas de arquitectura y reglas de negocio.
+  - **Motivo:** En esos flowcharts el texto de nodos/enlaces no se distinguía suficientemente frente al fondo oscuro.
+  - **Impacto:** Ambos diagramas usan el mismo color de tipografía que el resto de gráficas y recuperan legibilidad.
 
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
@@ -341,6 +348,10 @@ Documentar de forma continua:
   - Archivos: `style.css`, `AGENTS.md`
   - Motivo: Incrementar la altura disponible del canvas en pantallas estrechas para que la visualización principal no quede comprimida.
   - Resultado esperado: El globo se muestra más grande y legible en móvil/tablet en layout de una sola columna.
+- **Cambio:** Homologación del color de texto en diagramas Mermaid de arquitectura y reglas de negocio.
+  - Archivos: `explicacion-sitio.html`, `style.css`, `AGENTS.md`
+  - Motivo: Corregir nodos y etiquetas con bajo contraste para que usen la misma tipografía clara del resto de diagramas/documentos.
+  - Resultado esperado: Lectura consistente de todos los diagramas en la sección de explicación del sitio.
 - **Cambio:** Homologación visual y narrativa de `explicacion-sitio.html`.
   - Archivos: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
   - Motivo: Corregir captions con bajo contraste, aumentar el tamaño útil de gráficos SVG/Mermaid y reemplazar redacción procedural por una explicación más interpretativa del proyecto.
