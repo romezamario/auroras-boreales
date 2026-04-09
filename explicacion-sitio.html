@@ -20,10 +20,19 @@
         useMaxWidth: true,
         wrap: true
       },
+      themeCSS: `
+        .label, .label text, .nodeLabel, .edgeLabel, .edgeLabel text, .edgeLabel p, .messageText {
+          fill: #ecf8ff !important;
+          color: #ecf8ff !important;
+          stroke: none !important;
+          opacity: 1 !important;
+        }
+      `,
       themeVariables: {
         fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         primaryColor: '#163a52',
         primaryTextColor: '#ecf8ff',
+        nodeTextColor: '#ecf8ff',
         textColor: '#ecf8ff',
         primaryBorderColor: '#5bc0ff',
         lineColor: '#82d9ff',
