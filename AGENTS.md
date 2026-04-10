@@ -122,6 +122,11 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `explicacion-sitio.html`, `style.css`, `README.md`, `AGENTS.md`
 
+- [x] Tarea 25: Corregir el contraste tipográfico del bloque introductorio de `explicacion-sitio.html` para móvil.
+  - Estado: `completada`
+  - Evidencia: `style.css`, `AGENTS.md`
+
+
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.
 
@@ -160,6 +165,7 @@ Documentar de forma continua:
 - Los sliders dobles de min/max en `js/ui/` comparten un ciclo estable de lectura, normalización, fallback y sincronización de labels; conviene encapsularlo en un controller reusable y dejar fuera solo la traducción hacia el estado y el evento emitido.
 - `explicacion-sitio.html` ya embebe Mermaid en cliente, por lo que nuevos diagramas documentales pueden añadirse solo con bloques `<pre class="mermaid">` alineados con el contenido vigente del `README.md`.
 - En la página `explicacion-sitio.html`, si los captions o textos sobre tarjetas oscuras usan variables CSS no definidas (por ejemplo `var(--muted)` sin fallback), el contraste puede degradarse hasta volver ilegibles las descripciones; conviene declarar tokens locales y tamaños mínimos explícitos para SVG/Mermaid.
+- En `explicacion-sitio.html`, las reglas globales como `.explanation-page p` pueden sobreescribir la paleta clara de la hero-card por empate de especificidad; conviene reforzar selectores más específicos para el bloque introductorio.
 - El bootstrap de `js/app.js` puede separarse por dominios (`UI`, `globo`, `eventos`, `assets`, `background`) y lanzar en paralelo `loadStaticAssets()`, `refreshInitialData()` y `startBackgroundLocationLookup()`; solo la disponibilidad del atlas base debe bloquear el primer `requestRender()`.
 - En Mermaid, los `flowchart` con `htmlLabels` pueden fallar o volverse ilegibles en Safari/iOS; para diagramas documentales conviene preferir etiquetas SVG nativas (`htmlLabels: false`) y forzar contraste/fallback por CSS.
 - Para evitar diferencias de legibilidad entre diagramas Mermaid, conviene definir también `textColor` en `themeVariables` y reforzar color de texto para `edgeLabel`/`foreignObject` por CSS.
@@ -308,6 +314,10 @@ Documentar de forma continua:
 - **2026-03-23** — Aumentar la altura mínima de `.canvas-card` en breakpoints móviles y tablets apiladas.
   - **Motivo:** En la vista móvil el contenedor del globo estaba heredando `height: auto` y `min-height: 0`, lo que dejaba una visualización demasiado pequeña respecto del resto de tarjetas.
   - **Impacto:** El canvas gana más altura útil en pantallas estrechas sin alterar el layout de escritorio.
+- **2026-04-10** — Corregir el contraste del texto en la sección hero de `explicacion-sitio.html`.
+  - **Motivo:** En móvil, el estilo global de párrafos estaba forzando un tono oscuro dentro del fondo azul degradado y degradaba la legibilidad del mensaje inicial.
+  - **Impacto:** El bloque introductorio vuelve a usar tipografía clara consistente (`#eff6ff`) para párrafos, kicker y énfasis en la pregunta guía.
+
 - **2026-04-09** — Reforzar el color de texto de Mermaid en los diagramas de arquitectura y reglas de negocio.
   - **Motivo:** En esos flowcharts el texto de nodos/enlaces no se distinguía suficientemente frente al fondo oscuro.
   - **Impacto:** Ambos diagramas usan el mismo color de tipografía que el resto de gráficas y recuperan legibilidad.

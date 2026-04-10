@@ -645,6 +645,13 @@ button:focus-visible {
   line-height: 1.72;
 }
 
+.explanation-page .hero-card p,
+.explanation-page .hero-card .section-kicker,
+.explanation-page .hero-card .hero-intro-highlight,
+.explanation-page .hero-card strong {
+  color: #eff6ff;
+}
+
 .explanation-page ul,
 .explanation-page ol {
   margin-top: 0;
