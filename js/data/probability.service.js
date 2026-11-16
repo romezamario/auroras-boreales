@@ -365,6 +365,12 @@
       invalidateGridCaches();
     },
 
+    // Evalúa intensidad, nubosidad, categoría y día/noche en un punto sin seleccionarlo.
+    evaluateAt(lon, lat) {
+      if (!App.state.probability.auroraIndex) rebuildCache();
+      return createSelectionPayload(lon, lat);
+    },
+
     selectPoint(lon, lat) {
       App.state.selection = createSelectionPayload(lon, lat);
       App.emit("globe:select", App.state.selection);

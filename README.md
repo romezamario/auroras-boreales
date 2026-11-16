@@ -248,13 +248,16 @@ erDiagram
 - Accesibilidad: el globo se maneja con teclado (flechas giran, `+`/`-` acercan, Enter consulta el centro, Inicio resetea), tiene una descripción textual que cambia con la vista y el detalle del punto se anuncia con `aria-live`.
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.
+- Tarjeta `Pronóstico Kp (3 días)` con el índice Kp de NOAA SWPC en bloques de 3 h (hora local), máximo por día con escala de tormenta G1–G5 y el Kp aproximado que hace falta en la ubicación de la persona (latitud geomagnética por dipolo centrado). Se recarga cada 30 min y con "Refrescar datos" (`js/data/kp.service.js`, `js/ui/kp-forecast.ui.js`).
+- Tarjeta `Alertas de aurora`: con la página abierta, revisa la probabilidad en la ubicación de la persona (OVATION + nubosidad + noche) en cada actualización de datos y cada 10 min. Si llega al nivel elegido (`Alta` o `Media o alta`) muestra un aviso en la página y, con permiso, una notificación del navegador (como máximo una cada 3 h salvo que suba de nivel). Preferencias en `localStorage` (`auroras-boreales:alerts`). No hay servidor push; las notificaciones con el sitio cerrado quedan para la PWA del backlog (`js/ui/alerts.ui.js`).
+- Modo oscuro: sigue `prefers-color-scheme` y tiene un interruptor en el encabezado de las tres páginas; la elección se guarda en `localStorage` (`auroras-boreales:theme`). `js/theme.boot.js` se carga sin `defer` en el `<head>` para fijar `data-theme` antes del primer pintado; el globo cambia sus colores base según el tema.
 - Página secundaria `tratamiento-datos.html` con documentación de fuentes y tratamiento.
 - Página secundaria `explicacion-sitio.html` que consolida la explicación ejecutiva y académica del proyecto a partir del README y los materiales de la carpeta `presentaciones/`, con diagramas Mermaid y láminas SVG presentados con criterios homogéneos de contraste, escala y narrativa explicativa para facilitar su lectura en web; además, fuerza color de tipografía claro en nodos/etiquetas para evitar pérdidas de legibilidad en Safari/iPad.
 
 ## Integraciones
 
 ### Externas
-- **NOAA SWPC:** feed JSON `ovation_aurora_latest.json`.
+- **NOAA SWPC:** feed JSON `ovation_aurora_latest.json` y pronóstico Kp `products/noaa-planetary-k-index-forecast.json` (acepta el formato de tabla con encabezados y el de objetos).
 - **world-atlas / jsDelivr:** topología mundial para masa continental y fronteras.
 - **Metadata de versión embebida:** `js/config.js` publica la etiqueta/fecha visible y puede inyectarse durante build o despliegue; el refresco remoto hacia GitHub queda deshabilitado por defecto y es opcional.
 - **BigDataCloud (`reverse-geocode-client`):** traduce las coordenadas del dispositivo a estado y país. Gratuito, sin clave, pensado para uso desde el navegador. Solo se llama tras "Usar mi ubicación" y recibe coordenadas redondeadas a 2 decimales (~1 km).

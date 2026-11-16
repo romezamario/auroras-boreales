@@ -538,6 +538,12 @@ Documentar de forma continua:
   - Resultado esperado: Globo más fluido, avisos visibles ante fallos, datos frescos sin pulsar el botón, globo accesible y CI con tests.
   - Verificación: `node --test tests/*.test.js` (6 tests OK), `node --check` en todos los JS, simulación del paso de versión del workflow y Playwright local (render, NOAA caído con reloj simulado, recarga a los 5 min, teclado y aria-label), sin errores de página.
 
+- **Cambio:** Pronóstico Kp de 3 días, alertas de aurora en la ubicación y modo oscuro (2026-11-16).
+  - Archivos: `index.html`, `style.css`, `tratamiento-datos.html`, `explicacion-sitio.html`, `js/theme.boot.js`, `js/ui/theme.ui.js`, `js/data/kp.service.js`, `js/ui/kp-forecast.ui.js`, `js/ui/alerts.ui.js`, `js/data/probability.service.js` (`evaluateAt`), `js/globe/globe.render.js`, `js/config.js`, `js/app.js`, `README.md`, `AGENTS.md`
+  - Motivo: Funciones nuevas aprobadas por Mario; la app instalable (PWA) queda en backlog.
+  - Resultado esperado: Tarjeta Kp con barras por día, aviso en página y notificación del navegador cuando la probabilidad alcanza el nivel elegido de noche, y tema oscuro sin destello inicial.
+  - Verificación: `node --check` en los JS nuevos y Playwright con NOAA/CDN simulados (Kp en formato tabla y objetos, alerta disparada con nubosidad 0, notificación única, tema claro/oscuro, vista móvil 390 px), sin errores de página.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)

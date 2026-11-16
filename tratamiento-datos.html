@@ -5,6 +5,9 @@
   <title>Tratamiento de datos · Visualización de Auroras</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
+  <meta name="color-scheme" content="light dark">
+  <script src="js/theme.boot.js"></script>
+  <script defer src="js/ui/theme.ui.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -15,6 +18,7 @@
         <p class="subtitle">Uso de geolocalización basada en dirección IP</p>
       </div>
       <div class="header-meta">
+        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false"><span aria-hidden="true">🌙</span> Modo oscuro</button>
         <div class="header-links">
           <a class="data-processing-link" href="index.html">← Volver al mapa principal</a>
           <a class="data-processing-link" href="explicacion-sitio.html">Explicación del sitio</a>

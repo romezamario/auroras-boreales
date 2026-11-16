@@ -1,6 +1,16 @@
 (function () {
     window.App = window.App || {};
   
+    // Colores base del globo según el tema (claro / oscuro).
+    const GLOBE_COLORS = {
+      light: { sphere: "#eef", land: "#999", borders: "rgba(255,255,255,0.35)", graticule: "rgba(255,255,255,0.10)", outline: "#000" },
+      dark: { sphere: "#0b1530", land: "#3b4659", borders: "rgba(203,213,225,0.28)", graticule: "rgba(148,163,184,0.12)", outline: "#475569" }
+    };
+
+    function globeColors() {
+      return document.documentElement.getAttribute("data-theme") === "dark" ? GLOBE_COLORS.dark : GLOBE_COLORS.light;
+    }
+
     // Renderiza el globo y sus capas cuando ocurre un evento.
     App.globeRender = {
       init() {
@@ -15,6 +25,7 @@
         App.on("state:layers", () => App.globe?.requestRender());
         App.on("state:probability", () => App.globe?.requestRender());
         App.on("globe:select", () => App.globe?.requestRender());
+        window.addEventListener("themechange", () => App.globe?.requestRender());
       },
   
       // Describe en texto qué muestra el globo (lo leen los lectores de pantalla).
@@ -36,6 +47,7 @@
   
         const { ctx, path } = g;
         const w = g.width, h = g.height;
+        const colors = globeColors();
   
         // Limpia el canvas para el nuevo frame.
         ctx.clearRect(0, 0, w, h);
@@ -50,20 +62,20 @@
         // Sphere
         ctx.beginPath();
         path({ type: "Sphere" });
-        ctx.fillStyle = "#eef";
+        ctx.fillStyle = colors.sphere;
         ctx.fill();
   
         // Land
         ctx.beginPath();
         path(App.assets.land);
-        ctx.fillStyle = "#999";
+        ctx.fillStyle = colors.land;
         ctx.fill();
 
         // Country borders
         if (App.assets.countryBorders) {
           ctx.beginPath();
           path(App.assets.countryBorders);
-          ctx.strokeStyle = "rgba(255,255,255,0.35)";
+          ctx.strokeStyle = colors.borders;
           ctx.lineWidth = 0.6;
           ctx.stroke();
         }
@@ -72,7 +84,7 @@
         if (App.assets.graticule) {
           ctx.beginPath();
           path(App.assets.graticule);
-          ctx.strokeStyle = "rgba(255,255,255,0.10)";
+          ctx.strokeStyle = colors.graticule;
           ctx.stroke();
         }
 
@@ -117,7 +129,7 @@
         // Border
         ctx.beginPath();
         path({ type: "Sphere" });
-        ctx.strokeStyle = "#000";
+        ctx.strokeStyle = colors.outline;
         ctx.stroke();
       }
     };

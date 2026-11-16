@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <title>Visualización de Auroras</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f4f6fb">
+
+  <!-- Tema claro/oscuro: se aplica antes del primer pintado para evitar el destello claro de noche. -->
+  <script src="js/theme.boot.js"></script>
 
   <!-- Hoja de estilos principal de la app -->
   <link rel="stylesheet" href="style.css">
@@ -60,13 +65,25 @@
         <p class="subtitle">Filtra intensidad y nubosidad para enfocar zonas con mayor visibilidad.</p>
       </div>
       <div class="header-meta">
-        <button id="refresh-btn"><span aria-hidden="true">🔄</span> Refrescar datos</button>
+        <div class="header-actions">
+          <button type="button" id="theme-toggle" class="theme-toggle" data-theme-toggle aria-pressed="false">
+            <span aria-hidden="true">🌙</span> Modo oscuro
+          </button>
+          <button id="refresh-btn"><span aria-hidden="true">🔄</span> Refrescar datos</button>
+        </div>
         <div class="header-links">
           <a class="data-processing-link" href="tratamiento-datos.html">Tratamiento de datos</a>
           <a class="data-processing-link" href="explicacion-sitio.html">Explicación del sitio</a>
         </div>
       </div>
     </header>
+
+    <!-- Aviso de alerta de aurora en la ubicación de la persona -->
+    <div class="aurora-alert-banner" id="aurora-alert-banner" role="alert" hidden>
+      <span class="aurora-alert-icon" aria-hidden="true">🌌</span>
+      <p id="aurora-alert-text"></p>
+      <button type="button" id="aurora-alert-close" class="aurora-alert-close" aria-label="Cerrar aviso">✕</button>
+    </div>
 
     <div class="layout">
       <!-- Panel lateral con controles y leyendas -->
@@ -305,6 +322,40 @@
           </div>
         </div>
 
+        <div class="card kp-card" id="kp-forecast">
+          <div class="card-header">
+            <h2>Pronóstico Kp (3 días)</h2>
+            <p>Actividad geomagnética prevista por NOAA. A mayor Kp, la aurora baja a latitudes menores.</p>
+          </div>
+          <div class="kp-forecast-body" id="kp-forecast-body"></div>
+          <div class="kp-legend" aria-hidden="true">
+            <span class="kp-chip kp-level-quiet">0–2</span>
+            <span class="kp-chip kp-level-unsettled">3</span>
+            <span class="kp-chip kp-level-active">4</span>
+            <span class="kp-chip kp-level-storm">5–6 tormenta</span>
+            <span class="kp-chip kp-level-extreme">7+</span>
+          </div>
+          <p class="kp-local" id="kp-forecast-local" data-state="unknown"></p>
+          <p class="inspector-hint" id="kp-forecast-status" role="status" aria-live="polite">Cargando pronóstico…</p>
+        </div>
+
+        <div class="card alerts-card" id="alerts-card">
+          <div class="card-header">
+            <h2>Alertas de aurora</h2>
+            <p>Te avisamos cuando sea de noche y la probabilidad suba en tu ubicación.</p>
+          </div>
+          <label class="toggle alerts-toggle">
+            <input type="checkbox" id="alerts-toggle">
+            <span class="toggle-text">Activar alertas</span>
+          </label>
+          <label class="alerts-level-label" for="alerts-level">Avisarme con probabilidad</label>
+          <select id="alerts-level" class="alerts-level">
+            <option value="high">Alta</option>
+            <option value="medium">Media o alta</option>
+          </select>
+          <p class="inspector-hint alerts-status" id="alerts-status" role="status" aria-live="polite" data-state="idle">Esperando datos.</p>
+        </div>
+
         <div class="card data-status">
           <div class="card-header">
             <h2>Estado de datos</h2>
@@ -339,6 +390,7 @@
   <script defer src="js/data/location.service.js"></script>
   <script defer src="js/data/probability.service.js"></script>
   <script defer src="js/data/refresh.service.js"></script>
+  <script defer src="js/data/kp.service.js"></script>
 
   <!-- UI: widgets y controles -->
   <script defer src="js/ui/version.ui.js"></script>
@@ -350,6 +402,9 @@
   <script defer src="js/ui/layers.ui.js"></script>
   <script defer src="js/ui/inspector.ui.js"></script>
   <script defer src="js/ui/location.ui.js"></script>
+  <script defer src="js/ui/theme.ui.js"></script>
+  <script defer src="js/ui/kp-forecast.ui.js"></script>
+  <script defer src="js/ui/alerts.ui.js"></script>
 
   <!-- Overlays del globo (nubes, probabilidad, noche, auroras) -->
   <script defer src="js/overlays/clouds.utils.js"></script>
