@@ -126,6 +126,7 @@
       const drag = d3.drag()
         .touchable(() => true)
         .on("start", (event) => {
+          g.interacting = true;
           dragstarted(event, g.canvas);
         })
         .on("drag", (event) => {
@@ -137,6 +138,9 @@
           l = 0;
           a0 = d0 = s0 = null;
           v0 = null;
+          // Repinta con el detalle completo al soltar.
+          g.interacting = false;
+          g.requestRender();
         });
 
       // Apply drag to canvas

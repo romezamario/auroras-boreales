@@ -41,7 +41,9 @@
   function toCellLon(lon) {
     const normalized = App.geoUtils.normalizeLon(lon);
     if (!Number.isFinite(normalized)) return null;
-    return normalized === -180 ? 180 : Math.round(normalized);
+    const rounded = Math.round(normalized);
+    // -179.6 redondea a -180: se guarda como 180, igual que busca getCandidates().
+    return rounded === -180 ? 180 : rounded;
   }
 
   function toCellLat(lat) {
@@ -77,7 +79,7 @@
 
   function getDefaultCategoryFilters() {
     return {
-      low: false,
+      low: true,
       medium: true,
       high: true
     };
@@ -117,10 +119,10 @@
     return Number.isFinite(intensity) && intensity >= getRelevantIntensityThreshold();
   }
 
-  function isNightVisibilityCandidate(lon, lat, date = new Date()) {
+  function isNightVisibilityCandidate(lon, lat, date = new Date(), subsolar = null) {
     if (!App.utils?.isDayAt) return true;
 
-    const isDay = App.utils.isDayAt(lon, lat, date);
+    const isDay = App.utils.isDayAt(lon, lat, date, subsolar);
     return isDay === null ? true : !isDay;
   }
 

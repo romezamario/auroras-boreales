@@ -18,6 +18,14 @@
 (function () {
   window.App = window.App || {};
 
+  // Niveles de color para agrupar los puntos de nube: un fill() por nivel en vez
+  // de uno por celda (hasta 64.800 por frame).
+  const CLOUD_LEVELS = 16;
+
+  function levelOf(t) {
+    return Math.max(0, Math.min(CLOUD_LEVELS - 1, Math.floor(t * CLOUD_LEVELS)));
+  }
+
   function buildCloudPointCache(gridN) {
     const points = new Array(gridN.w * gridN.h);
     const { w, h } = gridN;
@@ -29,14 +37,28 @@
 
         const [lon, lat] = App.cloudsUtils.cellCenterLonLat(w, h, x, y);
         const cartesian = versor.cartesian([lon, lat]);
-        const [r, g, b] = App.cloudsUtils.blueRamp(t);
 
-        points[y * w + x] = { lon, lat, t, cartesian, r, g, b };
+        points[y * w + x] = { lon, lat, t, cartesian, level: levelOf(t) };
       }
     }
 
     return { gridRef: gridN, points, w, h };
   }
+
+  // Color de cada nivel (centro del tramo) con alpha creciente según cobertura.
+  function buildLevelStyles(cloudsCfg) {
+    const alphaBase = cloudsCfg.pointAlphaBase ?? 0.08;
+    const alphaScale = cloudsCfg.pointAlphaScale ?? 0.66;
+    const styles = [];
+    for (let i = 0; i < CLOUD_LEVELS; i += 1) {
+      const t = (i + 0.5) / CLOUD_LEVELS;
+      const [r, g, b] = App.cloudsUtils.blueRamp(t);
+      styles.push(`rgba(${r},${g},${b},${(alphaBase + alphaScale * t).toFixed(3)})`);
+    }
+    return styles;
+  }
+
+  let levelStyles = null;
 
   // Overlay principal de nubes.
   App.cloudsOverlay = {
@@ -66,7 +88,9 @@
 
       // Para performance: muestreamos 1 de cada N celdas del grid según dispositivo.
       // Si tu grid es 360x180, step=1 es OK desktop, step=2/3 mobile.
-      const step = isMobile ? (cloudsCfg.sampleStepMobile ?? 2) : (cloudsCfg.sampleStepDesktop ?? 1);
+      let step = isMobile ? (cloudsCfg.sampleStepMobile ?? 2) : (cloudsCfg.sampleStepDesktop ?? 1);
+      // Mientras se arrastra el globo se dibuja la mitad de celdas; al soltar se repinta fino.
+      if (globe.interacting) step *= 2;
 
       const baseOpacity = state.clouds.opacity ?? cloudsCfg.opacity ?? 0.28;
 
@@ -82,6 +106,9 @@
 
       const cache = state.clouds.gridCache;
       const { points, w, h } = cache;
+      if (!levelStyles) levelStyles = buildLevelStyles(cloudsCfg);
+
+      const groups = levelStyles.map(() => []);
 
       for (let y = 0; y < h; y += step) {
         for (let x = 0; x < w; x += step) {
@@ -97,15 +124,20 @@
           const xy = projection([point.lon, point.lat]);
           if (!xy) continue;
 
-          // alpha por punto (más fuerte conforme t sube)
-          const aPoint = (cloudsCfg.pointAlphaBase ?? 0.08) + (cloudsCfg.pointAlphaScale ?? 0.66) * point.t;
-
-          const [px, py] = xy;
-          ctx.fillStyle = `rgba(${point.r},${point.g},${point.b},${aPoint})`;
-          ctx.beginPath();
-          ctx.arc(px, py, r, 0, 2 * Math.PI);
-          ctx.fill();
+          groups[point.level].push(xy[0], xy[1]);
         }
+      }
+
+      for (let level = 0; level < groups.length; level += 1) {
+        const coords = groups[level];
+        if (!coords.length) continue;
+        ctx.fillStyle = levelStyles[level];
+        ctx.beginPath();
+        for (let j = 0; j < coords.length; j += 2) {
+          ctx.moveTo(coords[j] + r, coords[j + 1]);
+          ctx.arc(coords[j], coords[j + 1], r, 0, 2 * Math.PI);
+        }
+        ctx.fill();
       }
 
       ctx.restore();

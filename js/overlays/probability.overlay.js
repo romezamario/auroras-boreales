@@ -22,9 +22,9 @@
 
       if (!points.length) return;
 
-      ctx.save();
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = opacity;
+      // La posición del sol se calcula una vez por frame, no una vez por punto.
+      const subsolar = App.utils?.getSubsolarPoint?.(visibilityDate) ?? null;
+      const groups = new Map();
 
       for (let i = 0; i < points.length; i += 1) {
         const point = points[i];
@@ -32,7 +32,7 @@
         if (!probability?.key) continue;
         if (activeFilters[probability.key] === false) continue;
         if (!App.probabilityService?.isOutsideEquatorialExclusion?.(point.lat)) continue;
-        if (!App.probabilityService?.isNightVisibilityCandidate?.(point.lon, point.lat, visibilityDate)) continue;
+        if (!App.probabilityService?.isNightVisibilityCandidate?.(point.lon, point.lat, visibilityDate, subsolar)) continue;
 
         if (viewVector) {
           const cartesian = point.cartesian || versor.cartesian([point.lon, point.lat]);
@@ -46,9 +46,23 @@
         const xy = projection([point.lon, point.lat]);
         if (!xy) continue;
 
-        ctx.fillStyle = probability.color || DEFAULT_COLOR;
+        const color = probability.color || DEFAULT_COLOR;
+        if (!groups.has(color)) groups.set(color, []);
+        groups.get(color).push(xy[0], xy[1]);
+      }
+
+      ctx.save();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = opacity;
+
+      // Un fill() por categoría.
+      for (const [color, coords] of groups) {
+        ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(xy[0], xy[1], radius, 0, 2 * Math.PI);
+        for (let j = 0; j < coords.length; j += 2) {
+          ctx.moveTo(coords[j] + radius, coords[j + 1]);
+          ctx.arc(coords[j], coords[j + 1], radius, 0, 2 * Math.PI);
+        }
         ctx.fill();
       }
 

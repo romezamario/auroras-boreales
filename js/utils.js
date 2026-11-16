@@ -78,9 +78,10 @@
   };
 
   // Determina si un punto está en día o noche según el subsolar.
-  App.utils.isDayAt = function (lon, lat, date = new Date()) {
+  // `subsolar` es opcional: pasarlo evita recalcular la posición del sol en bucles.
+  App.utils.isDayAt = function (lon, lat, date = new Date(), subsolar = null) {
     if (!Number.isFinite(lon) || !Number.isFinite(lat)) return null;
-    const subsolar = App.utils.getSubsolarPoint(date);
+    subsolar = subsolar ?? App.utils.getSubsolarPoint(date);
 
     const lat1 = toRad(lat);
     const lat2 = toRad(subsolar.lat);
