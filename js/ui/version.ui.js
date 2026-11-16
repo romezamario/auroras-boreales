@@ -23,7 +23,10 @@
   function setVersionLabel(el, metadata) {
     const cfg = getVersionConfig();
     const label = getDisplayLabel(metadata) ?? cfg.fallbackLabel ?? "—";
-    el.innerHTML = `Versión: <strong>${label}</strong>`;
+    // Sin innerHTML: la etiqueta puede venir de una API remota.
+    const strong = document.createElement("strong");
+    strong.textContent = label;
+    el.replaceChildren("Versión: ", strong);
   }
 
   function getValueByPath(obj, path) {

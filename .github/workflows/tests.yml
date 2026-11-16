@@ -1,0 +1,35 @@
+# Verificaciones rápidas del frontend: sintaxis de todos los JS y tests de lógica pura.
+name: Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Solo el código: los archivos de la raíz (versor.js) se incluyen siempre.
+          sparse-checkout: |
+            js
+            tests
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Revisar sintaxis de los JS
+        run: |
+          for f in versor.js $(find js -name '*.js'); do node --check "$f"; done
+      - name: Tests de lógica
+        run: node --test tests/*.test.js

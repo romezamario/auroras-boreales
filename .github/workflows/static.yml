@@ -20,7 +20,7 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
-# Permite solo un despliegue concurrente (sin cancelar el que está en progreso).
+# Permite solo un despliegue a la vez; si llega otro push, cancela el que está en progreso.
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -46,7 +46,20 @@ jobs:
             --exclude '.github/' \
             --exclude 'AGENTS.md' \
             --exclude 'scripts/' \
+            --exclude 'tests/' \
             --exclude 'data/history/'
+      - name: Inject version metadata
+        # La versión visible en "Estado de datos" sale del commit desplegado,
+        # así no hay que actualizar js/config.js a mano.
+        run: |
+          DATE="$(git log -1 --format=%cI)"
+          LABEL="$(git log -1 --format=%cs) · ${GITHUB_SHA::7}"
+          sed -i -E \
+            -e "s|^([[:space:]]*)label: \"[^\"]*\",|\1label: \"${LABEL}\",|" \
+            -e "s|^([[:space:]]*)updatedAt: \"[^\"]*\",|\1updatedAt: \"${DATE}\",|" \
+            -e "s|^([[:space:]]*)source: \"embedded\",|\1source: \"deploy\",|" \
+            dist/js/config.js
+          grep -nE "^[[:space:]]*(label|updatedAt|source):" dist/js/config.js
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

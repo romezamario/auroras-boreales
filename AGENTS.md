@@ -338,6 +338,10 @@ Documentar de forma continua:
   - **Motivo:** Con 5G la IP ubicaba a Mario en Ciudad de México en vez de su ciudad real (salida del operador).
   - **Impacto:** Ubicación precisa con permiso explícito; elección recordada en `localStorage`; nombres de estado/país vía BigDataCloud con coordenadas redondeadas a 2 decimales.
 
+- **2026-11-16** — Resto de arreglos de la auditoría: render agrupado por color, avisos de error, recarga automática, accesibilidad, paleta Okabe-Ito, tests en CI y versión inyectada en el deploy.
+  - **Motivo:** El giro del globo era pesado (un `fill()` por punto), los fallos de NOAA dejaban el globo vacío sin explicación, los datos no se refrescaban solos y el globo no era usable con teclado ni lector de pantalla.
+  - **Impacto:** Render ~40 % más rápido en la prueba local, avisos con reintentos, recarga cada 5 min, teclado + `aria-label` dinámico, colores distinguibles con daltonismo y un workflow `Tests` que corre `node --check` y `node --test`.
+
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
 
@@ -528,9 +532,17 @@ Documentar de forma continua:
   - Resultado esperado: Tras el clic y el permiso, el marcador, el estado y el país corresponden al dispositivo y el globo se centra ahí; si se niega el permiso, se mantiene la IP con un aviso.
   - Verificación: `node --check` en los JS tocados y Playwright con geolocalización simulada (permiso concedido, recordado al recargar y denegado), sin errores de página.
 
+- **Cambio:** Resto de arreglos de la auditoría del 2026-11-16 (A3, M1, M2, M4, M5, M6, M7, B1-B7).
+  - Archivos: `js/overlays/*.js`, `js/globe/globe.core.js`, `js/globe/globe.drag.js`, `js/globe/globe.render.js`, `js/data/refresh.service.js`, `js/data/probability.service.js`, `js/ui/refresh.ui.js`, `js/ui/inspector.ui.js`, `js/ui/probability.ui.js`, `js/ui/version.ui.js`, `js/utils.js`, `js/app.js`, `js/config.js`, `index.html`, `style.css`, `explicacion-sitio.html`, `.github/workflows/static.yml`, `.github/workflows/tests.yml`, `tests/core.test.js`, `README.md`, `AGENTS.md`
+  - Motivo: Aplicar las mejoras aprobadas por Mario tras la auditoría.
+  - Resultado esperado: Globo más fluido, avisos visibles ante fallos, datos frescos sin pulsar el botón, globo accesible y CI con tests.
+  - Verificación: `node --test tests/*.test.js` (6 tests OK), `node --check` en todos los JS, simulación del paso de versión del workflow y Playwright local (render, NOAA caído con reloj simulado, recarga a los 5 min, teclado y aria-label), sin errores de página.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
+- [ ] **Backlog (decidido por Mario el 2026-11-16):** convertir el sitio en app instalable (PWA: manifest, service worker, iconos). No empezar sin que lo pida.
+- [ ] Añadir SRI (`integrity`) a los scripts de jsDelivr o servir D3/TopoJSON/world-atlas desde el repo.
 - [x] Reubicar el detalle del punto, la localización inferida y el estado de datos al lado derecho del globo en escritorio.
   - Estado: `completada`
   - Evidencia: `index.html`, `style.css`

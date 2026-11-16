@@ -228,7 +228,7 @@ erDiagram
 - El filtro por categorías permite mostrar u ocultar `Alta`, `Media` y `Baja` sin alterar los datos base de aurora o nubosidad; la única fuente de verdad operativa es `App.state.probability.filters`.
 - La capa de probabilidad solo dibuja la cara visible del globo, oculta cualquier punto donde sea de día en la fecha/hora actual, se regenera cuando cambia cualquiera de las dos fuentes cruzadas (aurora o nubosidad) y difiere la reconstrucción pesada de la grilla hasta `getOverlayCache(step)`.
 - La lectura auroral reutilizable usa un índice espacial por celdas enteras y compara primero vecinos locales antes de recurrir a un fallback más amplio, para que la grilla global derivada de 1° sea viable en el navegador.
-- El resumen cromático de la capa es: `Baja` en verde, `Media` en amarillo y `Alta` en rojo.
+- El resumen cromático de la capa usa la paleta Okabe-Ito, distinguible con daltonismo rojo-verde: `Alta` en verde azulado, `Media` en amarillo y `Baja` en bermellón.
 - El refresco de datos acepta degradación parcial: si falla nubosidad, la app puede seguir mostrando auroras.
 - `clouds.json` se considera una instantánea diaria/preprocesada, no una fuente en vivo de alta frecuencia.
 - La versión visual expuesta al usuario se toma primero desde `App.config.version` (metadata embebida/inyectable en build o despliegue) y solo consulta remoto si se habilita explícitamente un refresco opcional con caché TTL en `localStorage`.
@@ -242,7 +242,10 @@ erDiagram
 - Ajuste de umbrales de intensidad auroral y nubosidad mediante sliders dobles; la capa de probabilidad reutiliza ambos rangos para definir qué celdas son candidatas a mostrarse.
 - Panel de detalle del punto seleccionado con latitud, longitud, intensidad, nubosidad, condición día/noche y probabilidad de visibilidad estimada.
 - Tarjeta `Capas visibles` con un toggle adicional para la capa `Probabilidad` y una tarjeta específica de categorías para filtrar `Alta`, `Media` y `Baja`, con las tres categorías activadas por defecto.
-- Resumen visual de colores para la capa derivada: baja en verde, media en amarillo y alta en rojo.
+- Resumen visual de colores para la capa derivada (Okabe-Ito): alta en verde azulado, media en amarillo y baja en bermellón; los filtros muestran una muestra de color como leyenda.
+- El pronóstico de auroras se recarga solo cada 5 minutos mientras la pestaña está visible (y al volver a ella si los datos son viejos); `App.config.aurora.autoRefreshMs` controla el intervalo.
+- Aviso visible sobre el globo cuando falla NOAA (con reintentos a los 30 s, 1, 2 y 5 min, conservando los últimos datos), cuando falla el mapa base (reintento cada 30 s) o cuando no hay nubosidad.
+- Accesibilidad: el globo se maneja con teclado (flechas giran, `+`/`-` acercan, Enter consulta el centro, Inicio resetea), tiene una descripción textual que cambia con la vista y el detalle del punto se anuncia con `aria-live`.
 - Panel de localización inferida por IP.
 - Panel de estado con versión y última actualización de datos.
 - Página secundaria `tratamiento-datos.html` con documentación de fuentes y tratamiento.
@@ -278,11 +281,13 @@ flowchart TD
 - **Dependencias del pipeline offline:** Python, `requests` y `numpy`. No requiere tokens ni secretos.
 - **Persistencia:** archivos versionados en Git (`data/clouds.json`). Los históricos de `data/history/` se sacaron del repositorio en noviembre de 2026 y están en `.gitignore`.
 - **Red de entrega:** endpoints públicos HTTPS y contenido estático servido por CDN o repositorio.
-- **Empaquetado de Pages:** el workflow de despliegue publica un bundle curado que excluye artefactos recolectados bajo `data/history/`.
+- **Empaquetado de Pages:** el workflow de despliegue publica un bundle curado que excluye `scripts/`, `tests/`, `AGENTS.md` y `data/history/`, e inyecta en `js/config.js` la fecha y el commit desplegados como versión visible.
 
 ## Seguridad
 - No existe autenticación ni manejo de cuentas de usuario en la aplicación web actual.
-- La localización es aproximada y basada en IP, sin captura obligatoria de geolocalización precisa del navegador.
+- La localización es aproximada y basada en IP; la geolocalización precisa del navegador solo se pide si la persona pulsa "Usar mi ubicación".
+- No se carga código de proveedores de ubicación (sin JSONP) y la versión se pinta sin `innerHTML`.
+- Los diagramas Mermaid de `explicacion-sitio.html` usan `securityLevel: 'strict'`.
 - La app depende de orígenes externos; conviene endurecer la política de contenido (`CSP`) si se despliega en producción propia.
 - El proyecto debe revisar periódicamente que URLs externas, esquemas JSON y dependencias CDN no cambien de forma incompatible.
 
@@ -306,7 +311,7 @@ python scripts/openmeteo_cloudcover.py
 4. Revisar `tratamiento-datos.html` y `README.md` cuando cambien fuentes, reglas, pipelines o endpoints.
 
 ## Pruebas
-Actualmente el repositorio no define una suite automatizada formal. Aun así, `AGENTS.md` establece que toda intervención del agente debe ejecutar siempre pruebas, validaciones o checks proporcionales al cambio antes de cerrarlo, y debe reportar el comando exacto usado. La validación operativa recomendada es:
+El workflow `Tests` (`.github/workflows/tests.yml`) corre en cada push a `main`: revisa la sintaxis de todos los JS con `node --check` y ejecuta `node --test tests/*.test.js`, que carga los scripts en un contexto aislado y prueba la lógica pura (clasificación de probabilidad, longitudes, rejilla de nubes, posición del sol, colores de aurora). No necesita dependencias. Además, `AGENTS.md` establece que toda intervención del agente debe ejecutar siempre pruebas, validaciones o checks proporcionales al cambio antes de cerrarlo, y debe reportar el comando exacto usado. La validación operativa recomendada es:
 - Servir el sitio localmente y revisar que el canvas renderiza sin errores en consola.
 - Confirmar que el refresco actualiza auroras aunque falle la fuente de nubes.
 - Probar cambios de umbrales y toggles en desktop y móvil.
@@ -314,7 +319,9 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - Revisar manualmente que `tratamiento-datos.html`, `README.md` y `AGENTS.md` sigan alineados.
 
 ## Rendimiento
-- Se limita la densidad de puntos renderizados por `sampleStep`/`auroraStep` según el tamaño del viewport.
+- Auroras, nubes y probabilidad se dibujan agrupadas por color: un `fill()` por color (5 de aurora, 16 niveles de nube, 3 categorías) en lugar de uno por punto.
+- Las auroras no se submuestrean: el filtro por umbral y latitud descarta casi todos los puntos. Las nubes usan `sampleStep` según el viewport y la mitad de celdas mientras se arrastra el globo.
+- La capa de probabilidad calcula la posición del sol una vez por frame y mover el slider de intensidad no reconstruye el índice auroral.
 - Se topa el device pixel ratio (`dprMax`) para evitar sobrecoste en pantallas densas.
 - Se usa caché de malla de nubes (`gridCache`) para no recalcular puntos en cada frame.
 - La capa de probabilidad reutiliza una caché derivada con puntos enriquecidos por una categoría canónica `{ key, label, range, color }`, minimizando trabajo durante rotación o drag.

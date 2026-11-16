@@ -10,7 +10,7 @@
     mermaid.initialize({
       startOnLoad: true,
       theme: 'dark',
-      securityLevel: 'loose',
+      securityLevel: 'strict',
       flowchart: {
         htmlLabels: false,
         useMaxWidth: true,
@@ -282,9 +282,9 @@ flowchart TD
     L -- No --> Z8[No se dibuja la probabilidad]
     L -- Sí --> M[Tomar intensidad OVATION cercana + nubosidad Open-Meteo]
     M --> N{Clasificación canónica}
-    N -- Intensidad >= 70 y nubes <= 30% --> O[Alta / high / verde]
+    N -- Intensidad >= 70 y nubes <= 30% --> O[Alta / high / verde azulado]
     N -- Intensidad 30 a 69 y nubes <= 30% --> P[Media / medium / amarillo]
-    N -- Cualquier otro caso --> Q[Baja / low / rojo]
+    N -- Cualquier otro caso --> Q[Baja / low / bermellón]
     O --> R{¿Categoría habilitada en filtros?}
     P --> R
     Q --> R
