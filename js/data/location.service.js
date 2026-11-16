@@ -34,39 +34,6 @@
     };
   }
 
-  function fetchJsonp(url, callbackParam = "callback") {
-    return new Promise((resolve, reject) => {
-      const callbackName = `appIpGeo_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const script = document.createElement("script");
-      const separator = url.includes("?") ? "&" : "?";
-      const cleanup = () => {
-        delete window[callbackName];
-        script.remove();
-      };
-
-      const timer = window.setTimeout(() => {
-        cleanup();
-        reject(new Error("JSONP timeout"));
-      }, 8000);
-
-      window[callbackName] = (data) => {
-        window.clearTimeout(timer);
-        cleanup();
-        resolve(data);
-      };
-
-      script.src = `${url}${separator}${callbackParam}=${callbackName}`;
-      script.async = true;
-      script.onerror = () => {
-        window.clearTimeout(timer);
-        cleanup();
-        reject(new Error("JSONP request failed"));
-      };
-
-      document.head.appendChild(script);
-    });
-  }
-
   async function fetchLocationFromEndpoint(endpoint) {
     const normalizedEndpoint = typeof endpoint === "string"
       ? { url: endpoint, type: "json" }
@@ -74,10 +41,9 @@
 
     if (!normalizedEndpoint?.url) return null;
 
-    if (normalizedEndpoint.type === "jsonp") {
-      const data = await fetchJsonp(normalizedEndpoint.url, normalizedEndpoint.callbackParam);
-      return parseLocationPayload(data);
-    }
+    // Solo se aceptan respuestas JSON (CORS). JSONP se retiró porque ejecuta
+    // código de terceros con acceso completo a la página.
+    if (normalizedEndpoint.type !== "json") return null;
 
     const data = await d3.json(normalizedEndpoint.url);
     return parseLocationPayload(data);

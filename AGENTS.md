@@ -141,9 +141,8 @@ Documentar de forma continua:
 - Aunque el repo no tenga una suite automatizada formal, la bitácora del agente debe exigir ejecutar pruebas o verificaciones aplicables en cada cambio y dejar evidencia del comando usado.
 - El repo no requiere build para editar esta sección; basta con modificar HTML estático.
 - El layout principal se resuelve con CSS Grid, por lo que el reordenamiento de paneles de escritorio puede hacerse sin tocar la lógica JS.
-- La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador (CORS o JSONP).
-- `ipapi.co` publica un formato dedicado `/jsonp/`; pasar `?callback=` sobre `/json/` no garantiza una respuesta JSONP válida para el navegador.
-- Para que la geolocalización por IP no desaparezca ante caídas, bloqueos o rate limits de un proveedor frontend-only, conviene encadenar al menos un fallback compatible con navegador (JSONP o CORS) y normalizar ambos payloads en el mismo servicio.
+- La geolocalización por IP se resuelve completamente del lado cliente, así que depende de que el proveedor externo permita consumo directo desde navegador con CORS. No usar JSONP: inserta un `<script>` de terceros que corre con acceso completo a la página.
+- Si se agrega otro proveedor de IP, debe ser JSON con CORS y su payload debe normalizarse en `parseLocationPayload`.
 - GitHub Actions permite adelantar la migración de acciones JavaScript a Node.js 24 mediante `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, útil cuando aún no existen majors nuevos para todas las acciones oficiales de Pages.
 - La UI de versión puede resolverse con metadata embebida en `App.config.version` y solo consultar remoto de forma opcional/caché, evitando bloquear el arranque por disponibilidad de GitHub.
 - La clasificación de probabilidad, la lectura puntual de aurora/nubosidad y la generación de una malla global derivada pueden compartirse desde un servicio reutilizable independiente del módulo de picking.
@@ -325,6 +324,16 @@ Documentar de forma continua:
   - **Motivo:** Persistían casos donde el renderer mantenía texto oscuro en nodos/aristas pese al `textColor` global.
   - **Impacto:** Los diagramas de arquitectura y reglas de negocio pasan a forzar tipografía clara en `text`, `tspan`, `nodeLabel` y `edgeLabel`.
 
+- **2026-11-16** — Retirar JSONP de `ipapi.co` y dejar GeoJS (JSON con CORS) como único proveedor de geolocalización por IP.
+  - **Motivo:** JSONP ejecuta código del proveedor con acceso total al sitio; si el dominio se compromete o cambia, el sitio queda expuesto (hallazgo A2 de la auditoría).
+  - **Impacto:** Si GeoJS falla, no aparece el marcador de ubicación, pero el resto de la app funciona igual.
+- **2026-11-16** — Cerrar el hueco de la matriz de probabilidad: `Media` pasa a ser intensidad `>= 30` y `< 70` con nubosidad `<= 30%`.
+  - **Motivo:** Con la regla anterior (`30` a `60`), un punto despejado con intensidad entre 61 y 69 caía en `Baja` (hallazgo A1 de la auditoría).
+  - **Impacto:** Las etiquetas de rango pasan a `0-29%`, `30-69%` y `70%+`; `Alta` sigue en `>= 70`.
+- **2026-11-16** — Dejar de reconstruir el índice auroral al mover el slider de intensidad.
+  - **Motivo:** `state:threshold` reindexaba ~65.000 puntos en cada evento `input` aunque el umbral no afecta al índice (hallazgo A4 de la auditoría).
+  - **Impacto:** El slider responde sin tirones; `getOverlayCache()` sigue invalidando la grilla si cambia el umbral de relevancia.
+
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
 
@@ -503,6 +512,12 @@ Documentar de forma continua:
   - Motivo: Convertir en helpers privados los constructores/muestreos internos sin consumidores, eliminar los caches legacy de la grilla global y retirar el alias legacy de categorías tras verificar que UI y overlay solo usan `filters`.
   - Resultado esperado: Menor superficie pública en `App.probabilityService`, estado más simple y ausencia de referencias colgantes en módulos/documentación.
 
+- **Cambio:** Arreglos A1, A2 y A4 de la auditoría del 2026-11-16.
+  - Archivos: `js/data/probability.service.js`, `js/data/location.service.js`, `js/config.js`, `README.md`, `explicacion-sitio.html`, `tratamiento-datos.html`, `AGENTS.md`
+  - Motivo: Corregir el hueco 61-69 en la clasificación de probabilidad, quitar JSONP de terceros y evitar reindexar al mover el slider.
+  - Resultado esperado: Clasificación continua, geolocalización solo por GeoJS con CORS y slider de intensidad fluido.
+  - Verificación: `node --check` en los JS tocados, prueba en Node de `classifyVisibilityProbability` y carga local con Playwright sin errores de consola.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
@@ -521,8 +536,8 @@ Documentar de forma continua:
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Revisar periódicamente que la documentación de fuentes, workflows, diagramas Mermaid, láminas SVG y la narrativa de `explicacion-sitio.html` coincida con endpoints implementados en `js/data/*`, `.github/workflows/*` y materiales de `presentaciones/`.
 - [ ] Definir versión/fecha de actualización visible para la página de tratamiento de datos.
-- [ ] Evaluar un proveedor de geolocalización con SLA o un proxy propio si el flujo JSONP deja de estar disponible.
-- [ ] Validar periódicamente que `ipapi.co/jsonp/` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
+- [ ] Evaluar un segundo proveedor de geolocalización por IP con CORS (sin JSONP) si GeoJS se vuelve inestable.
+- [ ] Validar periódicamente que `get.geojs.io/v1/ip/geo.json` siga operativo y que la respuesta mantenga el contrato esperado por `location.service.js`.
 
 - [ ] Validar visualmente en distintos breakpoints que futuros cambios de layout no vuelvan a desalinear el tamaño real del canvas.
 - [ ] Verificar con producto/UX si la matriz de probabilidad debe evolucionar a un cálculo continuo o mantenerse como reglas discretas por rangos.

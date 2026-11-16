@@ -69,7 +69,7 @@ sequenceDiagram
     participant Refresh as refresh.service
     participant NOAA as NOAA OVATION
     participant Clouds as data/clouds.json
-    participant IP as ipapi JSONP
+    participant IP as GeoJS
 
     B->>App: DOMContentLoaded
     App->>App: initUI() + initGlobe() + bindAppEvents()
@@ -120,7 +120,7 @@ sequenceDiagram
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
 - `js/data/probability.service.js`: centraliza la clasificación de visibilidad, la lectura puntual de aurora/nubes, el índice auroral y la generación diferida/cacheada de una grilla global de 1°.
-- `js/data/location.service.js`: consulta la geolocalización por IP mediante JSONP y normaliza la respuesta al estado de la app.
+- `js/data/location.service.js`: consulta la geolocalización por IP mediante JSON con CORS (GeoJS) y normaliza la respuesta al estado de la app.
 - `js/overlays/*.js`: renderizado de auroras, nubes, probabilidad derivada y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos, incluyendo toggles de capas, sliders y filtros de probabilidad.
 - `scripts/openmeteo_cloudcover.py`: pipeline offline para generar la malla global de nubosidad.
@@ -221,7 +221,7 @@ erDiagram
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
 - El bootstrap inicial ejecuta en paralelo la carga del atlas base, el primer `refreshAll()` y la localización por IP; solo la disponibilidad de assets base bloquea el primer `requestRender()`.
 - La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica por intersección de datos: toma la intensidad OVATION más cercana, la nubosidad de la celda correspondiente y aplica una matriz discreta canónica `high`/`medium`/`low` (`Alta`/`Media`/`Baja`).
-- La matriz de negocio actual clasifica `Alta` cuando la intensidad es `>= 70` y la nubosidad `<= 30%`; `Media` cuando la intensidad está entre `30` y `60` con nubosidad `<= 30%`; y `Baja` en cualquier otro caso.
+- La matriz de negocio actual clasifica `Alta` cuando la intensidad es `>= 70` y la nubosidad `<= 30%`; `Media` cuando la intensidad es `>= 30` y `< 70` con nubosidad `<= 30%`; y `Baja` en cualquier otro caso.
 - Cada categoría de probabilidad comparte la misma estructura `{ key, label, range, color }` para picking, inspector, overlay, filtros y cachés de puntos.
 - Antes de clasificar `Alta`/`Media`/`Baja`, la grilla derivada descarta cualquier coordenada cuya intensidad no alcance el umbral de relevancia auroral (`App.config.probability.minRelevantIntensity`, con fallback a `App.state.thresholdMin`).
 - La capa `Probabilidad` inicia apagada; al activarse reutiliza simultáneamente los filtros de intensidad y nubosidad ya presentes para pintar solo las categorías habilitadas, dejando las tres categorías activadas por defecto desde el estado inicial.
@@ -254,8 +254,7 @@ erDiagram
 - **NOAA SWPC:** feed JSON `ovation_aurora_latest.json`.
 - **world-atlas / jsDelivr:** topología mundial para masa continental y fronteras.
 - **Metadata de versión embebida:** `js/config.js` publica la etiqueta/fecha visible y puede inyectarse durante build o despliegue; el refresco remoto hacia GitHub queda deshabilitado por defecto y es opcional.
-- **ipapi (`/jsonp/`):** proveedor principal de estimación geográfica por IP consumido desde el navegador mediante JSONP.
-- **GeoJS (`/v1/ip/geo.json`):** fallback por CORS para mantener la geolocalización disponible si el proveedor principal falla o degrada.
+- **GeoJS (`/v1/ip/geo.json`):** único proveedor de estimación geográfica por IP, consumido desde el navegador como JSON con CORS. JSONP (ipapi.co) se retiró en 2026-11-16 porque inserta un `<script>` de terceros con acceso completo a la página.
 - **Open-Meteo (`api.open-meteo.com/v1/forecast`):** nubosidad actual (`cloud_cover`) consultada offline cada 8 horas; gratuita para uso no comercial y sin clave. Atribución requerida: "Weather data by Open-Meteo.com" (CC BY 4.0).
 
 ### Diagrama de integraciones
@@ -265,8 +264,7 @@ flowchart TD
     APP[Frontend auroras-boreales]
     APP --> NOAA[services.swpc.noaa.gov]
     APP --> ATLAS[cdn.jsdelivr.net / world-atlas]
-    APP --> IP1[ipapi.co/jsonp/]
-    APP --> IP2[get.geojs.io/v1/ip/geo.json]
+    APP --> IP[get.geojs.io/v1/ip/geo.json]
     JOB[Pipeline openmeteo_cloudcover.py] --> OM[api.open-meteo.com]
     JOB --> CLOUDS[data/clouds.json]
     CLOUDS --> APP
@@ -369,7 +367,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 
 ## Resiliencia
 - El refresco usa `Promise.allSettled`, lo que permite tolerar fallos parciales.
-- La geolocalización por IP usa `ipapi.co/jsonp/` como proveedor principal y `get.geojs.io/v1/ip/geo.json` como fallback por CORS para evitar que una caída puntual deje la UI sin localización aproximada.
+- La geolocalización por IP usa solo `get.geojs.io/v1/ip/geo.json` (JSON con CORS); si falla, la app sigue funcionando sin marcador de ubicación. No se usa JSONP para no ejecutar código de terceros.
 - La UI mantiene funcionalidad básica aun sin `clouds.grid`, mostrando al menos cobertura global cuando existe.
 - El sombreado día/noche se recalcula localmente sin depender de APIs externas una vez cargada la app.
 

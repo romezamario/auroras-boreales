@@ -8,19 +8,19 @@
     low: Object.freeze({
       key: "low",
       label: "Baja",
-      range: "0-30%",
+      range: "0-29%",
       color: "rgba(239,68,68,0.72)"
     }),
     medium: Object.freeze({
       key: "medium",
       label: "Media",
-      range: "31-60%",
+      range: "30-69%",
       color: "rgba(250,204,21,0.78)"
     }),
     high: Object.freeze({
       key: "high",
       label: "Alta",
-      range: "+60%",
+      range: "70%+",
       color: "rgba(34,197,94,0.8)"
     })
   });
@@ -131,7 +131,7 @@
       return VISIBILITY_CATEGORIES.high;
     }
 
-    if (clouds <= 30 && intensity >= 30 && intensity <= 60) {
+    if (clouds <= 30 && intensity >= 30) {
       return VISIBILITY_CATEGORIES.medium;
     }
 
@@ -342,7 +342,8 @@
       rebuildCache();
       App.on("data:aurora", rebuildCache);
       App.on("data:clouds", rebuildCache);
-      App.on("state:threshold", rebuildCache);
+      // El umbral del slider no altera el índice auroral; getOverlayCache()
+      // invalida la grilla por sí solo si cambia el umbral de relevancia.
     },
 
     categories: VISIBILITY_CATEGORIES,

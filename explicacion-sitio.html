@@ -175,7 +175,7 @@ flowchart LR
     APP --> UI[js/ui/*.js]
     DATA --> NOAA[NOAA OVATION]
     DATA --> CLOUDS[data/clouds.json]
-    DATA --> IP[ipapi JSONP]
+    DATA --> IP[GeoJS por CORS]
     JOB[scripts/openmeteo_cloudcover.py] --> OM[Open-Meteo cloud_cover]
     JOB --> CLOUDS
     GLOBE --> CANVAS[Canvas interactivo]
@@ -220,7 +220,7 @@ sequenceDiagram
     participant Refresh as refresh.service
     participant NOAA as NOAA
     participant Clouds as clouds.json
-    participant IP as ipapi
+    participant IP as GeoJS
 
     B->>App: DOMContentLoaded
     App->>App: Inicializa UI, canvas y globo
@@ -282,9 +282,9 @@ flowchart TD
     L -- No --> Z8[No se dibuja la probabilidad]
     L -- Sí --> M[Tomar intensidad OVATION cercana + nubosidad Open-Meteo]
     M --> N{Clasificación canónica}
-    N -- Intensidad >= 70 y nubes <= 30% --> O[Alta / high / rojo]
-    N -- Intensidad 30 a 60 y nubes <= 30% --> P[Media / medium / amarillo]
-    N -- Cualquier otro caso --> Q[Baja / low / verde]
+    N -- Intensidad >= 70 y nubes <= 30% --> O[Alta / high / verde]
+    N -- Intensidad 30 a 69 y nubes <= 30% --> P[Media / medium / amarillo]
+    N -- Cualquier otro caso --> Q[Baja / low / rojo]
     O --> R{¿Categoría habilitada en filtros?}
     P --> R
     Q --> R
@@ -308,7 +308,7 @@ flowchart TD
             <p>El panel de detalle traduce dos variables complejas a una lectura accionable:</p>
             <ul>
               <li><strong>Alta:</strong> intensidad ≥ 70 y nubosidad ≤ 30%.</li>
-              <li><strong>Media:</strong> intensidad entre 30 y 60 con nubosidad ≤ 30%.</li>
+              <li><strong>Media:</strong> intensidad entre 30 y 69 con nubosidad ≤ 30%.</li>
               <li><strong>Baja:</strong> cualquier otra combinación.</li>
             </ul>
             <p>La clasificación no reemplaza el dato original, pero sí reduce la carga interpretativa y vuelve más comprensible la decisión para personas no expertas.</p>
