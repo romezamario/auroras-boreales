@@ -334,6 +334,10 @@ Documentar de forma continua:
   - **Motivo:** `state:threshold` reindexaba ~65.000 puntos en cada evento `input` aunque el umbral no afecta al índice (hallazgo A4 de la auditoría).
   - **Impacto:** El slider responde sin tirones; `getOverlayCache()` sigue invalidando la grilla si cambia el umbral de relevancia.
 
+- **2026-11-16** — Añadir "Usar mi ubicación" con `navigator.geolocation`; la IP (GeoJS) queda como respaldo.
+  - **Motivo:** Con 5G la IP ubicaba a Mario en Ciudad de México en vez de su ciudad real (salida del operador).
+  - **Impacto:** Ubicación precisa con permiso explícito; elección recordada en `localStorage`; nombres de estado/país vía BigDataCloud con coordenadas redondeadas a 2 decimales.
+
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
 
@@ -517,6 +521,12 @@ Documentar de forma continua:
   - Motivo: Corregir el hueco 61-69 en la clasificación de probabilidad, quitar JSONP de terceros y evitar reindexar al mover el slider.
   - Resultado esperado: Clasificación continua, geolocalización solo por GeoJS con CORS y slider de intensidad fluido.
   - Verificación: `node --check` en los JS tocados, prueba en Node de `classifyVisibilityProbability` y carga local con Playwright sin errores de consola.
+
+- **Cambio:** Ubicación del dispositivo con botón "Usar mi ubicación".
+  - Archivos: `index.html`, `style.css`, `js/config.js`, `js/app.js`, `js/data/location.service.js`, `js/ui/location.ui.js`, `README.md`, `tratamiento-datos.html`, `AGENTS.md`
+  - Motivo: La IP móvil apunta a la ciudad del operador y no a la ubicación real.
+  - Resultado esperado: Tras el clic y el permiso, el marcador, el estado y el país corresponden al dispositivo y el globo se centra ahí; si se niega el permiso, se mantiene la IP con un aviso.
+  - Verificación: `node --check` en los JS tocados y Playwright con geolocalización simulada (permiso concedido, recordado al recargar y denegado), sin errores de página.
 
 ---
 

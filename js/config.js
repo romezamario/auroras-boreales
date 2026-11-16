@@ -23,7 +23,18 @@
             url: "https://get.geojs.io/v1/ip/geo.json",
             type: "json"
           }
-        ]
+        ],
+        // Nombre de estado/país a partir de las coordenadas del dispositivo.
+        // Servicio gratuito, sin clave y pensado para uso desde el navegador.
+        reverseGeocode: "https://api.bigdatacloud.net/data/reverse-geocode-client"
+      },
+      // Ubicación del dispositivo (GPS / Wi-Fi) mediante navigator.geolocation.
+      deviceLocation: {
+        storageKey: "auroras-boreales:use-device-location",
+        timeoutMs: 15000,
+        maximumAgeMs: 600000,
+        // Decimales enviados al servicio de nombres (2 ≈ 1 km) para no compartir la posición exacta.
+        reverseGeocodeDecimals: 2
       },
       // Valores base para umbrales, rotación y ajustes de rendimiento.
       defaults: {

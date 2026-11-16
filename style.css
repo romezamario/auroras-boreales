@@ -555,6 +555,11 @@ button:focus-visible {
   color: #0f172a;
 }
 
+.location-device-btn {
+  margin-top: 12px;
+  width: 100%;
+}
+
 .inspector-hint {
   margin-top: 12px;
   font-size: 0.8rem;

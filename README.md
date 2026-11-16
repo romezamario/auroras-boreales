@@ -120,7 +120,7 @@ sequenceDiagram
 - `js/data/clouds.service.js`: carga el artefacto local de nubosidad con `cache: no-store`.
 - `js/data/refresh.service.js`: ejecuta refresco concurrente y tolera fallos parciales en nubes.
 - `js/data/probability.service.js`: centraliza la clasificación de visibilidad, la lectura puntual de aurora/nubes, el índice auroral y la generación diferida/cacheada de una grilla global de 1°.
-- `js/data/location.service.js`: consulta la geolocalización por IP mediante JSON con CORS (GeoJS) y normaliza la respuesta al estado de la app.
+- `js/data/location.service.js`: consulta la ubicación del dispositivo (`navigator.geolocation` + BigDataCloud para nombres) o, como respaldo, la geolocalización por IP mediante JSON con CORS (GeoJS), y normaliza la respuesta al estado de la app.
 - `js/overlays/*.js`: renderizado de auroras, nubes, probabilidad derivada y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos, incluyendo toggles de capas, sliders y filtros de probabilidad.
 - `scripts/openmeteo_cloudcover.py`: pipeline offline para generar la malla global de nubosidad.
@@ -254,7 +254,8 @@ erDiagram
 - **NOAA SWPC:** feed JSON `ovation_aurora_latest.json`.
 - **world-atlas / jsDelivr:** topología mundial para masa continental y fronteras.
 - **Metadata de versión embebida:** `js/config.js` publica la etiqueta/fecha visible y puede inyectarse durante build o despliegue; el refresco remoto hacia GitHub queda deshabilitado por defecto y es opcional.
-- **GeoJS (`/v1/ip/geo.json`):** único proveedor de estimación geográfica por IP, consumido desde el navegador como JSON con CORS. JSONP (ipapi.co) se retiró en 2026-11-16 porque inserta un `<script>` de terceros con acceso completo a la página.
+- **BigDataCloud (`reverse-geocode-client`):** traduce las coordenadas del dispositivo a estado y país. Gratuito, sin clave, pensado para uso desde el navegador. Solo se llama tras "Usar mi ubicación" y recibe coordenadas redondeadas a 2 decimales (~1 km).
+- **GeoJS (`/v1/ip/geo.json`):** respaldo por IP y único proveedor de estimación geográfica por IP, consumido desde el navegador como JSON con CORS. JSONP (ipapi.co) se retiró en 2026-11-16 porque inserta un `<script>` de terceros con acceso completo a la página.
 - **Open-Meteo (`api.open-meteo.com/v1/forecast`):** nubosidad actual (`cloud_cover`) consultada offline cada 8 horas; gratuita para uso no comercial y sin clave. Atribución requerida: "Weather data by Open-Meteo.com" (CC BY 4.0).
 
 ### Diagrama de integraciones
@@ -265,6 +266,7 @@ flowchart TD
     APP --> NOAA[services.swpc.noaa.gov]
     APP --> ATLAS[cdn.jsdelivr.net / world-atlas]
     APP --> IP[get.geojs.io/v1/ip/geo.json]
+    APP --> RG[api.bigdatacloud.net reverse-geocode-client]
     JOB[Pipeline openmeteo_cloudcover.py] --> OM[api.open-meteo.com]
     JOB --> CLOUDS[data/clouds.json]
     CLOUDS --> APP
@@ -368,6 +370,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 ## Resiliencia
 - El refresco usa `Promise.allSettled`, lo que permite tolerar fallos parciales.
 - La geolocalización por IP usa solo `get.geojs.io/v1/ip/geo.json` (JSON con CORS); si falla, la app sigue funcionando sin marcador de ubicación. No se usa JSONP para no ejecutar código de terceros.
+- El botón **"Usar mi ubicación"** pide la posición del dispositivo con `navigator.geolocation` (solo tras un clic, con el permiso del navegador). Es más preciso que la IP, que con datos móviles suele apuntar a la ciudad del operador. La elección se recuerda en `localStorage` y, en visitas siguientes, se usa sin preguntar si el permiso sigue concedido; si no, se vuelve a la IP. Al obtenerla, el globo se centra en ese punto.
 - La UI mantiene funcionalidad básica aun sin `clouds.grid`, mostrando al menos cobertura global cuando existe.
 - El sombreado día/noche se recalcula localmente sin depender de APIs externas una vez cargada la app.
 

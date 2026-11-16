@@ -281,8 +281,8 @@
         <div class="card inspector-card" id="location-inspector">
           <div class="card-header inspector-header">
             <div>
-              <h2>Localización inferida</h2>
-              <p>Se basa en la IP desde donde se realiza la consulta.</p>
+              <h2>Tu ubicación</h2>
+              <p id="location-description">Aproximada por la IP de tu conexión. Para más precisión, usa la ubicación de tu dispositivo.</p>
             </div>
           </div>
           <div class="inspector-body">
@@ -296,7 +296,10 @@
                 <span id="location-country" class="inspector-value">—</span>
               </div>
             </div>
-            <p class="inspector-hint" id="location-hint">Esperando datos de localización.</p>
+            <button type="button" id="location-device-btn" class="location-device-btn">
+              <span aria-hidden="true">📍</span> Usar mi ubicación
+            </button>
+            <p class="inspector-hint" id="location-hint" role="status" aria-live="polite">Esperando datos de localización.</p>
           </div>
         </div>
 

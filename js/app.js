@@ -44,10 +44,16 @@
     await App.refreshService?.refreshAll();
   }
 
-  function startBackgroundLocationLookup() {
+  async function startBackgroundLocationLookup() {
+    // Si la persona ya eligió "Usar mi ubicación" y el permiso sigue concedido,
+    // se usa el dispositivo sin volver a preguntar; la IP queda como respaldo.
+    if (await App.locationUI?.tryAutoDeviceLocation?.()) return App.state.userLocation;
+
     return App.locationService?.fetchIpLocation()
       .then((location) => {
         if (!location) return null;
+        // No pisar una ubicación del dispositivo obtenida mientras tanto.
+        if (App.state.userLocation?.source === "device") return null;
 
         App.state.userLocation = location;
         App.emit("data:location");

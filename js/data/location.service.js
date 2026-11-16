@@ -49,7 +49,107 @@
     return parseLocationPayload(data);
   }
 
+  function getDeviceConfig() {
+    return App.config?.deviceLocation ?? {};
+  }
+
+  function getCurrentPosition() {
+    const cfg = getDeviceConfig();
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(Object.assign(new Error("Geolocalización no disponible"), { code: "unsupported" }));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: false,
+        timeout: cfg.timeoutMs ?? 15000,
+        maximumAge: cfg.maximumAgeMs ?? 600000
+      });
+    });
+  }
+
+  async function reverseGeocode(lat, lon) {
+    const url = App.config?.endpoints?.reverseGeocode;
+    if (!url) return null;
+
+    const decimals = getDeviceConfig().reverseGeocodeDecimals ?? 2;
+    const params = new URLSearchParams({
+      latitude: lat.toFixed(decimals),
+      longitude: lon.toFixed(decimals),
+      localityLanguage: "es"
+    });
+
+    const res = await fetch(`${url}?${params}`);
+    if (!res.ok) throw new Error(`reverse geocode HTTP ${res.status}`);
+    const data = await res.json();
+
+    return {
+      region: data.principalSubdivision ? String(data.principalSubdivision) : null,
+      country: data.countryName ? String(data.countryName) : null
+    };
+  }
+
+  function readPreference() {
+    try {
+      return window.localStorage?.getItem(getDeviceConfig().storageKey) === "1";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function writePreference(enabled) {
+    try {
+      const key = getDeviceConfig().storageKey;
+      if (!key) return;
+      if (enabled) window.localStorage?.setItem(key, "1");
+      else window.localStorage?.removeItem(key);
+    } catch (error) {
+      // Sin almacenamiento (modo privado): solo se pierde recordar la elección.
+    }
+  }
+
+  async function getPermissionState() {
+    try {
+      const status = await navigator.permissions?.query({ name: "geolocation" });
+      return status?.state ?? null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   App.locationService = {
+    // Pide la posición al dispositivo (muestra el aviso de permiso del navegador).
+    async fetchDeviceLocation() {
+      const position = await getCurrentPosition();
+      const lat = parseNumber(position?.coords?.latitude);
+      const lon = parseNumber(position?.coords?.longitude);
+      if (lat === null || lon === null) return null;
+
+      let names = null;
+      try {
+        names = await reverseGeocode(lat, lon);
+      } catch (error) {
+        console.warn("[location] reverse geocode failed:", error);
+      }
+
+      return {
+        lat,
+        lon,
+        region: names?.region ?? null,
+        country: names?.country ?? null,
+        source: "device",
+        accuracy: parseNumber(position?.coords?.accuracy)
+      };
+    },
+
+    // true si la persona ya eligió usar su ubicación y el permiso sigue concedido.
+    async shouldAutoUseDeviceLocation() {
+      if (!readPreference()) return false;
+      return (await getPermissionState()) === "granted";
+    },
+
+    rememberDeviceChoice: writePreference,
+
     async fetchIpLocation() {
       const endpoints = Array.isArray(App.config.endpoints.ipGeo)
         ? App.config.endpoints.ipGeo
@@ -60,7 +160,7 @@
 
         try {
           const location = await fetchLocationFromEndpoint(endpoint);
-          if (location) return location;
+          if (location) return { ...location, source: "ip" };
         } catch (error) {
           console.warn("[location] ip lookup failed:", endpointUrl, error);
         }
