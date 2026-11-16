@@ -276,7 +276,7 @@ flowchart TD
 - **Hosting objetivo:** sitio estático, compatible con GitHub Pages o cualquier servidor HTTP simple.
 - **Dependencias runtime del navegador:** D3 v7, TopoJSON Client y `versor.js` cargados por script tag.
 - **Dependencias del pipeline offline:** Python, `requests` y `numpy`. No requiere tokens ni secretos.
-- **Persistencia:** archivos versionados en Git (`data/clouds.json` y, si se conservan localmente, históricos bajo `data/history/`).
+- **Persistencia:** archivos versionados en Git (`data/clouds.json`). Los históricos de `data/history/` se sacaron del repositorio en noviembre de 2026 y están en `.gitignore`.
 - **Red de entrega:** endpoints públicos HTTPS y contenido estático servido por CDN o repositorio.
 - **Empaquetado de Pages:** el workflow de despliegue publica un bundle curado que excluye artefactos recolectados bajo `data/history/`.
 
@@ -330,7 +330,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - El dominio principal combina geovisualización, clima espacial y nubosidad satelital.
 - La página `tratamiento-datos.html` documenta privacidad, fuentes y procesamiento orientado al usuario final.
 - `AGENTS.md` conserva decisiones, aprendizajes, riesgos y próximos pasos para mantener continuidad de trabajo.
-- Los datos históricos bajo `data/history/`, si se conservan en el repositorio o en copias locales, sirven como base de análisis y respaldo pero ya no forman parte del despliegue público.
+- Los datos históricos de `data/history/` (snapshots OVATION de feb–mar 2026, unos 3.1 GB) se retiraron del repositorio en noviembre de 2026; siguen disponibles en el historial de Git anterior a ese cambio.
 
 ## Evolución
 Áreas naturales de evolución:
