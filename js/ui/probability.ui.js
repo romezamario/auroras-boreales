@@ -17,6 +17,12 @@
         const labelEl = input.parentElement?.querySelector(".toggle-text");
         if (labelEl && category?.label) {
           labelEl.textContent = category.label;
+          // Muestra de color junto al nombre: hace de leyenda de la capa.
+          const swatch = document.createElement("span");
+          swatch.className = "probability-swatch";
+          swatch.setAttribute("aria-hidden", "true");
+          swatch.style.background = category.color;
+          labelEl.prepend(swatch);
         }
 
         input.checked = filters[key] !== false;

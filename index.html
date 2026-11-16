@@ -233,7 +233,8 @@
       <!-- Zona principal con el canvas del globo -->
       <main class="visual">
         <div class="canvas-card">
-          <canvas id="globe"></canvas>
+          <canvas id="globe" tabindex="0" role="img" aria-label="Globo terráqueo con la actividad auroral" aria-describedby="globe-help"></canvas>
+          <p id="globe-help" class="visually-hidden">Con el teclado: flechas para girar el globo, más y menos para acercar o alejar, Enter para consultar el punto del centro e Inicio para volver a la vista inicial. Con ratón o dedo: arrastra para girar y haz clic o toca para consultar un punto.</p>
           <p class="globe-loading" id="globe-loading" role="status">Cargando globo…</p>
           <p class="data-alert" id="data-alert" role="alert" hidden></p>
         </div>
@@ -275,7 +276,7 @@
                 <span id="inspector-visibility" class="inspector-value">—</span>
               </div>
             </div>
-            <p class="inspector-hint" id="inspector-hint">Selecciona un punto visible para ver detalles.</p>
+            <p class="inspector-hint" id="inspector-hint" role="status" aria-live="polite">Selecciona un punto visible para ver detalles.</p>
           </div>
         </div>
 

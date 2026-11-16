@@ -17,6 +17,19 @@
         App.on("globe:select", () => App.globe?.requestRender());
       },
   
+      // Describe en texto qué muestra el globo (lo leen los lectores de pantalla).
+      updateAccessibleLabel(g) {
+        const center = g.projection.invert([g.width / 2, g.height / 2]);
+        if (!center) return;
+        const fmt = (v, pos, neg) => `${Math.abs(v).toFixed(0)}° ${v >= 0 ? pos : neg}`;
+        const zoom = g.baseScale ? Math.round((g.projection.scale() / g.baseScale) * 100) : 100;
+        const label = `Globo terráqueo con la actividad auroral, centrado en ${fmt(center[1], "N", "S")}, ${fmt(center[0], "E", "O")}, zoom ${zoom}%.`;
+        if (label !== this._ariaLabel) {
+          g.canvas.setAttribute("aria-label", label);
+          this._ariaLabel = label;
+        }
+      },
+
       render() {
         const g = App.globe;
         if (!g || !App.assets.land) return;
@@ -99,6 +112,8 @@
           });
         }
   
+        this.updateAccessibleLabel(g);
+
         // Border
         ctx.beginPath();
         path({ type: "Sphere" });

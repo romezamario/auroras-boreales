@@ -146,6 +146,47 @@
       // Apply drag to canvas
       const canvasSel = d3.select(g.canvas).call(drag);
 
+      // ---- Teclado: flechas giran, +/- zoom, Enter consulta el centro, Inicio resetea ----
+      const KEY_ROTATE_DEG = 10;
+      const KEY_ZOOM = 1.2;
+      g.canvas.addEventListener("keydown", (event) => {
+        const rot = g.projection.rotate().slice();
+        let handled = true;
+
+        switch (event.key) {
+          case "ArrowLeft": rot[0] += KEY_ROTATE_DEG; break;
+          case "ArrowRight": rot[0] -= KEY_ROTATE_DEG; break;
+          case "ArrowUp": rot[1] = clamp(rot[1] - KEY_ROTATE_DEG, -90, 90); break;
+          case "ArrowDown": rot[1] = clamp(rot[1] + KEY_ROTATE_DEG, -90, 90); break;
+          case "+":
+          case "=":
+            g.projection.scale(clamp(g.projection.scale() * KEY_ZOOM, 50, 4000));
+            break;
+          case "-":
+          case "_":
+            g.projection.scale(clamp(g.projection.scale() / KEY_ZOOM, 50, 4000));
+            break;
+          case "Home":
+            rot.splice(0, 3, ...App.config.defaults.rotation);
+            g.resetZoom?.();
+            break;
+          case "Enter":
+          case " ": {
+            const center = g.projection.invert([g.width / 2, g.height / 2]);
+            if (center) App.probabilityService?.selectPoint?.(center[0], center[1]);
+            break;
+          }
+          default:
+            handled = false;
+        }
+
+        if (!handled) return;
+        event.preventDefault();
+        App.state.rotation = rot;
+        g.projection.rotate(rot);
+        g.requestRender();
+      });
+
       // ---- Desktop wheel zoom (projection.scale) ----
       const SCALE_MIN = 50;
       const SCALE_MAX = 4000;

@@ -58,6 +58,11 @@
             });
           },
   
+          // Vuelve al zoom inicial (tecla Inicio).
+          resetZoom: () => {
+            if (globe.baseScale) projection.scale(globe.baseScale);
+          },
+
           // Recalcula tamaño y proyección cuando cambia el viewport.
           resize: () => {
             const { w, h } = getCanvasCssSize(canvas);
@@ -81,10 +86,14 @@
   
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   
-            // Actualiza el centro, escala y rotación inicial.
+            // Actualiza centro, escala y rotación conservando el zoom que haya
+            // hecho la persona (antes se perdía en cada cambio de tamaño).
+            const baseScale = Math.min(w, h) * 0.45;
+            const zoom = globe.baseScale ? projection.scale() / globe.baseScale : 1;
+            globe.baseScale = baseScale;
             projection
               .translate([w / 2, h / 2])
-              .scale(Math.min(w, h) * 0.45)
+              .scale(baseScale * zoom)
               .rotate(App.state.rotation);
   
             globe.requestRender();

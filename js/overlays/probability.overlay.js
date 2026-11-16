@@ -1,7 +1,7 @@
 (function () {
   window.App = window.App || {};
 
-  const DEFAULT_COLOR = "rgba(239,68,68,0.72)";
+  const DEFAULT_COLOR = "rgba(213,94,0,0.72)";
 
   App.probabilityOverlay = {
     draw(globe, state) {

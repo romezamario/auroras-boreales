@@ -4,24 +4,26 @@
   const DEFAULT_STEP = 1;
   const AURORA_SEARCH_RADIUS = 2;
   const AURORA_FALLBACK_RADIUS = 6;
+  // Paleta Okabe-Ito (distinguible con daltonismo rojo-verde):
+  // baja = bermellón, media = amarillo, alta = verde azulado.
   const VISIBILITY_CATEGORIES = Object.freeze({
     low: Object.freeze({
       key: "low",
       label: "Baja",
       range: "0-29%",
-      color: "rgba(239,68,68,0.72)"
+      color: "rgba(213,94,0,0.72)"
     }),
     medium: Object.freeze({
       key: "medium",
       label: "Media",
       range: "30-69%",
-      color: "rgba(250,204,21,0.78)"
+      color: "rgba(240,228,66,0.8)"
     }),
     high: Object.freeze({
       key: "high",
       label: "Alta",
       range: "70%+",
-      color: "rgba(34,197,94,0.8)"
+      color: "rgba(0,158,115,0.8)"
     })
   });
   const VISIBILITY_CATEGORY_KEYS = Object.freeze(["high", "medium", "low"]);

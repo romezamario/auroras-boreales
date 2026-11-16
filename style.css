@@ -199,6 +199,46 @@ button:focus-visible {
   display: none;
 }
 
+/* Texto solo para lectores de pantalla. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+#globe:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.6);
+  outline-offset: 2px;
+}
+
+.legend-range:focus-visible {
+  outline: none;
+}
+
+.legend-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.5);
+}
+
+.legend-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.5);
+}
+
+.probability-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  flex: none;
+}
+
 /* Aviso de datos no disponibles (NOAA, mapa base, nubes) sobre el globo. */
 .data-alert {
   position: absolute;

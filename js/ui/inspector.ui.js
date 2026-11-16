@@ -47,7 +47,15 @@
         visibilityEl.textContent = fmtProbability(selection?.probability);
 
         if (hintEl) {
-          hintEl.textContent = "Datos actualizados para el punto seleccionado.";
+          // Resumen en una frase: lo anuncian los lectores de pantalla (aria-live).
+          const parts = [
+            `Punto ${fmtCoord(selection?.lat)}, ${fmtCoord(selection?.lon)}`,
+            `intensidad ${fmtIntensity(selection?.intensity)}`,
+            `nubosidad ${fmtClouds(selection?.clouds)}`,
+            fmtDayNight(selection?.isDay).toLowerCase(),
+            `probabilidad ${fmtProbability(selection?.probability)}`
+          ];
+          hintEl.textContent = `${parts.join(", ")}.`;
         }
       });
     }
