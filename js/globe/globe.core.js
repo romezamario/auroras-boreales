@@ -62,6 +62,12 @@
           resize: () => {
             const { w, h } = getCanvasCssSize(canvas);
             const dpr = clampDpr();
+
+            // En iOS el navegador dispara "resize" cada vez que la barra de direcciones
+            // aparece o se oculta al hacer scroll. Si el tamaño real no cambió, no
+            // reiniciamos el canvas: hacerlo borra el bitmap y obliga a un redibujado
+            // completo (cientos de ms en un teléfono) que congela el scroll.
+            if (w === globe.width && h === globe.height && dpr === globe.dpr) return;
   
             globe.width = w;
             globe.height = h;

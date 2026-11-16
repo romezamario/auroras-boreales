@@ -8,10 +8,11 @@
   <!-- Hoja de estilos principal de la app -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Libs externas: D3 + TopoJSON + helper de rotación -->
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://unpkg.com/topojson-client@3"></script>
-  <script src="versor.js"></script>
+  <!-- Libs externas: D3 + TopoJSON + helper de rotación.
+       Versiones fijas, un solo CDN y `defer` para no bloquear el primer pintado en móvil. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script defer src="versor.js"></script>
 </head>
 
 <body>
@@ -198,6 +199,7 @@
       <main class="visual">
         <div class="canvas-card">
           <canvas id="globe"></canvas>
+          <p class="globe-loading" id="globe-loading" role="status">Cargando globo…</p>
         </div>
       </main>
 
@@ -284,47 +286,47 @@
   </div>
 
   <!-- App core: config, utilidades, estado y eventos -->
-  <script src="js/config.js"></script>
-  <script src="js/data/geo.utils.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/events.js"></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/data/geo.utils.js"></script>
+  <script defer src="js/utils.js"></script>
+  <script defer src="js/state.js"></script>
+  <script defer src="js/events.js"></script>
 
   <!-- Services de datos remotos/locales -->
-  <script src="js/data/world.service.js"></script>
-  <script src="js/data/ovation.service.js"></script>
-  <script src="js/data/clouds.service.js"></script>
-  <script src="js/data/location.service.js"></script>
-  <script src="js/data/probability.service.js"></script>
-  <script src="js/data/refresh.service.js"></script>
+  <script defer src="js/data/world.service.js"></script>
+  <script defer src="js/data/ovation.service.js"></script>
+  <script defer src="js/data/clouds.service.js"></script>
+  <script defer src="js/data/location.service.js"></script>
+  <script defer src="js/data/probability.service.js"></script>
+  <script defer src="js/data/refresh.service.js"></script>
 
   <!-- UI: widgets y controles -->
-  <script src="js/ui/version.ui.js"></script>
-  <script src="js/ui/refresh.ui.js"></script>
-  <script src="js/ui/range-pair.controller.js"></script>
-  <script src="js/ui/threshold.ui.js"></script>
-  <script src="js/ui/clouds.ui.js"></script>
-  <script src="js/ui/probability.ui.js"></script>
-  <script src="js/ui/layers.ui.js"></script>
-  <script src="js/ui/inspector.ui.js"></script>
-  <script src="js/ui/location.ui.js"></script>
+  <script defer src="js/ui/version.ui.js"></script>
+  <script defer src="js/ui/refresh.ui.js"></script>
+  <script defer src="js/ui/range-pair.controller.js"></script>
+  <script defer src="js/ui/threshold.ui.js"></script>
+  <script defer src="js/ui/clouds.ui.js"></script>
+  <script defer src="js/ui/probability.ui.js"></script>
+  <script defer src="js/ui/layers.ui.js"></script>
+  <script defer src="js/ui/inspector.ui.js"></script>
+  <script defer src="js/ui/location.ui.js"></script>
 
   <!-- Overlays del globo (nubes, probabilidad, noche, auroras) -->
-  <script src="js/overlays/clouds.utils.js"></script>
-  <script src="js/overlays/clouds.overlay.js"></script>
-  <script src="js/overlays/probability.overlay.js"></script>
-  <script src="js/overlays/day-night.overlay.js"></script>
-  <script src="js/overlays/aurora.overlay.js"></script>
+  <script defer src="js/overlays/clouds.utils.js"></script>
+  <script defer src="js/overlays/clouds.overlay.js"></script>
+  <script defer src="js/overlays/probability.overlay.js"></script>
+  <script defer src="js/overlays/day-night.overlay.js"></script>
+  <script defer src="js/overlays/aurora.overlay.js"></script>
 
   <!-- Globe: core, interacción y render -->
-  <script src="js/globe/globe.core.js"></script>
-  <script src="js/globe/globe.drag.js"></script>
-  <script src="js/globe/globe.pick.js"></script>
-  <script src="js/globe/globe.markers.js"></script>
-  <script src="js/globe/globe.render.js"></script>
+  <script defer src="js/globe/globe.core.js"></script>
+  <script defer src="js/globe/globe.drag.js"></script>
+  <script defer src="js/globe/globe.pick.js"></script>
+  <script defer src="js/globe/globe.markers.js"></script>
+  <script defer src="js/globe/globe.render.js"></script>
 
   <!-- Bootstrap general de la app -->
-  <script src="js/app.js"></script>
+  <script defer src="js/app.js"></script>
 
 </body>
 </html>

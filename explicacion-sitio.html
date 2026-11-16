@@ -74,7 +74,7 @@
         </div>
         <div class="hero-badges">
           <span>NOAA OVATION</span>
-          <span>NASA / MODIS</span>
+          <span>Open-Meteo</span>
           <span>Canvas + D3</span>
           <span>Frontend estático</span>
         </div>
@@ -143,7 +143,7 @@
           </article>
           <article class="timeline-step">
             <h3>Nubosidad global</h3>
-            <p>La capa de nubes se deriva de MODIS/Earthdata y se publica como <code>data/clouds.json</code>, un artefacto ya normalizado para consumo directo desde el frontend.</p>
+            <p>La capa de nubes se obtiene de la nubosidad actual de Open-Meteo y se publica como <code>data/clouds.json</code>, un artefacto ya normalizado para consumo directo desde el frontend.</p>
             <p class="mini-note">Aporte a la interpretación: incorpora una restricción atmosférica clave, porque una aurora intensa puede seguir siendo difícil de observar bajo cielos muy cubiertos.</p>
           </article>
           <article class="timeline-step">
@@ -176,7 +176,7 @@ flowchart LR
     DATA --> NOAA[NOAA OVATION]
     DATA --> CLOUDS[data/clouds.json]
     DATA --> IP[ipapi JSONP]
-    JOB[scripts/mod08_cloudfraction.py] --> MODIS[NASA LAADS / MODIS]
+    JOB[scripts/openmeteo_cloudcover.py] --> OM[Open-Meteo cloud_cover]
     JOB --> CLOUDS
     GLOBE --> CANVAS[Canvas interactivo]
     UI --> CANVAS
@@ -195,7 +195,7 @@ flowchart LR
           </article>
           <article class="info-panel">
             <h3>Pipeline offline</h3>
-            <p><code>scripts/mod08_cloudfraction.py</code> transforma productos MODIS/LAADS en una cuadrícula homogénea y versionable. Esto desacopla la adquisición del dataset de la experiencia interactiva y evita cargar en el navegador tareas pesadas de preparación.</p>
+            <p><code>scripts/openmeteo_cloudcover.py</code> consulta Open-Meteo en una rejilla de 5° y la interpola a una cuadrícula homogénea y versionable. Esto desacopla la adquisición del dataset de la experiencia interactiva y evita cargar en el navegador tareas pesadas de preparación.</p>
             <h3>Ventaja de diseño</h3>
             <p>El contrato intermedio <code>clouds.json</code> hace posible publicar el proyecto como sitio estático simple, portable y económico, manteniendo además claridad entre ingestión, transformación y visualización final.</p>
           </article>
@@ -280,7 +280,7 @@ flowchart TD
     K -- No --> Z7[La coordenada no entra en la grilla derivada]
     K -- Sí --> L{¿La ubicación está de noche y en la cara visible?}
     L -- No --> Z8[No se dibuja la probabilidad]
-    L -- Sí --> M[Tomar intensidad OVATION cercana + nubosidad MODIS]
+    L -- Sí --> M[Tomar intensidad OVATION cercana + nubosidad Open-Meteo]
     M --> N{Clasificación canónica}
     N -- Intensidad >= 70 y nubes <= 30% --> O[Alta / high / rojo]
     N -- Intensidad 30 a 60 y nubes <= 30% --> P[Media / medium / amarillo]
@@ -342,7 +342,7 @@ flowchart TD
             <ul>
               <li>No hay cuentas ni autenticación, por lo que la superficie de ataque es reducida.</li>
               <li>La geolocalización es aproximada y basada en IP; no se requiere ubicación precisa del navegador.</li>
-              <li>El token de Earthdata debe permanecer fuera del frontend y limitarse al pipeline offline.</li>
+              <li>La capa de nubes no usa tokens ni secretos: Open-Meteo es público y sin clave.</li>
             </ul>
           </article>
           <article class="info-panel">

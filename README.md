@@ -1,6 +1,6 @@
 # auroras-boreales
 
-Aplicación web estática para visualizar actividad auroral sobre un globo 3D, combinando el feed OVATION de NOAA con una capa de nubosidad procesada desde datos MODIS y una máscara dinámica de día/noche.
+Aplicación web estática para visualizar actividad auroral sobre un globo 3D, combinando el feed OVATION de NOAA con una capa de nubosidad generada desde Open-Meteo y una máscara dinámica de día/noche.
 
 ## Tabla de contenido
 - [Arquitectura](#arquitectura)
@@ -34,7 +34,7 @@ La solución sigue una arquitectura **frontend estática modular**. No hay backe
 - **Servicios de datos:** `js/data/*.js` encapsula consumo de NOAA, archivos locales, geolocalización por IP, refresco coordinado y derivaciones reutilizables de probabilidad geoespacial.
 - **Renderizado geoespacial:** `js/globe/*.js` y `js/overlays/*.js` pintan continentes, auroras, nubes, probabilidad derivada y día/noche sobre un canvas 2D con D3.
 - **Interacción/UI:** `js/ui/*.js` sincroniza sliders, toggles, paneles de inspección, el control de categorías de probabilidad y metadatos de versión.
-- **Preproceso offline:** `scripts/mod08_cloudfraction.py` descarga y transforma datos NASA/LAADS para producir `data/clouds.json`.
+- **Preproceso offline:** `scripts/openmeteo_cloudcover.py` consulta la nubosidad actual de Open-Meteo en una rejilla de 5° y la interpola a 360x180 para producir `data/clouds.json`.
 
 ### Diagrama de arquitectura
 
@@ -51,7 +51,7 @@ flowchart LR
     D --> NOAA[NOAA OVATION JSON]
     D --> GEO[Servicios IP geolocation]
     D --> CLOUDJSON[data/clouds.json]
-    CLOUDJOB[scripts/mod08_cloudfraction.py] --> NASA[LAADS / Earthdata MODIS]
+    CLOUDJOB[scripts/openmeteo_cloudcover.py] --> OM[Open-Meteo cloud_cover]
     CLOUDJOB --> CLOUDJSON
 
     G --> CANVAS[canvas #globe]
@@ -109,7 +109,7 @@ sequenceDiagram
 │   ├── overlays/
 │   └── ui/
 ├── scripts/
-│   └── mod08_cloudfraction.py
+│   └── openmeteo_cloudcover.py
 └── versor.js
 ```
 
@@ -123,7 +123,7 @@ sequenceDiagram
 - `js/data/location.service.js`: consulta la geolocalización por IP mediante JSONP y normaliza la respuesta al estado de la app.
 - `js/overlays/*.js`: renderizado de auroras, nubes, probabilidad derivada y sombra nocturna.
 - `js/ui/*.js`: manipulación de DOM y sincronización con estado/eventos, incluyendo toggles de capas, sliders y filtros de probabilidad.
-- `scripts/mod08_cloudfraction.py`: pipeline offline para generar la malla global de nubosidad.
+- `scripts/openmeteo_cloudcover.py`: pipeline offline para generar la malla global de nubosidad.
 
 ## Modelo de datos
 
@@ -153,11 +153,13 @@ sequenceDiagram
 
 ```json
 {
-  "source": "LAADS DAAC (MODIS Terra)",
-  "product": "MOD08_D3",
-  "collection": "61",
+  "source": "Open-Meteo",
+  "product": "cloud_cover (current)",
   "date": "YYYY-MM-DD",
-  "sds": "Cloud_Fraction_Mean",
+  "observed_at": "YYYY-MM-DDTHH:MMZ",
+  "retrieved_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "sds": "cloud_cover",
+  "source_grid_step_deg": 5,
   "coverage_percent_global": 12.34,
   "grid": {
     "w": 360,
@@ -218,7 +220,7 @@ erDiagram
 - La nube visible se restringe al rango seleccionado por el usuario en porcentaje normalizado.
 - La geolocalización por IP es oportunista: si falla, la aplicación sigue operando.
 - El bootstrap inicial ejecuta en paralelo la carga del atlas base, el primer `refreshAll()` y la localización por IP; solo la disponibilidad de assets base bloquea el primer `requestRender()`.
-- La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica por intersección de datos: toma la intensidad OVATION más cercana, la nubosidad MODIS de la celda correspondiente y aplica una matriz discreta canónica `high`/`medium`/`low` (`Alta`/`Media`/`Baja`).
+- La probabilidad de visibilidad del punto inspeccionado y del overlay derivado se clasifica por intersección de datos: toma la intensidad OVATION más cercana, la nubosidad de la celda correspondiente y aplica una matriz discreta canónica `high`/`medium`/`low` (`Alta`/`Media`/`Baja`).
 - La matriz de negocio actual clasifica `Alta` cuando la intensidad es `>= 70` y la nubosidad `<= 30%`; `Media` cuando la intensidad está entre `30` y `60` con nubosidad `<= 30%`; y `Baja` en cualquier otro caso.
 - Cada categoría de probabilidad comparte la misma estructura `{ key, label, range, color }` para picking, inspector, overlay, filtros y cachés de puntos.
 - Antes de clasificar `Alta`/`Media`/`Baja`, la grilla derivada descarta cualquier coordenada cuya intensidad no alcance el umbral de relevancia auroral (`App.config.probability.minRelevantIntensity`, con fallback a `App.state.thresholdMin`).
@@ -254,7 +256,7 @@ erDiagram
 - **Metadata de versión embebida:** `js/config.js` publica la etiqueta/fecha visible y puede inyectarse durante build o despliegue; el refresco remoto hacia GitHub queda deshabilitado por defecto y es opcional.
 - **ipapi (`/jsonp/`):** proveedor principal de estimación geográfica por IP consumido desde el navegador mediante JSONP.
 - **GeoJS (`/v1/ip/geo.json`):** fallback por CORS para mantener la geolocalización disponible si el proveedor principal falla o degrada.
-- **NASA LAADS / Earthdata:** origen del dataset MODIS procesado offline.
+- **Open-Meteo (`api.open-meteo.com/v1/forecast`):** nubosidad actual (`cloud_cover`) consultada offline cada 8 horas; gratuita para uso no comercial y sin clave. Atribución requerida: "Weather data by Open-Meteo.com" (CC BY 4.0).
 
 ### Diagrama de integraciones
 
@@ -265,7 +267,7 @@ flowchart TD
     APP --> ATLAS[cdn.jsdelivr.net / world-atlas]
     APP --> IP1[ipapi.co/jsonp/]
     APP --> IP2[get.geojs.io/v1/ip/geo.json]
-    JOB[Pipeline mod08_cloudfraction.py] --> LAADS[ladsweb.modaps.eosdis.nasa.gov]
+    JOB[Pipeline openmeteo_cloudcover.py] --> OM[api.open-meteo.com]
     JOB --> CLOUDS[data/clouds.json]
     CLOUDS --> APP
 ```
@@ -273,7 +275,7 @@ flowchart TD
 ## Infraestructura
 - **Hosting objetivo:** sitio estático, compatible con GitHub Pages o cualquier servidor HTTP simple.
 - **Dependencias runtime del navegador:** D3 v7, TopoJSON Client y `versor.js` cargados por script tag.
-- **Dependencias del pipeline offline:** Python, `requests`, `numpy`, `pyhdf` y un token `EARTHDATA_TOKEN`.
+- **Dependencias del pipeline offline:** Python, `requests` y `numpy`. No requiere tokens ni secretos.
 - **Persistencia:** archivos versionados en Git (`data/clouds.json` y, si se conservan localmente, históricos bajo `data/history/`).
 - **Red de entrega:** endpoints públicos HTTPS y contenido estático servido por CDN o repositorio.
 - **Empaquetado de Pages:** el workflow de despliegue publica un bundle curado que excluye artefactos recolectados bajo `data/history/`.
@@ -281,7 +283,6 @@ flowchart TD
 ## Seguridad
 - No existe autenticación ni manejo de cuentas de usuario en la aplicación web actual.
 - La localización es aproximada y basada en IP, sin captura obligatoria de geolocalización precisa del navegador.
-- El token de Earthdata solo debe utilizarse en el pipeline offline y nunca exponerse al frontend.
 - La app depende de orígenes externos; conviene endurecer la política de contenido (`CSP`) si se despliega en producción propia.
 - El proyecto debe revisar periódicamente que URLs externas, esquemas JSON y dependencias CDN no cambien de forma incompatible.
 
@@ -295,7 +296,7 @@ Luego abrir `http://localhost:8000`.
 
 ### Actualización de nubosidad
 ```bash
-EARTHDATA_TOKEN=*** python scripts/mod08_cloudfraction.py
+python scripts/openmeteo_cloudcover.py
 ```
 
 ### Operación diaria recomendada
@@ -309,7 +310,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 - Servir el sitio localmente y revisar que el canvas renderiza sin errores en consola.
 - Confirmar que el refresco actualiza auroras aunque falle la fuente de nubes.
 - Probar cambios de umbrales y toggles en desktop y móvil.
-- Verificar que `scripts/mod08_cloudfraction.py` produce un `clouds.json` válido.
+- Verificar que `scripts/openmeteo_cloudcover.py` produce un `clouds.json` válido.
 - Revisar manualmente que `tratamiento-datos.html`, `README.md` y `AGENTS.md` sigan alineados.
 
 ## Rendimiento
@@ -353,7 +354,7 @@ Actualmente el repositorio no define una suite automatizada formal. Aun así, `A
 
 ## Operación de workflows
 - Los workflows `Collect OVATION Snapshots` y `Build OVATION Global Merge` se retiraron el **23 de marzo de 2026** porque la aplicación ya consume OVATION directamente desde NOAA en tiempo real y no requiere recolectar snapshots ni consolidarlos.
-- El único artefacto recolectado que permanece operativo para el frontend es `data/clouds.json`, generado por el workflow de MODIS.
+- El único artefacto recolectado que permanece operativo para el frontend es `data/clouds.json`, generado por el workflow `Update cloud cover (Open-Meteo)` (cada 8 horas). Sustituyó en noviembre de 2026 al workflow de MODIS/LAADS, que dependía de un token de Earthdata con caducidad de 60 días.
 - El despliegue de GitHub Pages empaqueta una carpeta `dist/` y excluye `data/history/` para evitar publicar históricos o derivados de recolección.
 
 ## Gestión de cambio

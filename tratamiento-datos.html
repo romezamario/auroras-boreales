@@ -33,7 +33,7 @@
             <strong>Datos de auroras boreales (OVATION):</strong> se utiliza la capa de probabilidad auroral para representar en el mapa las zonas con mayor intensidad/probabilidad de observación de auroras en tiempo casi real. Dirección configurada: <a href="https://services.swpc.noaa.gov/json/ovation_aurora_latest.json" target="_blank" rel="noopener noreferrer">https://services.swpc.noaa.gov/json/ovation_aurora_latest.json</a>.
           </li>
           <li>
-            <strong>Consulta de nubosidad (Earthdata):</strong> la capa de nubosidad que consume la app se publica en <code>data/clouds.json</code>, archivo generado a partir de consultas de Earthdata/NASA para superponer el estado de nubosidad y facilitar la interpretación de visibilidad potencial del fenómeno.
+            <strong>Consulta de nubosidad (Open-Meteo):</strong> la capa de nubosidad que consume la app se publica en <code>data/clouds.json</code>. Un workflow la regenera cada 8 horas consultando la nubosidad actual (<code>cloud_cover</code>) de <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> en una rejilla global de 5° que se interpola a 1°. Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo.com</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>).
           </li>
         </ul>
 

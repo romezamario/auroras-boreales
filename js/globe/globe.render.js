@@ -26,6 +26,13 @@
   
         // Limpia el canvas para el nuevo frame.
         ctx.clearRect(0, 0, w, h);
+
+        // Oculta el aviso "Cargando globo…" en cuanto hay mapa base que pintar.
+        if (!this._loadingHidden) {
+          const loadingEl = document.getElementById("globe-loading");
+          if (loadingEl) loadingEl.hidden = true;
+          this._loadingHidden = true;
+        }
   
         // Sphere
         ctx.beginPath();

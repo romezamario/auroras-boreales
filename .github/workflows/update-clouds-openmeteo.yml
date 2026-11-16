@@ -1,0 +1,56 @@
+name: Update cloud cover (Open-Meteo)
+
+# Genera data/clouds.json con la nubosidad actual de Open-Meteo (sin token).
+# Cada 8 horas: 3 corridas x 2,592 puntos = 7,776 llamadas/día, dentro del
+# límite gratuito de 10,000/día. El commit resultante también mantiene activo
+# el repo, así GitHub no desactiva el cron por inactividad.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */8 * * *"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/openmeteo_cloudcover.py"
+      - ".github/workflows/update-clouds-openmeteo.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: clouds-update
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install requests numpy
+
+      - name: Generate data/clouds.json from Open-Meteo
+        run: python scripts/openmeteo_cloudcover.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/clouds.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+            exit 0
+          fi
+          git commit -m "Update cloud cover (Open-Meteo)"
+          git pull --rebase origin main
+          git push origin HEAD:main

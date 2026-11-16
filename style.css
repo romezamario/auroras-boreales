@@ -180,6 +180,23 @@ button:focus-visible {
   min-height: 640px;
   display: flex;
   align-items: stretch;
+  position: relative;
+}
+
+.globe-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.globe-loading[hidden] {
+  display: none;
 }
 
 .card-header h2 {
@@ -429,6 +446,11 @@ button:focus-visible {
 
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  /* En una sola columna el globo va primero: antes quedaba debajo de todos los controles. */
+  .visual {
+    order: -1;
   }
 
   .status-panel {
