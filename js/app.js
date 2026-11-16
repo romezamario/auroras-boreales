@@ -27,11 +27,28 @@
     App.on("action:refresh", () => App.refreshService?.refreshAll());
   }
 
-  async function loadStaticAssets() {
-    const [land, countryBorders] = await Promise.all([
+  async function fetchWorld() {
+    return Promise.all([
       App.worldService.loadLand(),
       App.worldService.loadCountryBorders()
     ]);
+  }
+
+  // Sin mapa base no hay globo: se avisa en pantalla y se reintenta cada 30 s.
+  async function loadStaticAssets() {
+    let land;
+    let countryBorders;
+    for (;;) {
+      try {
+        [land, countryBorders] = await fetchWorld();
+        App.refreshUI?.setAlert("world", null);
+        break;
+      } catch (error) {
+        console.error("[app] world atlas error:", error);
+        App.refreshUI?.setAlert("world", "No se pudo cargar el mapa base del globo. Revisa tu conexión; se reintentará en 30 s.");
+        await new Promise((resolve) => window.setTimeout(resolve, 30000));
+      }
+    }
 
     App.assets.land = land;
     App.assets.countryBorders = countryBorders;
@@ -42,6 +59,7 @@
 
   async function refreshInitialData() {
     await App.refreshService?.refreshAll();
+    App.refreshService?.startAutoRefresh?.();
   }
 
   async function startBackgroundLocationLookup() {

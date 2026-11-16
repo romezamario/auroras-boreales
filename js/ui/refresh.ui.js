@@ -17,9 +17,12 @@
   
     // UI del botón de refresco y etiqueta de última actualización.
     App.refreshUI = {
+      alerts: new Map(),
+
       init() {
         this.btn = document.getElementById("refresh-btn");
         this.last = document.getElementById("last-update");
+        this.alertEl = document.getElementById("data-alert");
   
         if (this.btn) {
           this.btn.addEventListener("click", () => App.emit("action:refresh"));
@@ -35,7 +38,18 @@
       setLoading(isLoading) {
         if (!this.btn) return;
         this.btn.disabled = isLoading;
-        this.btn.textContent = isLoading ? "⏳ Cargando..." : "🔄 Refrescar datos";
+        this.btn.innerHTML = isLoading
+          ? '<span aria-hidden="true">⏳</span> Cargando...'
+          : '<span aria-hidden="true">🔄</span> Refrescar datos';
+      },
+
+      // Muestra (o quita, con message = null) un aviso visible sobre el globo.
+      setAlert(key, message) {
+        if (message) this.alerts.set(key, message);
+        else this.alerts.delete(key);
+        if (!this.alertEl) return;
+        this.alertEl.textContent = [...this.alerts.values()].join(" ");
+        this.alertEl.hidden = this.alerts.size === 0;
       },
   
       // Construye el texto de estado con forecast y nubes.
@@ -43,7 +57,8 @@
         if (!this.last) return;
         const st = App.state;
         const local = st.aurora.lastLocalUpdate ? st.aurora.lastLocalUpdate : "—";
-        const forecast = st.aurora.forecastTime ? ` | Forecast NOAA: ${st.aurora.forecastTime}` : "";
+        const forecastTime = fmtDateTime(st.aurora.forecastTime);
+        const forecast = forecastTime ? ` | Pronóstico NOAA: ${forecastTime}` : "";
         const cloudsDate = st.clouds.lastDate ? ` ${st.clouds.lastDate}` : "";
         const cloudsCoverage = ` (${st.clouds.coverage ?? 0}%)`;
         const cloudsExtractedAt = fmtDateTime(st.clouds.extractedAt);

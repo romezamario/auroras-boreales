@@ -199,6 +199,28 @@ button:focus-visible {
   display: none;
 }
 
+/* Aviso de datos no disponibles (NOAA, mapa base, nubes) sobre el globo. */
+.data-alert {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  right: 24px;
+  z-index: 2;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.data-alert[hidden] {
+  display: none;
+}
+
 .card-header h2 {
   margin: 0 0 4px 0;
   font-size: 1rem;

@@ -60,7 +60,7 @@
         <p class="subtitle">Filtra intensidad y nubosidad para enfocar zonas con mayor visibilidad.</p>
       </div>
       <div class="header-meta">
-        <button id="refresh-btn">🔄 Refrescar datos</button>
+        <button id="refresh-btn"><span aria-hidden="true">🔄</span> Refrescar datos</button>
         <div class="header-links">
           <a class="data-processing-link" href="tratamiento-datos.html">Tratamiento de datos</a>
           <a class="data-processing-link" href="explicacion-sitio.html">Explicación del sitio</a>
@@ -235,6 +235,7 @@
         <div class="canvas-card">
           <canvas id="globe"></canvas>
           <p class="globe-loading" id="globe-loading" role="status">Cargando globo…</p>
+          <p class="data-alert" id="data-alert" role="alert" hidden></p>
         </div>
       </main>
 

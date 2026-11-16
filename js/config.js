@@ -63,7 +63,11 @@
       },
       // Flags para activar/desactivar la capa de auroras.
       aurora: {
-        enabled: true
+        enabled: true,
+        // Recarga automática del pronóstico OVATION (NOAA lo publica cada ~5 min).
+        autoRefreshMs: 300000,
+        // Esperas entre reintentos si NOAA falla.
+        retryDelaysMs: [30000, 60000, 120000, 300000]
       },
       // Configuración específica para la capa de probabilidad de visibilidad.
       probability: {
