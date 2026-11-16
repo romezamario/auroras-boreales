@@ -8,6 +8,41 @@
   <!-- Hoja de estilos principal de la app -->
   <link rel="stylesheet" href="style.css">
 
+  <!-- Aviso visible de errores de JavaScript: en el teléfono no hay consola, así que
+       cualquier fallo se muestra en una franja roja para poder capturarlo. -->
+  <script>
+    (function () {
+      var shown = 0;
+      function show(msg) {
+        if (shown >= 3) return;
+        shown += 1;
+        var add = function () {
+          var box = document.getElementById("js-error-banner");
+          if (!box) {
+            box = document.createElement("div");
+            box.id = "js-error-banner";
+            box.setAttribute("role", "alert");
+            box.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;padding:10px 12px;border-radius:10px;background:#b91c1c;color:#fff;font:12px/1.4 -apple-system,system-ui,sans-serif;white-space:pre-wrap;word-break:break-word;";
+            document.body.appendChild(box);
+          }
+          box.textContent += (box.textContent ? "\n" : "Error en la página:\n") + msg;
+        };
+        if (document.body) add(); else document.addEventListener("DOMContentLoaded", add);
+      }
+      window.addEventListener("error", function (e) {
+        if (e.target && e.target !== window && (e.target.src || e.target.href)) {
+          show("No cargó " + (e.target.src || e.target.href));
+          return;
+        }
+        show((e.message || "Error") + (e.filename ? " (" + e.filename.split("/").pop() + ":" + e.lineno + ")" : ""));
+      }, true);
+      window.addEventListener("unhandledrejection", function (e) {
+        show("Promesa rechazada: " + (e.reason && (e.reason.message || e.reason)));
+      });
+      window.__showAppError = show;
+    })();
+  </script>
+
   <!-- Libs externas: D3 + TopoJSON + helper de rotación.
        Versiones fijas, un solo CDN y `defer` para no bloquear el primer pintado en móvil. -->
   <script defer src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>

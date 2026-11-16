@@ -89,6 +89,9 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     // Garantiza que el DOM exista antes de inicializar módulos.
-    init().catch((error) => console.error("[app] init failed:", error));
+    init().catch((error) => {
+      console.error("[app] init failed:", error);
+      window.__showAppError?.(`Arranque falló: ${error?.message ?? error}`);
+    });
   });
 })();
