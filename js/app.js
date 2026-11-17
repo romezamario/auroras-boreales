@@ -16,7 +16,7 @@
     // Después de probabilityService para que el índice auroral ya esté reconstruido.
     App.kpForecastUI?.init();
     App.alertsUI?.init();
-    App.mobileLayoutUI?.init();
+    App.mapLayoutUI?.init();
   }
 
   function initGlobe() {

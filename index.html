@@ -85,13 +85,20 @@
       <button type="button" id="aurora-alert-close" class="aurora-alert-close" aria-label="Cerrar aviso">✕</button>
     </div>
 
-    <!-- Móvil: panel inferior con pestañas; mobile-layout.ui.js mueve aquí las tarjetas de filtros. -->
-    <div class="mobile-sheet" id="mobile-sheet" hidden>
-      <div class="mobile-sheet-panel" id="mobile-sheet-panel" role="tabpanel" hidden></div>
-      <div class="mobile-sheet-tabs" role="tablist" aria-label="Filtros del globo">
-        <button type="button" role="tab" class="mobile-sheet-tab" data-sheet-tab="intensity" aria-selected="false" aria-controls="mobile-sheet-panel">Intensidad</button>
-        <button type="button" role="tab" class="mobile-sheet-tab" data-sheet-tab="clouds" aria-selected="false" aria-controls="mobile-sheet-panel">Nubosidad</button>
-        <button type="button" role="tab" class="mobile-sheet-tab" data-sheet-tab="probability" aria-selected="false" aria-controls="mobile-sheet-panel">Probabilidad</button>
+    <!-- Panel inferior con pestañas (estilo mapa). map-layout.ui.js mueve aquí las tarjetas. -->
+    <div class="map-sheet" id="map-sheet">
+      <div class="sheet-panel" id="sheet-panel" role="tabpanel" hidden>
+        <button type="button" class="sheet-close" id="sheet-close" aria-label="Cerrar panel">✕</button>
+      </div>
+      <div class="sheet-tabs" role="tablist" aria-label="Funciones del mapa">
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="intensity" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">🌈</span><span class="sheet-tab-label">Intensidad</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="clouds" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">☁️</span><span class="sheet-tab-label">Nubes</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="probability" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">🎯</span><span class="sheet-tab-label">Probabilidad</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="point" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">📌</span><span class="sheet-tab-label">Punto</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="location" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">📍</span><span class="sheet-tab-label">Ubicación</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="kp" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">📈</span><span class="sheet-tab-label">Pronóstico</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="alerts" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">🔔</span><span class="sheet-tab-label">Alertas</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="data" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">ℹ️</span><span class="sheet-tab-label">Datos</span></button>
       </div>
     </div>
 
@@ -264,7 +271,10 @@
           <p id="globe-help" class="visually-hidden">Con el teclado: flechas para girar el globo, más y menos para acercar o alejar, Enter para consultar el punto del centro e Inicio para volver a la vista inicial. Con ratón o dedo: arrastra para girar y haz clic o toca para consultar un punto.</p>
           <p class="globe-loading" id="globe-loading" role="status">Cargando globo…</p>
           <p class="data-alert" id="data-alert" role="alert" hidden></p>
-          <!-- Móvil: capas como botones flotantes sobre el globo (reflejan los toggles de "Capas visibles"). -->
+          <!-- Espacio para controles flotantes sobre el globo, encima del panel inferior
+               (p. ej. el reproductor de la última hora). -->
+          <div class="map-dock" id="map-dock"></div>
+          <!-- Capas como botones flotantes sobre el globo (reflejan los toggles de "Capas visibles"). -->
           <div class="globe-fab" role="group" aria-label="Capas del globo">
             <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-aurora" aria-label="Auroras" title="Auroras"><span aria-hidden="true">✨</span></button>
             <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-probability" aria-label="Probabilidad" title="Probabilidad"><span aria-hidden="true">🎯</span></button>
@@ -422,7 +432,7 @@
   <script defer src="js/ui/theme.ui.js"></script>
   <script defer src="js/ui/kp-forecast.ui.js"></script>
   <script defer src="js/ui/alerts.ui.js"></script>
-  <script defer src="js/ui/mobile-layout.ui.js"></script>
+  <script defer src="js/ui/map-layout.ui.js"></script>
 
   <!-- Overlays del globo (nubes, probabilidad, noche, auroras) -->
   <script defer src="js/overlays/space.overlay.js"></script>

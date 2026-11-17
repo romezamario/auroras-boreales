@@ -1330,151 +1330,374 @@ button:focus-visible {
   background: linear-gradient(180deg, #13213a 0%, #111a2e 100%);
 }
 
-/* ================= MÓVIL: GLOBO FIJO, CAPAS FLOTANTES Y PANEL INFERIOR ================= */
-/* Fuera del diseño móvil estos elementos no existen. */
-.globe-fab {
+/* ================= DISEÑO TIPO MAPA (PANTALLA COMPLETA) ================= */
+/* map-layout.ui.js añade .map-layout a <html> y mueve las tarjetas al panel inferior.
+   Sin JS (o antes de que cargue) la página conserva el diseño en columnas. */
+.globe-fab,
+.map-sheet,
+.map-dock {
   display: none;
 }
 
-.mobile-sheet[hidden],
-.mobile-sheet-panel[hidden] {
+:root.map-layout {
+  --map-gap: 12px;
+  --glass-bg: rgba(255, 255, 255, 0.86);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --glass-text: #0f172a;
+  --sheet-h: 64px;
+}
+
+:root.map-layout[data-theme="dark"] {
+  --glass-bg: rgba(13, 20, 38, 0.84);
+  --glass-border: rgba(148, 163, 184, 0.18);
+  --glass-text: #e2e8f0;
+}
+
+:root.map-layout,
+:root.map-layout body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+:root.map-layout body {
+  padding: 0;
+  max-width: none;
+  background: #02040a;
+}
+
+/* Las columnas originales quedan vacías: solo se usan como origen de las tarjetas. */
+:root.map-layout .controls,
+:root.map-layout .status-panel {
+  display: none;
+}
+
+:root.map-layout .layout {
+  display: block;
+}
+
+/* Globo a pantalla completa. */
+:root.map-layout .visual {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+:root.map-layout .canvas-card {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #02040a;
+}
+
+:root.map-layout #globe {
+  border: 0;
+  border-radius: 0;
+}
+
+/* Barra superior flotante. */
+:root.map-layout .app-header {
+  position: fixed;
+  top: calc(var(--map-gap) + env(safe-area-inset-top, 0px));
+  left: var(--map-gap);
+  right: var(--map-gap);
+  z-index: 20;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+:root.map-layout .title-block {
+  min-width: 0;
+}
+
+:root.map-layout .eyebrow,
+:root.map-layout .subtitle {
+  display: none;
+}
+
+:root.map-layout .app-header h1 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--glass-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:root.map-layout .header-meta {
+  min-width: 0;
+  margin-left: auto;
+  flex-direction: row;
+  align-items: center;
+}
+
+:root.map-layout .header-actions {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: auto;
+  gap: 6px;
+}
+
+/* Botones de la barra: solo el icono (el texto queda para lectores de pantalla). */
+:root.map-layout .header-actions button,
+:root.map-layout .header-actions button:hover {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  transform: none;
+}
+
+:root.map-layout .header-actions button span {
+  font-size: 1.15rem;
+}
+
+:root.map-layout .theme-toggle {
+  background: rgba(148, 163, 184, 0.18);
+}
+
+/* Avisos flotantes debajo de la barra superior. */
+:root.map-layout .aurora-alert-banner {
+  position: fixed;
+  top: calc(72px + env(safe-area-inset-top, 0px));
+  left: var(--map-gap);
+  right: var(--map-gap);
+  z-index: 19;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+:root.map-layout .data-alert {
+  top: calc(72px + env(safe-area-inset-top, 0px));
+  left: var(--map-gap);
+  right: var(--map-gap);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Botones de capas: columna en la esquina superior derecha. */
+:root.map-layout .globe-fab {
+  position: absolute;
+  top: calc(76px + env(safe-area-inset-top, 0px));
+  right: var(--map-gap);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+:root.map-layout .globe-fab-btn,
+:root.map-layout .globe-fab-btn:hover {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: none;
+  opacity: 0.6;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+:root.map-layout .globe-fab-btn.is-on {
+  opacity: 1;
+  background: rgba(37, 99, 235, 0.9);
+  border-color: rgba(147, 197, 253, 0.8);
+}
+
+/* Franja para controles flotantes encima del panel (reproductor, etc.). */
+:root.map-layout .map-dock {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--sheet-h) + var(--map-gap));
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 2 * var(--map-gap)));
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  pointer-events: none;
+  transition: bottom 0.2s ease;
+}
+
+:root.map-layout .map-dock > * {
+  pointer-events: auto;
+}
+
+/* Panel inferior. */
+:root.map-layout .map-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: var(--glass-bg);
+  color: var(--glass-text);
+  border-top: 1px solid var(--glass-border);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.3);
+  padding: 4px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+:root.map-layout .sheet-panel {
+  position: relative;
+  max-height: 42vh;
+  max-height: 42svh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 4px 2px;
+}
+
+:root.map-layout .sheet-close,
+:root.map-layout .sheet-close:hover {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--glass-text);
+  box-shadow: none;
+  transform: none;
+}
+
+:root.map-layout .sheet-panel [hidden] {
   display: none !important;
 }
 
-@media (max-width: 760px) {
-  /* Espacio para que el panel inferior no tape la última tarjeta. */
-  body {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+:root.map-layout .sheet-panel .card {
+  background: transparent;
+  box-shadow: none;
+  padding: 6px 40px 6px 6px;
+}
+
+:root.map-layout .sheet-panel .card-header p {
+  font-size: 0.8rem;
+}
+
+:root.map-layout .sheet-panel .header-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+:root.map-layout .sheet-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-top: 4px;
+}
+
+:root.map-layout .sheet-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+:root.map-layout .sheet-tab,
+:root.map-layout .sheet-tab:hover {
+  flex: 1 0 auto;
+  min-width: 68px;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 6px 5px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--glass-text);
+  font-size: 0.72rem;
+  font-weight: 600;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.8;
+}
+
+:root.map-layout .sheet-tab-icon {
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+:root.map-layout .sheet-tab.is-active {
+  background: rgba(37, 99, 235, 0.92);
+  color: #ffffff;
+  opacity: 1;
+}
+
+/* Escritorio: el panel es una tarjeta flotante a la izquierda, como en un mapa. */
+@media (min-width: 900px) {
+  :root.map-layout .app-header {
+    right: auto;
+    width: 440px;
   }
 
-  /* El globo se queda arriba mientras se recorre el resto de la página. */
-  .visual {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    margin: 0 -8px;
-    padding: 6px 8px;
-    background: #f4f6fb;
+  :root.map-layout .map-sheet {
+    left: var(--map-gap);
+    right: auto;
+    bottom: var(--map-gap);
+    width: 440px;
+    border-radius: 18px;
+    border: 1px solid var(--glass-border);
+    padding-bottom: 6px;
   }
 
-  .canvas-card {
-    height: 45vh;
-    height: 45svh;
-    min-height: 280px;
-    padding: 6px;
+  :root.map-layout .sheet-panel {
+    max-height: calc(100vh - 220px);
   }
 
-  /* Las capas pasan a los botones flotantes. */
-  .layers-card {
-    display: none;
+  :root.map-layout .sheet-tabs {
+    flex-wrap: wrap;
+    overflow: visible;
   }
 
-  .globe-fab {
-    position: absolute;
-    right: 14px;
-    bottom: 14px;
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  :root.map-layout .sheet-tab,
+  :root.map-layout .sheet-tab:hover {
+    flex: 1 0 22%;
+    min-width: 0;
   }
 
-  .globe-fab-btn,
-  .globe-fab-btn:hover {
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    border-radius: 50%;
-    background: rgba(15, 23, 42, 0.72);
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-    transform: none;
-    opacity: 0.55;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+  /* El panel no tapa el centro: el dock va abajo al centro del área libre. */
+  :root.map-layout .map-dock {
+    bottom: var(--map-gap);
+    left: calc(50% + 230px);
+    width: min(560px, calc(100% - 500px));
   }
 
-  .globe-fab-btn.is-on {
-    opacity: 1;
-    background: rgba(37, 99, 235, 0.85);
-    border-color: rgba(147, 197, 253, 0.8);
-  }
-
-  /* Panel inferior con pestañas. */
-  .mobile-sheet {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 30;
-    display: flex;
-    flex-direction: column;
-    background: #ffffff;
-    border-radius: 18px 18px 0 0;
-    box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.22);
-    padding: 6px 10px calc(8px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .mobile-sheet-panel {
-    max-height: 38vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .mobile-sheet-panel .card {
-    box-shadow: none;
-    padding: 8px 4px 4px;
-    background: transparent;
-  }
-
-  .mobile-sheet-panel .card-header p {
-    display: none;
-  }
-
-  .mobile-sheet-tabs {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    padding-top: 6px;
-  }
-
-  .mobile-sheet-tab,
-  .mobile-sheet-tab:hover {
-    width: auto;
-    padding: 9px 6px;
-    font-size: 0.85rem;
-    border-radius: 10px;
-    background: #e2e8f0;
-    color: #0f172a;
-    box-shadow: none;
-    transform: none;
-  }
-
-  .mobile-sheet-tab.is-active {
-    background: #2563eb;
-    color: #ffffff;
-  }
-
-  :root[data-theme="dark"] .visual {
-    background: #0b1120;
-  }
-
-  :root[data-theme="dark"] .mobile-sheet {
-    background: #111a2e;
-    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.5);
-  }
-
-  :root[data-theme="dark"] .mobile-sheet-tab {
-    background: #1e293b;
-    color: #e2e8f0;
-  }
-
-  :root[data-theme="dark"] .mobile-sheet-tab.is-active {
-    background: #2563eb;
-    color: #ffffff;
+  :root.map-layout .aurora-alert-banner,
+  :root.map-layout .data-alert {
+    left: 476px;
   }
 }
