@@ -1,6 +1,21 @@
 (function () {
     window.App = window.App || {};
   
+    // Dibuja una capa sin dejar que un fallo suyo deje el globo en blanco: el resto
+    // de capas se sigue pintando y el error se avisa una sola vez por capa.
+    const failedLayers = new Set();
+    function safeLayer(name, draw) {
+      try {
+        draw();
+      } catch (error) {
+        App.globe?.ctx?.restore?.();
+        if (failedLayers.has(name)) return;
+        failedLayers.add(name);
+        console.error(`[render] capa ${name}:`, error);
+        window.__showAppError?.(`La capa ${name} no se pudo dibujar: ${error?.message ?? error}`);
+      }
+    }
+
     // Colores base del globo según el tema (claro / oscuro).
     const GLOBE_COLORS = {
       light: { sphere: "#eef", land: "#999", borders: "rgba(255,255,255,0.35)", graticule: "rgba(255,255,255,0.10)", outline: "#000" },
@@ -60,7 +75,7 @@
         }
   
         // Espacio: estrellas y halo de atmósfera.
-        if (App.spaceOverlay) App.spaceOverlay.drawBackground(g);
+        safeLayer("espacio", () => App.spaceOverlay?.drawBackground?.(g));
 
         // Sphere
         ctx.beginPath();
@@ -92,12 +107,12 @@
         }
 
         // Day/Night shading
-        if (App.dayNightOverlay) App.dayNightOverlay.draw(g, App.state);
+        safeLayer("día/noche", () => App.dayNightOverlay?.draw?.(g, App.state));
 
         // Overlays (en orden)
-        if (App.cloudsOverlay) App.cloudsOverlay.draw(g, App.state);
-        if (App.probabilityOverlay) App.probabilityOverlay.draw(g, App.state);
-        if (App.auroraOverlay) App.auroraOverlay.draw(g, App.state);
+        safeLayer("nubes", () => App.cloudsOverlay?.draw?.(g, App.state));
+        safeLayer("probabilidad", () => App.probabilityOverlay?.draw?.(g, App.state));
+        safeLayer("auroras", () => App.auroraOverlay?.draw?.(g, App.state));
 
         const vc = App.globeMarkers?.getViewVector(g);
 

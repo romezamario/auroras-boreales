@@ -20,10 +20,12 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
-# Permite solo un despliegue a la vez; si llega otro push, cancela el que está en progreso.
+# Un despliegue a la vez. No se cancela el que está en curso (un despliegue cortado
+# a medias puede dejar Pages en un estado intermedio); si llegan varios pushes
+# seguidos, GitHub deja en cola solo el más reciente.
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # Trabajo único de despliegue del sitio completo
@@ -60,6 +62,17 @@ jobs:
             -e "s|^([[:space:]]*)source: \"embedded\",|\1source: \"deploy\",|" \
             dist/js/config.js
           grep -nE "^[[:space:]]*(label|updatedAt|source):" dist/js/config.js
+      - name: Cache-busting de JS y CSS
+        # GitHub Pages sirve todo con caché de 10 min. Sin esto, tras un despliegue el
+        # navegador puede mezclar el index.html nuevo con scripts viejos (o al revés) y
+        # el globo falla con un error de JavaScript. Con ?v=<commit> cada versión
+        # pide sus propios archivos.
+        run: |
+          V="${GITHUB_SHA::7}"
+          for f in dist/*.html; do
+            sed -i -E "s#(src|href)=\"((js/|style\.css|versor\.js)[^\"?]*)\"#\1=\"\2?v=${V}\"#g" "$f"
+          done
+          grep -hoE '(src|href)="[^"]*\?v=[^"]*"' dist/*.html | sort | uniq -c | head -50
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
