@@ -88,8 +88,8 @@
   
             // Actualiza centro, escala y rotación conservando el zoom que haya
             // hecho la persona (antes se perdía en cada cambio de tamaño).
-            // 0.42 deja margen alrededor para el halo de atmósfera y el Sol.
-            const baseScale = Math.min(w, h) * 0.42;
+            // 0.44 deja margen para el halo de atmósfera.
+            const baseScale = Math.min(w, h) * 0.44;
             const zoom = globe.baseScale ? projection.scale() / globe.baseScale : 1;
             globe.baseScale = baseScale;
             projection

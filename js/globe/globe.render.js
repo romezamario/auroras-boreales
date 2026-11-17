@@ -59,7 +59,7 @@
           this._loadingHidden = true;
         }
   
-        // Espacio: estrellas, Sol en su posición real y halo de atmósfera.
+        // Espacio: estrellas y halo de atmósfera.
         if (App.spaceOverlay) App.spaceOverlay.drawBackground(g);
 
         // Sphere
@@ -128,9 +128,6 @@
         }
   
         this.updateAccessibleLabel(g);
-
-        // Sol delante del globo si no cabe fuera de él.
-        if (App.spaceOverlay) App.spaceOverlay.drawForeground(g);
 
         // Border
         ctx.beginPath();
