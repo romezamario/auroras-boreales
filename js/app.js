@@ -18,6 +18,7 @@
     App.alertsUI?.init();
     App.playbackUI?.init();
     App.mapLayoutUI?.init();
+    App.kpStripUI?.init();
     App.fullscreenUI?.init();
   }
 

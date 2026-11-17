@@ -554,6 +554,12 @@ Documentar de forma continua:
   - Resultado esperado: Pages con Source = GitHub Actions (cambiado por Mario), `?v=<commit>` en todos los JS/CSS locales y capas del globo aisladas ante errores.
   - Verificación: varios pushes seguidos con un único despliegue por commit.
 
+- **Cambio:** Menú de hamburguesa y Kp de las próximas 8 horas sobre el globo (2026-11-17).
+  - Archivos: `index.html`, `style.css`, `js/ui/map-layout.ui.js`, `js/ui/kp-strip.ui.js`, `js/app.js`, `README.md`, `AGENTS.md`
+  - Motivo: En iPhone la pestaña Pronóstico quedaba fuera de la barra inferior con scroll horizontal. Mario pidió dejar abajo solo los controles y lo demás en un menú de hamburguesa, con el pronóstico de 8 h a la vista.
+  - Resultado esperado: Barra inferior con 4 pestañas sin scroll; menú lateral con Ubicación, Pronóstico, Alertas, Datos y fuentes, modo oscuro y refrescar; tira Kp de 8 h bajo la barra superior que abre el pronóstico completo.
+  - Verificación: Playwright en iPhone 13 y escritorio 1280 px con Kp simulado: pestañas sin desbordar, menú abre/cierra (Esc, fondo, volver), sin errores de página.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)

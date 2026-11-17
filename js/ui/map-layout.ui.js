@@ -1,21 +1,26 @@
 // js/ui/map-layout.ui.js
 // Diseño tipo mapa (Uber / Google Maps): el globo ocupa toda la pantalla, las
-// capas son botones flotantes y el resto de funciones vive en un panel inferior
-// con pestañas. Las tarjetas originales del HTML se mueven al panel (conservan
-// sus listeners), así el resto de módulos no cambia.
+// capas son botones flotantes, los controles del mapa viven en un panel inferior
+// con pestañas y el resto (ubicación, pronóstico, alertas, datos, tema) en un
+// menú lateral de hamburguesa. Las tarjetas originales del HTML se mueven al
+// panel o al menú (conservan sus listeners), así el resto de módulos no cambia.
 (function () {
   window.App = window.App || {};
 
-  // Pestaña → tarjeta que muestra.
+  // Pestaña del panel inferior → tarjeta que muestra (solo controles del mapa).
   const SHEET_CARDS = {
     intensity: ".legend-slider",
     clouds: ".cloud-legend",
     probability: ".probability-filters-card",
-    point: "#globe-inspector",
-    location: "#location-inspector",
-    kp: "#kp-forecast",
-    alerts: "#alerts-card",
-    data: ".data-status"
+    point: "#globe-inspector"
+  };
+
+  // Opción del menú de hamburguesa → tarjeta y título.
+  const DRAWER_CARDS = {
+    location: { selector: "#location-inspector", title: "Ubicación" },
+    kp: { selector: "#kp-forecast", title: "Pronóstico" },
+    alerts: { selector: "#alerts-card", title: "Alertas" },
+    data: { selector: ".data-status", title: "Datos y fuentes" }
   };
 
   const STORAGE_KEY = "auroras-boreales:sheet-tab";
@@ -23,6 +28,8 @@
   App.mapLayoutUI = {
     active: null,
     cards: {},
+    drawerCards: {},
+    drawerOpen: false,
 
     init() {
       this.sheet = document.getElementById("map-sheet");
@@ -35,6 +42,7 @@
 
       this.moveCards();
       this.initFab();
+      this.initDrawer();
 
       this.tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
@@ -44,7 +52,9 @@
       });
       this.closeBtn?.addEventListener("click", () => this.open(null));
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && this.active) this.open(null);
+        if (event.key !== "Escape") return;
+        if (this.drawerOpen) this.closeDrawer();
+        else if (this.active) this.open(null);
       });
 
       // Al tocar un punto del globo se abre su detalle, como en un mapa.
@@ -80,9 +90,96 @@
         this.cards[key] = card;
       });
 
-      // Enlaces a la documentación: van a la pestaña "Datos".
+      this.drawerView = document.getElementById("drawer-view");
+      Object.entries(DRAWER_CARDS).forEach(([key, { selector }]) => {
+        const card = document.querySelector(selector);
+        if (!card || !this.drawerView) return;
+        card.hidden = true;
+        this.drawerView.appendChild(card);
+        this.drawerCards[key] = card;
+      });
+
+      // Enlaces a la documentación: van a "Datos y fuentes".
       const links = document.querySelector(".header-links");
-      if (links && this.cards.data) this.cards.data.appendChild(links);
+      if (links && this.drawerCards.data) this.drawerCards.data.appendChild(links);
+
+      // Tema y refresco pasan de la barra superior al menú, con su texto visible.
+      const actions = document.getElementById("drawer-actions");
+      ["theme-toggle", "refresh-btn"].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn && actions) actions.appendChild(btn);
+      });
+    },
+
+    // Menú de hamburguesa: lista de opciones y, al elegir una, su tarjeta.
+    initDrawer() {
+      this.drawer = document.getElementById("app-drawer");
+      this.backdrop = document.getElementById("drawer-backdrop");
+      this.menuBtn = document.getElementById("menu-btn");
+      this.drawerMenu = document.getElementById("drawer-menu");
+      this.drawerActions = document.getElementById("drawer-actions");
+      this.drawerTitle = document.getElementById("drawer-title");
+      this.drawerBack = document.getElementById("drawer-back");
+      if (!this.drawer || !this.menuBtn) return;
+
+      this.menuBtn.addEventListener("click", () => {
+        if (this.drawerOpen) this.closeDrawer();
+        else this.openDrawer();
+      });
+      document.getElementById("drawer-close")?.addEventListener("click", () => this.closeDrawer());
+      this.backdrop?.addEventListener("click", () => this.closeDrawer());
+      this.drawerBack?.addEventListener("click", () => this.showDrawerView(null));
+      document.querySelectorAll("[data-drawer-item]").forEach((item) => {
+        const key = item.dataset.drawerItem;
+        if (!this.drawerCards[key]) {
+          item.closest("li")?.setAttribute("hidden", "");
+          return;
+        }
+        item.addEventListener("click", () => this.showDrawerView(key));
+      });
+    },
+
+    // Abre el menú; con key va directo a esa opción (p. ej. "kp").
+    openDrawer(key = null) {
+      if (!this.drawer) return;
+      this.drawerOpen = true;
+      this.drawer.hidden = false;
+      if (this.backdrop) this.backdrop.hidden = false;
+      // Fuerza el reflow para que la transición de entrada se vea.
+      void this.drawer.offsetWidth;
+      document.documentElement.classList.add("drawer-open");
+      this.menuBtn?.setAttribute("aria-expanded", "true");
+      this.showDrawerView(key);
+    },
+
+    closeDrawer() {
+      if (!this.drawer || !this.drawerOpen) return;
+      this.drawerOpen = false;
+      document.documentElement.classList.remove("drawer-open");
+      this.menuBtn?.setAttribute("aria-expanded", "false");
+      window.setTimeout(() => {
+        if (this.drawerOpen) return;
+        this.drawer.hidden = true;
+        if (this.backdrop) this.backdrop.hidden = true;
+      }, 220);
+      this.menuBtn?.focus({ preventScroll: true });
+    },
+
+    showDrawerView(key) {
+      const view = key && this.drawerCards[key] ? key : null;
+      Object.entries(this.drawerCards).forEach(([cardKey, card]) => {
+        card.hidden = cardKey !== view;
+      });
+      if (this.drawerMenu) this.drawerMenu.hidden = Boolean(view);
+      if (this.drawerActions) this.drawerActions.hidden = Boolean(view);
+      if (this.drawerView) {
+        this.drawerView.hidden = !view;
+        this.drawerView.scrollTop = 0;
+      }
+      if (this.drawerBack) this.drawerBack.hidden = !view;
+      if (this.drawerTitle) this.drawerTitle.textContent = view ? DRAWER_CARDS[view].title : "Menú";
+      const focusTarget = view ? this.drawerBack : this.drawerMenu?.querySelector("button");
+      focusTarget?.focus({ preventScroll: true });
     },
 
     // Botones flotantes de capas: hacen clic en el checkbox original.
