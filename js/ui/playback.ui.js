@@ -10,6 +10,10 @@
   const HOLD_END_MS = 1400; // pausa en la foto más reciente antes de repetir
   const WINDOWS = [30, 60]; // minutos
 
+  function icon(name, fallback) {
+    return window.AuroraIcons?.svg?.(name) || `<span aria-hidden="true">${fallback}</span>`;
+  }
+
   function fmtClock(date) {
     return date.toLocaleTimeString(App.config?.locale ?? "es-MX", { hour: "2-digit", minute: "2-digit" });
   }
@@ -34,10 +38,10 @@
       root.className = "playback" + (host.id === "map-dock" ? " playback--dock" : " playback--floating");
       root.innerHTML = `
         <button type="button" class="playback-open" aria-expanded="false">
-          <span aria-hidden="true">▶</span> Última hora
+          ${icon("history", "▶")} Última hora
         </button>
         <div class="playback-bar" role="group" aria-label="Animación de la última hora" hidden>
-          <button type="button" class="playback-btn playback-play" aria-label="Reproducir"><span aria-hidden="true">▶</span></button>
+          <button type="button" class="playback-btn playback-play" aria-label="Reproducir">${icon("play", "▶")}</button>
           <div class="playback-track">
             <input type="range" class="playback-range" min="0" max="0" step="0.01" value="0" aria-label="Momento de la animación">
             <span class="playback-time" aria-live="off">—</span>
@@ -45,7 +49,7 @@
           <div class="playback-windows" role="radiogroup" aria-label="Duración">
             ${WINDOWS.map((m) => `<button type="button" class="playback-win" role="radio" data-win="${m}" aria-checked="${m === this.windowMin}">${m === 60 ? "1 h" : `${m} min`}</button>`).join("")}
           </div>
-          <button type="button" class="playback-btn playback-close" aria-label="Volver a en vivo" title="Volver a en vivo"><span aria-hidden="true">✕</span></button>
+          <button type="button" class="playback-btn playback-close" aria-label="Volver a en vivo" title="Volver a en vivo">${icon("x", "✕")}</button>
         </div>
         <p class="playback-msg" role="status" hidden></p>`;
       host.appendChild(root);
@@ -201,7 +205,7 @@
       if (this.pos >= this.view.length - 1) this.seek(0);
       this.playing = true;
       this.playBtn.setAttribute("aria-label", "Pausar");
-      this.playBtn.firstElementChild.textContent = "⏸";
+      this.playBtn.innerHTML = icon("pause", "⏸");
       this._last = 0;
       this._hold = 0;
       cancelAnimationFrame(this._raf);
@@ -212,7 +216,7 @@
       this.playing = false;
       cancelAnimationFrame(this._raf);
       this.playBtn.setAttribute("aria-label", "Reproducir");
-      this.playBtn.firstElementChild.textContent = "▶";
+      this.playBtn.innerHTML = icon("play", "▶");
     },
 
     tick(now) {
