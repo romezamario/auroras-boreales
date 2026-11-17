@@ -37,7 +37,7 @@
           <span aria-hidden="true">▶</span> Última hora
         </button>
         <div class="playback-bar" role="group" aria-label="Animación de la última hora" hidden>
-          <button type="button" class="playback-btn playback-play" aria-label="Pausar"><span aria-hidden="true">⏸</span></button>
+          <button type="button" class="playback-btn playback-play" aria-label="Reproducir"><span aria-hidden="true">▶</span></button>
           <div class="playback-track">
             <input type="range" class="playback-range" min="0" max="0" step="0.01" value="0" aria-label="Momento de la animación">
             <span class="playback-time" aria-live="off">—</span>
@@ -165,7 +165,7 @@
       const last = this.view[n - 1].time;
       const diff = Math.round((last - time) / 60000);
       this.timeEl.textContent = `${fmtClock(time)} · ${diff > 0 ? `−${diff} min` : "actual"}`;
-      this.range.setAttribute("aria-valuetext", `Pronóstico de las ${fmtClock(time)}`);
+      this.range.setAttribute("aria-valuetext", `Datos medidos a las ${fmtClock(time)}`);
       App.globe?.requestRender();
     },
 

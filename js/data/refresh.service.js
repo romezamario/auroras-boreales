@@ -60,9 +60,10 @@
 
   function applyAuroraResult(result) {
     if (result.status === "fulfilled") {
-      const { points, forecastTime } = result.value;
+      const { points, forecastTime, observationTime } = result.value;
       App.state.aurora.points = points;
       App.state.aurora.forecastTime = forecastTime;
+      App.state.aurora.observationTime = observationTime ?? null;
       App.state.aurora.error = null;
       lastAuroraSuccessAt = Date.now();
       retryAttempt = 0;

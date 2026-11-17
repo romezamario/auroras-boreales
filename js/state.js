@@ -31,6 +31,7 @@
       enabled: cfg.aurora?.enabled ?? true,
       points: [],
       forecastTime: null,
+      observationTime: null,
       lastLocalUpdate: null
     },
     clouds: {

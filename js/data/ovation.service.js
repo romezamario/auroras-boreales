@@ -34,8 +34,9 @@
           .map(parsePoint)
           .filter(Boolean);
         const forecastTime = data["Forecast Time"] || null;
+        const observationTime = data["Observation Time"] || null;
 
-        return { points, forecastTime, raw: data };
+        return { points, forecastTime, observationTime, raw: data };
       }
     };
   })();

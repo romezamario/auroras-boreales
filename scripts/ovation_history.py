@@ -77,6 +77,11 @@ def iso(t: dt.datetime) -> str:
     return t.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def frame_time(f):
+    """Hora de la foto: la de observación de NOAA (o la del pronóstico si falta)."""
+    return parse_time(f.get("observation")) or parse_time(f.get("forecast"))
+
+
 def ovation_to_frame(data: dict):
     """Convierte el JSON de NOAA en una foto compacta."""
     obs = parse_time(data.get("Observation Time"))
@@ -159,11 +164,11 @@ def main() -> int:
     except Exception as err:
         log(f"no se pudo descargar OVATION de NOAA: {err}")
 
-    frames.sort(key=lambda f: f["forecast"])
+    frames.sort(key=frame_time)
     if frames:
-        newest = parse_time(frames[-1]["forecast"])
+        newest = frame_time(frames[-1])
         cutoff = newest - dt.timedelta(minutes=RETAIN_MINUTES)
-        frames = [f for f in frames if parse_time(f["forecast"]) >= cutoff][-MAX_FRAMES:]
+        frames = [f for f in frames if frame_time(f) >= cutoff][-MAX_FRAMES:]
 
     if not frames:
         log("no hay fotos; no se escribe el archivo")

@@ -85,7 +85,8 @@
         const data = await d3.json(`${url}${url.includes("?") ? "&" : "?"}t=${bust}`);
         frames = (data?.frames || [])
           .map((f) => {
-            const time = new Date(f.forecast);
+            // Hora de medición de NOAA (el pronóstico apunta ~30-90 min al futuro).
+            const time = new Date(f.observation || f.forecast);
             if (!f.values || Number.isNaN(time.getTime())) return null;
             const grid = decodeBase64(f.values);
             return grid.length === N_CELLS ? { time, grid } : null;
@@ -97,7 +98,8 @@
 
       // Suma la foto en vivo si es más nueva que la última del historial.
       const live = App.state?.aurora;
-      const liveTime = live?.forecastTime ? new Date(live.forecastTime) : null;
+      const liveStamp = live?.observationTime || live?.forecastTime;
+      const liveTime = liveStamp ? new Date(liveStamp) : null;
       if (liveTime && !Number.isNaN(liveTime.getTime()) && live.points?.length) {
         const last = frames[frames.length - 1];
         if (!last || liveTime.getTime() > last.time.getTime() + 30000) {
