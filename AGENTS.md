@@ -584,6 +584,12 @@ Documentar de forma continua:
   - Resultado esperado: `classifyVisibilityProbability` devuelve null con nubes >= 50%: el punto no se pinta en la capa Probabilidad, el detalle muestra "—" y no entra al top de ciudades. Baja = nubes < 50% con intensidad < 30%, o nubes 31–49%.
   - Verificación: `node --test tests/*.test.js`.
 
+- **Cambio:** Ícono de aurora para el acceso directo y la pestaña (2026-11-17).
+  - Archivos: `assets/icons/*`, `manifest.webmanifest`, `index.html`, `explicacion-sitio.html`, `tratamiento-datos.html`, `README.md`, `AGENTS.md`
+  - Motivo: Al agregar el sitio a la pantalla de inicio del iPhone salía un ícono genérico con la letra "A".
+  - Resultado esperado: `apple-touch-icon` de 180 px, favicon SVG/PNG y manifest con íconos 192/512. Sin service worker (la PWA sigue en backlog).
+  - Verificación: servidor local + Playwright: los `<link>` de íconos y el manifest responden 200 y el manifest es JSON válido; `node --test tests/*.test.js`.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
