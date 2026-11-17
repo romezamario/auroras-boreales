@@ -9,6 +9,7 @@
 
   <!-- Tema claro/oscuro: se aplica antes del primer pintado para evitar el destello claro de noche. -->
   <script src="js/theme.boot.js"></script>
+  <script src="js/icons.js"></script>
 
   <!-- Hoja de estilos principal de la app -->
   <link rel="stylesheet" href="style.css">
@@ -67,9 +68,9 @@
       <div class="header-meta">
         <div class="header-actions">
           <button type="button" id="theme-toggle" class="theme-toggle" data-theme-toggle aria-pressed="false">
-            <span aria-hidden="true">🌙</span> Modo oscuro
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> <span class="btn-label">Modo oscuro</span>
           </button>
-          <button id="refresh-btn"><span aria-hidden="true">🔄</span> Refrescar datos</button>
+          <button id="refresh-btn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> <span class="btn-label">Refrescar datos</span></button>
         </div>
         <div class="header-links">
           <a class="data-processing-link" href="tratamiento-datos.html">Tratamiento de datos</a>
@@ -80,7 +81,7 @@
 
     <!-- Aviso de alerta de aurora en la ubicación de la persona -->
     <div class="aurora-alert-banner" id="aurora-alert-banner" role="alert" hidden>
-      <span class="aurora-alert-icon" aria-hidden="true">🌌</span>
+      <span class="aurora-alert-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg></span>
       <p id="aurora-alert-text"></p>
       <button type="button" id="aurora-alert-close" class="aurora-alert-close" aria-label="Cerrar aviso">✕</button>
     </div>
@@ -91,14 +92,14 @@
         <button type="button" class="sheet-close" id="sheet-close" aria-label="Cerrar panel">✕</button>
       </div>
       <div class="sheet-tabs" role="tablist" aria-label="Funciones del mapa">
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="intensity" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">🌈</span><span class="sheet-tab-label">Intensidad</span></button>
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="clouds" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">☁️</span><span class="sheet-tab-label">Nubes</span></button>
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="probability" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">🎯</span><span class="sheet-tab-label">Probabilidad</span></button>
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="point" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">📌</span><span class="sheet-tab-label">Punto</span></button>
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="location" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">📍</span><span class="sheet-tab-label">Ubicación</span></button>
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="kp" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">📈</span><span class="sheet-tab-label">Pronóstico</span></button>
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="alerts" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">🔔</span><span class="sheet-tab-label">Alertas</span></button>
-        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="data" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon" aria-hidden="true">ℹ️</span><span class="sheet-tab-label">Datos</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="intensity" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><span class="sheet-tab-label">Intensidad</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="clouds" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></span><span class="sheet-tab-label">Nubes</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="probability" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg></span><span class="sheet-tab-label">Probabilidad</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="point" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span><span class="sheet-tab-label">Punto</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="location" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/></svg></span><span class="sheet-tab-label">Ubicación</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="kp" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span><span class="sheet-tab-label">Pronóstico</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="alerts" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span class="sheet-tab-label">Alertas</span></button>
+        <button type="button" role="tab" class="sheet-tab" data-sheet-tab="data" aria-selected="false" aria-controls="sheet-panel"><span class="sheet-tab-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span><span class="sheet-tab-label">Datos</span></button>
       </div>
     </div>
 
@@ -276,10 +277,10 @@
           <div class="map-dock" id="map-dock"></div>
           <!-- Capas como botones flotantes sobre el globo (reflejan los toggles de "Capas visibles"). -->
           <div class="globe-fab" role="group" aria-label="Capas del globo">
-            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-aurora" aria-label="Auroras" title="Auroras"><span aria-hidden="true">✨</span></button>
-            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-probability" aria-label="Probabilidad" title="Probabilidad"><span aria-hidden="true">🎯</span></button>
-            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-day-night" aria-label="Día / noche" title="Día / noche"><span aria-hidden="true">🌓</span></button>
-            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-clouds" aria-label="Nubosidad" title="Nubosidad"><span aria-hidden="true">☁️</span></button>
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-aurora" aria-label="Auroras" title="Auroras"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg></button>
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-probability" aria-label="Probabilidad" title="Probabilidad"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg></button>
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-day-night" aria-label="Día / noche" title="Día / noche"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.9 4.9 1.4 1.4"/><path d="m17.7 17.7 1.4 1.4"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.3 17.7-1.4 1.4"/><path d="m19.1 4.9-1.4 1.4"/></svg></button>
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-clouds" aria-label="Nubosidad" title="Nubosidad"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></button>
           </div>
         </div>
       </main>
@@ -343,7 +344,7 @@
               </div>
             </div>
             <button type="button" id="location-device-btn" class="location-device-btn">
-              <span aria-hidden="true">📍</span> Usar mi ubicación
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/></svg> <span class="btn-label">Usar mi ubicación</span>
             </button>
             <p class="inspector-hint" id="location-hint" role="status" aria-live="polite">Esperando datos de localización.</p>
           </div>

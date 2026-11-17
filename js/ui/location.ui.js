@@ -1,9 +1,10 @@
 (function () {
   window.App = window.App || {};
 
-  const BUTTON_LABEL = '<span aria-hidden="true">📍</span> Usar mi ubicación';
-  const BUTTON_LABEL_UPDATE = '<span aria-hidden="true">📍</span> Actualizar mi ubicación';
-  const BUTTON_LABEL_LOADING = '<span aria-hidden="true">⏳</span> Buscando tu ubicación…';
+  const icon = (name) => window.AuroraIcons?.svg(name) ?? "";
+  const BUTTON_LABEL = `${icon("locate")} <span class="btn-label">Usar mi ubicación</span>`;
+  const BUTTON_LABEL_UPDATE = `${icon("locate")} <span class="btn-label">Actualizar mi ubicación</span>`;
+  const BUTTON_LABEL_LOADING = `${icon("loader-circle")} <span class="btn-label">Buscando tu ubicación…</span>`;
 
   function fmtValue(value) {
     return value ? String(value) : "—";

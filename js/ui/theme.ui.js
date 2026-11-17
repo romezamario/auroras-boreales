@@ -2,10 +2,14 @@
 // Interruptor de modo oscuro. Funciona con cualquier botón [data-theme-toggle]
 // y no depende de App, así que también sirve en las páginas de documentación.
 (function () {
+  function icon(name) {
+    return window.AuroraIcons ? window.AuroraIcons.svg(name) : "";
+  }
+
   function label(theme) {
     return theme === "dark"
-      ? '<span aria-hidden="true">☀️</span> Modo claro'
-      : '<span aria-hidden="true">🌙</span> Modo oscuro';
+      ? icon("sun") + ' <span class="btn-label">Modo claro</span>'
+      : icon("moon") + ' <span class="btn-label">Modo oscuro</span>';
   }
 
   function sync(buttons) {

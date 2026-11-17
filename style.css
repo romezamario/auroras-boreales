@@ -1457,7 +1457,6 @@ button:focus-visible {
   height: 40px;
   padding: 0;
   border-radius: 50%;
-  font-size: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1465,8 +1464,19 @@ button:focus-visible {
   transform: none;
 }
 
-:root.map-layout .header-actions button span {
-  font-size: 1.15rem;
+:root.map-layout .header-actions button .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Solo icono: el texto queda para lectores de pantalla. */
+:root.map-layout .header-actions .btn-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 :root.map-layout .theme-toggle {
@@ -1511,13 +1521,12 @@ button:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
   border-radius: 50%;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: rgba(15, 23, 42, 0.78);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.25);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transform: none;
-  opacity: 0.6;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
@@ -1647,8 +1656,13 @@ button:focus-visible {
 }
 
 :root.map-layout .sheet-tab-icon {
-  font-size: 1.15rem;
-  line-height: 1.2;
+  display: flex;
+  line-height: 1;
+}
+
+:root.map-layout .sheet-tab-icon .icon {
+  width: 20px;
+  height: 20px;
 }
 
 :root.map-layout .sheet-tab.is-active {
@@ -1906,4 +1920,52 @@ button:focus-visible {
 :root.map-layout .sheet-panel .inspector-hint {
   margin-top: 6px;
   font-size: 0.72rem;
+}
+
+/* ================= ICONOS (SVG de línea, js/icons.js) ================= */
+.icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+  vertical-align: -0.2em;
+}
+
+button:has(> .icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+:root.map-layout .globe-fab-btn .icon {
+  width: 21px;
+  height: 21px;
+}
+
+:root.map-layout .globe-fab-btn.is-on {
+  color: #ffffff;
+}
+
+.aurora-alert-icon .icon {
+  width: 24px;
+  height: 24px;
+}
+
+#refresh-btn.is-loading .icon {
+  animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #refresh-btn.is-loading .icon {
+    animation: none;
+  }
+}
+
+:root.map-layout[data-theme="dark"] .sheet-tab:not(.is-active) {
+  color: #94a3b8;
+  opacity: 1;
 }

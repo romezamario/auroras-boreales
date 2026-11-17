@@ -38,9 +38,11 @@
       setLoading(isLoading) {
         if (!this.btn) return;
         this.btn.disabled = isLoading;
+        const icon = (name) => window.AuroraIcons?.svg(name) ?? "";
+        this.btn.classList.toggle("is-loading", isLoading);
         this.btn.innerHTML = isLoading
-          ? '<span aria-hidden="true">⏳</span> Cargando...'
-          : '<span aria-hidden="true">🔄</span> Refrescar datos';
+          ? `${icon("loader-circle")} <span class="btn-label">Cargando...</span>`
+          : `${icon("refresh-cw")} <span class="btn-label">Refrescar datos</span>`;
       },
 
       // Muestra (o quita, con message = null) un aviso visible sobre el globo.
