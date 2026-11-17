@@ -49,6 +49,14 @@
     probability: {
       ...createProbabilityState()
     },
+    // Animación de la última hora (la maneja js/ui/playback.ui.js).
+    playback: {
+      active: false,
+      gridA: null,
+      gridB: null,
+      mix: 0,
+      time: null
+    },
     dayNight: {
       enabled: cfg.dayNight?.enabled ?? true
     },

@@ -5,6 +5,13 @@
   App.dayNightOverlay = {
     _timer: null,
     _nightCircle: null,
+    // Hora fija para la animación de la última hora (null = ahora).
+    _time: null,
+
+    setTime(date) {
+      this._time = date || null;
+      this.updateNightGeometry();
+    },
 
     init() {
       if (this._timer) return;
@@ -17,7 +24,7 @@
     },
 
     updateNightGeometry() {
-      const subsolar = App.utils.getSubsolarPoint(new Date());
+      const subsolar = App.utils.getSubsolarPoint(this._time || new Date());
       const nightCenter = {
         lon: ((subsolar.lon + 180 + 540) % 360) - 180,
         lat: -subsolar.lat

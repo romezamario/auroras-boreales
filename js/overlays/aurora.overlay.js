@@ -26,6 +26,10 @@
 
       draw(globe, state) {
         if (!state.aurora.enabled) return;
+        if (state.playback?.active) {
+          this.drawPlayback(globe, state);
+          return;
+        }
         const points = state.aurora.points || [];
         if (!points.length) return;
 
@@ -74,6 +78,53 @@
           const coords = groups[b];
           if (!coords.length) continue;
           ctx.fillStyle = AURORA_BUCKETS[b].color;
+          ctx.beginPath();
+          for (let j = 0; j < coords.length; j += 2) {
+            ctx.moveTo(coords[j] + radius, coords[j + 1]);
+            ctx.arc(coords[j], coords[j + 1], radius, 0, 2 * Math.PI);
+          }
+          ctx.fill();
+        }
+      },
+
+      // Animación de la última hora: mezcla dos fotos (gridA → gridB con mix 0..1)
+      // celda por celda, así el óvalo se mueve suave entre una foto y la siguiente.
+      drawPlayback(globe, state) {
+        const pb = state.playback;
+        const a = pb.gridA;
+        if (!a) return;
+        const b = pb.gridB || a;
+        const mix = Math.max(0, Math.min(1, Number(pb.mix) || 0));
+        const cells = App.auroraHistoryService?.getDrawCells?.();
+        if (!cells) return;
+
+        const { ctx, projection } = globe;
+        const thresholdMin = Number(state.thresholdMin ?? App.config.defaults.thresholdMin);
+        const thresholdMax = Number(state.thresholdMax ?? App.config.defaults.thresholdMax);
+        const center = projection.invert([globe.width / 2, globe.height / 2]);
+        const vc = center ? versor.cartesian(center) : null;
+        const isMobile = Math.min(globe.width, globe.height) < 520;
+        const radius = isMobile ? App.config.defaults.auroraPointRadiusMobile : App.config.defaults.auroraPointRadiusDesktop;
+        const groups = AURORA_BUCKETS.map(() => []);
+        const { n, index, lon, lat, xyz } = cells;
+
+        for (let k = 0; k < n; k += 1) {
+          const i = index[k];
+          const va = a[i];
+          const vb = b[i];
+          if (!va && !vb) continue;
+          const val = va + (vb - va) * mix;
+          if (val < thresholdMin || val > thresholdMax) continue;
+          if (vc && vc[0] * xyz[k * 3] + vc[1] * xyz[k * 3 + 1] + vc[2] * xyz[k * 3 + 2] <= 0) continue;
+          const xy = projection([lon[k], lat[k]]);
+          if (!xy) continue;
+          groups[auroraBucket(val)].push(xy[0], xy[1]);
+        }
+
+        for (let g = 0; g < groups.length; g += 1) {
+          const coords = groups[g];
+          if (!coords.length) continue;
+          ctx.fillStyle = AURORA_BUCKETS[g].color;
           ctx.beginPath();
           for (let j = 0; j < coords.length; j += 2) {
             ctx.moveTo(coords[j] + radius, coords[j + 1]);

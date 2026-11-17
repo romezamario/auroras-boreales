@@ -342,6 +342,10 @@ Documentar de forma continua:
   - **Motivo:** El giro del globo era pesado (un `fill()` por punto), los fallos de NOAA dejaban el globo vacío sin explicación, los datos no se refrescaban solos y el globo no era usable con teclado ni lector de pantalla.
   - **Impacto:** Render ~40 % más rápido en la prueba local, avisos con reintentos, recarga cada 5 min, teclado + `aria-label` dinámico, colores distinguibles con daltonismo y un workflow `Tests` que corre `node --check` y `node --test`.
 
+- **2026-11-17** — Animación de la última hora con historial guardado en la rama `aurora-history` (un solo commit, force push) en vez de en `main` o en cada despliegue de Pages.
+  - **Motivo:** NOAA solo publica la foto más reciente de OVATION. Guardar fotos en `main` haría crecer el repo como `data/history/` (~1 MB por foto sin comprimir), y redesplegar Pages cada 5 min serían ~288 despliegues al día.
+  - **Impacto:** Workflow `Collect aurora history` cada 5 min; el sitio lee el JSON (~85 KB gzip por hora en datos simulados) desde raw.githubusercontent.com solo al abrir el reproductor.
+
 ## 5) Registro de cambios realizados
 > Qué se tocó y por qué.
 

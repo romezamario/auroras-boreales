@@ -16,6 +16,8 @@
       // Endpoints remotos que alimentan las capas del globo.
       endpoints: {
         ovation: "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json",
+        // Fotos de OVATION de la última hora (workflow "Collect aurora history", rama aurora-history).
+        auroraHistory: "https://raw.githubusercontent.com/romezamario/auroras-boreales/aurora-history/aurora-history.json",
         // Kp observado/estimado de los últimos días y previsto para los próximos 3 (bloques de 3 h).
         kpForecast: "https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json",
         worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json",
