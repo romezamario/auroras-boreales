@@ -578,6 +578,12 @@ Documentar de forma continua:
   - Resultado esperado: Tira "Ciudades top 3" debajo de la tira Kp (ambas en `#globe-indicators`). Cada ciudad se evalúa como la capa Probabilidad (OVATION + nubosidad, solo de noche, |lat| >= 40, intensidad >= `minRelevantIntensity`) y se ordena por categoría, luego intensidad y luego menos nubes. Tocar una ciudad centra el globo y abre su detalle. Si ninguna califica se muestra un aviso. Se recalcula con datos nuevos y cada 10 min.
   - Verificación: `node --test tests/*.test.js` (7/7, incluye prueba del ranking) y Playwright en iPhone 13 y escritorio con OVATION y Kp simulados: tira visible bajo el Kp, toque centra el globo y abre el detalle, sin errores de página.
 
+- **Cambio:** Sin probabilidad con nubosidad desde 50% (2026-11-17).
+  - Archivos: `js/config.js` (`probability.noVisibilityCloudsFrom`), `js/data/probability.service.js`, `tests/core.test.js`, `README.md`, `AGENTS.md`
+  - Motivo: Puntos totalmente nublados salían como "Baja"; Mario decidió que desde 50% de nubes no haya probabilidad.
+  - Resultado esperado: `classifyVisibilityProbability` devuelve null con nubes >= 50%: el punto no se pinta en la capa Probabilidad, el detalle muestra "—" y no entra al top de ciudades. Baja = nubes < 50% con intensidad < 30%, o nubes 31–49%.
+  - Verificación: `node --test tests/*.test.js`.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)

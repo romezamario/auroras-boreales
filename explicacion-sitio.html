@@ -289,7 +289,8 @@ flowchart TD
     M --> N{Clasificación canónica}
     N -- Intensidad >= 70 y nubes <= 30% --> O[Alta / high / verde azulado]
     N -- Intensidad 30 a 69 y nubes <= 30% --> P[Media / medium / amarillo]
-    N -- Cualquier otro caso --> Q[Baja / low / bermellón]
+    N -- Nubes >= 50% --> Z10[Sin probabilidad: no se dibuja]
+    N -- Cualquier otro caso con nubes < 50% --> Q[Baja / low / bermellón]
     O --> R{¿Categoría habilitada en filtros?}
     P --> R
     Q --> R
@@ -314,7 +315,8 @@ flowchart TD
             <ul>
               <li><strong>Alta:</strong> intensidad ≥ 70 y nubosidad ≤ 30%.</li>
               <li><strong>Media:</strong> intensidad entre 30 y 69 con nubosidad ≤ 30%.</li>
-              <li><strong>Baja:</strong> cualquier otra combinación.</li>
+              <li><strong>Baja:</strong> cualquier otra combinación con nubosidad menor a 50%.</li>
+              <li><strong>Sin probabilidad:</strong> nubosidad de 50% o más; el punto no se pinta ni cuenta para el top de ciudades.</li>
             </ul>
             <p>La clasificación no reemplaza el dato original, pero sí reduce la carga interpretativa y vuelve más comprensible la decisión para personas no expertas.</p>
           </article>

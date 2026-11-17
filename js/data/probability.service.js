@@ -131,6 +131,10 @@
   function classifyVisibilityProbability(intensity, clouds) {
     if (!Number.isFinite(intensity) || !Number.isFinite(clouds)) return null;
 
+    // Cielo casi cubierto: no hay probabilidad aunque haya aurora encima.
+    const cloudsCutoff = Number(App.config?.probability?.noVisibilityCloudsFrom);
+    if (Number.isFinite(cloudsCutoff) && clouds >= cloudsCutoff) return null;
+
     if (clouds <= 30 && intensity >= 70) {
       return VISIBILITY_CATEGORIES.high;
     }

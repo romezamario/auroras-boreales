@@ -38,6 +38,9 @@ test("clasificación de probabilidad sin huecos", () => {
   assert.equal(classify(70, 10).key, "high");
   assert.equal(classify(70, 30).key, "high");
   assert.equal(classify(90, 31).key, "low");
+  assert.equal(classify(90, 49).key, "low");
+  assert.equal(classify(90, 50), null);
+  assert.equal(classify(90, 100), null);
   assert.equal(classify(NaN, 10), null);
 });
 

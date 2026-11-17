@@ -90,6 +90,8 @@
         enabled: false,
         opacity: 0.75,
         minRelevantIntensity: 5,
+        // Desde esta nubosidad (%) el punto queda sin probabilidad (no se pinta ni cuenta para ciudades).
+        noVisibilityCloudsFrom: 50,
         sampleStepMobile: 4,
         sampleStepDesktop: 2,
         pointRadiusMobile: 2.4,
