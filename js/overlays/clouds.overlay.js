@@ -124,7 +124,9 @@
 
       // Tamaño del "píxel" de la textura en px CSS: más grueso mientras se arrastra.
       let cell = isMobile ? (cloudsCfg.textureCellMobile ?? 2) : (cloudsCfg.textureCellDesktop ?? 2);
-      if (globe.interacting) cell *= 2;
+      // Al arrastrar se baja algo la resolución para ir fluido, sin que se note el bloque.
+      // En móvil se baja más para no perder fluidez; el recorte al disco mantiene el borde liso.
+      if (globe.interacting) cell *= isMobile ? 2 : 1.5;
 
       const tMin = Number(state.clouds.thresholdMin ?? cloudsCfg.minIntensity ?? 0.12);
       const tMax = Number(state.clouds.thresholdMax ?? cloudsCfg.maxIntensity ?? 1);
@@ -142,8 +144,14 @@
       }
 
       ctx.save();
+      // Recorte al disco del globo: el borde sale suave (antialias del path) en lugar
+      // de la escalera de píxeles de la textura.
+      ctx.beginPath();
+      globe.path({ type: "Sphere" });
+      ctx.clip();
       ctx.globalAlpha = state.clouds.opacity ?? cloudsCfg.opacity ?? 1;
       ctx.imageSmoothingEnabled = true;
+      if ("imageSmoothingQuality" in ctx) ctx.imageSmoothingQuality = "high";
       const { x, y, size } = this._placement;
       ctx.drawImage(this._canvas, x, y, size, size);
       ctx.restore();
@@ -154,8 +162,9 @@
       const grid = this._grid;
       const [cr, cg, cb] = CLOUD_RGB[theme] ?? CLOUD_RGB.dark;
 
-      // Solo el cuadrado que contiene el disco del globo.
-      const n = Math.max(8, Math.ceil((2 * R) / cell));
+      // Cuadrado que contiene el disco del globo, con un margen de dos celdas: la
+      // textura se rellena un poco más allá del borde y luego se recorta al disco.
+      const n = Math.max(8, Math.ceil((2 * R) / cell) + 4);
       const size = n * cell;
       const x0 = cx - size / 2;
       const y0 = cy - size / 2;
@@ -169,7 +178,9 @@
       const tctx = canvas.getContext("2d");
       const image = tctx.createImageData(n, n);
       const data = image.data;
-      const R2 = R * R;
+      const outer = R + cell * 2;
+      const outer2 = outer * outer;
+      const inner = R * 0.999;
 
       for (let j = 0; j < n; j += 1) {
         const py = y0 + (j + 0.5) * cell;
@@ -177,9 +188,18 @@
         for (let i = 0; i < n; i += 1) {
           const px = x0 + (i + 0.5) * cell;
           const dx = px - cx;
-          if (dx * dx + dy * dy >= R2) continue;
+          const d2 = dx * dx + dy * dy;
+          if (d2 >= outer2) continue;
 
-          const lonLat = projection.invert([px, py]);
+          // Fuera del disco se repite el valor del borde (se recorta después).
+          let qx = px;
+          let qy = py;
+          if (d2 >= inner * inner) {
+            const k = inner / Math.sqrt(d2);
+            qx = cx + dx * k;
+            qy = cy + dy * k;
+          }
+          const lonLat = projection.invert([qx, qy]);
           if (!lonLat) continue;
           const a = alphaFor(sample(grid, lonLat[0], lonLat[1]), tMin, tMax, maxAlpha);
           if (a <= 0) continue;
