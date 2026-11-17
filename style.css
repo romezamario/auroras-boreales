@@ -190,7 +190,7 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   margin: 0;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 0.95rem;
   pointer-events: none;
 }
@@ -340,8 +340,9 @@ button:focus-visible {
   height: 100%;
   max-width: 100%;
   border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1px solid #1e293b;
+  /* Espacio: el canvas pinta las estrellas; este color evita un destello claro al cargar. */
+  background: #02040a;
 
   /* 🔑 CLAVE PARA DRAG EN MOBILE */
   touch-action: none;
@@ -566,13 +567,11 @@ button:focus-visible {
 }
 
 .cloud-legend .legend-bar {
-  background: linear-gradient(
-    90deg,
-    rgb(191, 233, 255) 0%,
-    rgb(120, 195, 255) 35%,
-    rgb(60, 140, 230) 65%,
-    rgb(11, 45, 143) 100%
-  );
+  background: linear-gradient(90deg, rgba(71, 85, 105, 0.1) 0%, rgba(71, 85, 105, 0.75) 100%);
+}
+
+:root[data-theme="dark"] .cloud-legend .legend-bar {
+  background: linear-gradient(90deg, rgba(241, 245, 255, 0.1) 0%, rgba(241, 245, 255, 0.75) 100%);
 }
 
 /* ================= PANEL DE DETALLE ================= */

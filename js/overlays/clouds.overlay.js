@@ -1,146 +1,199 @@
 // js/overlays/clouds.overlay.js
 //
-// Nuevo enfoque: NO descarga textura WMS ni lee pixeles cross-origin.
-// Consume /data/clouds.json (generado en backend/Actions) y dibuja una
-// rejilla ("grid") súper ligera sobre el globo.
+// Capa de nubosidad a partir de /data/clouds.json (rejilla 360x180, 0–100 %).
 //
-// Espera que App.state.clouds.grid tenga esta forma (opcional):
-// {
-//   w: 360,
-//   h: 180,
-//   values_0_100: [ [..w..], [..w..], ...h filas ... ]   // o array plano
-// }
+// Se pinta como un manto continuo, igual que una imagen de satélite: para cada
+// píxel (a resolución reducida) del disco visible se busca su lon/lat con
+// projection.invert, se interpola la nubosidad de forma bilineal y se convierte
+// en opacidad. El resultado se guarda en un canvas pequeño que se escala con
+// suavizado sobre el globo y se reutiliza mientras no cambien la vista, los
+// datos, el umbral o el tema.
 //
-// Y que App.state.clouds.coverage / lastDate se seteen desde app.js.
-//
-// Nota: si no hay grid, el overlay no dibuja (pero UI puede mostrar %).
+// Espera que App.state.clouds.grid tenga esta forma:
+// { w: 360, h: 180, values_0_100: [ ...h*w ] }   // o 2D: h filas de w
 
 (function () {
   window.App = window.App || {};
 
-  // Niveles de color para agrupar los puntos de nube: un fill() por nivel en vez
-  // de uno por celda (hasta 64.800 por frame).
-  const CLOUD_LEVELS = 16;
+  // Color de las nubes según el tema: blanco sobre el globo oscuro y gris
+  // azulado sobre el claro (el blanco no contrasta con el océano claro).
+  const CLOUD_RGB = {
+    dark: [244, 247, 255],
+    light: [71, 85, 105]
+  };
 
-  function levelOf(t) {
-    return Math.max(0, Math.min(CLOUD_LEVELS - 1, Math.floor(t * CLOUD_LEVELS)));
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   }
 
-  function buildCloudPointCache(gridN) {
-    const points = new Array(gridN.w * gridN.h);
-    const { w, h } = gridN;
-
+  // Lector rápido de la rejilla como Float32Array plano (0..1).
+  function toFlatGrid(gridN) {
+    const { w, h, values1D, values2D } = gridN;
+    const flat = new Float32Array(w * h);
     for (let y = 0; y < h; y += 1) {
       for (let x = 0; x < w; x += 1) {
-        const t = App.cloudsUtils.getValue01(gridN, x, y);
-        if (t <= 0) continue;
-
-        const [lon, lat] = App.cloudsUtils.cellCenterLonLat(w, h, x, y);
-        const cartesian = versor.cartesian([lon, lat]);
-
-        points[y * w + x] = { lon, lat, t, cartesian, level: levelOf(t) };
+        const v = values2D ? values2D[y][x] : values1D[y * w + x];
+        const n = Number(v) || 0;
+        flat[y * w + x] = n <= 0 ? 0 : n >= 100 ? 1 : n / 100;
       }
     }
-
-    return { gridRef: gridN, points, w, h };
+    // La fuente es una rejilla de 5° reinterpolada a 1°: dos pasadas de desenfoque
+    // de caja quitan el aspecto de bloques y dejan bordes suaves como de nube.
+    boxBlur(flat, w, h, 2);
+    boxBlur(flat, w, h, 2);
+    return { w, h, flat, ref: gridN };
   }
 
-  // Color de cada nivel (centro del tramo) con alpha creciente según cobertura.
-  function buildLevelStyles(cloudsCfg) {
-    const alphaBase = cloudsCfg.pointAlphaBase ?? 0.08;
-    const alphaScale = cloudsCfg.pointAlphaScale ?? 0.66;
-    const styles = [];
-    for (let i = 0; i < CLOUD_LEVELS; i += 1) {
-      const t = (i + 0.5) / CLOUD_LEVELS;
-      const [r, g, b] = App.cloudsUtils.blueRamp(t);
-      styles.push(`rgba(${r},${g},${b},${(alphaBase + alphaScale * t).toFixed(3)})`);
+  // Desenfoque de caja separable (radio r), con vuelta completa en longitud.
+  function boxBlur(flat, w, h, r) {
+    const tmp = new Float32Array(w * h);
+    const span = 2 * r + 1;
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        let acc = 0;
+        for (let k = -r; k <= r; k += 1) acc += flat[y * w + ((x + k + w) % w)];
+        tmp[y * w + x] = acc / span;
+      }
     }
-    return styles;
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        let acc = 0;
+        for (let k = -r; k <= r; k += 1) {
+          const yy = Math.min(h - 1, Math.max(0, y + k));
+          acc += tmp[yy * w + x];
+        }
+        flat[y * w + x] = acc / span;
+      }
+    }
   }
 
-  let levelStyles = null;
+  // Nubosidad 0..1 interpolada en (lon, lat). Celdas con centro en
+  // lon = -180 + (x + 0.5) * 360 / w y lat = 90 - (y + 0.5) * 180 / h.
+  function sample(grid, lon, lat) {
+    const { w, h, flat } = grid;
+    let fx = ((lon + 180) / 360) * w - 0.5;
+    let fy = ((90 - lat) / 180) * h - 0.5;
+    if (fy < 0) fy = 0;
+    if (fy > h - 1) fy = h - 1;
+    fx = ((fx % w) + w) % w;
 
-  // Overlay principal de nubes.
+    const x0 = Math.floor(fx);
+    const y0 = Math.floor(fy);
+    const x1 = (x0 + 1) % w;
+    const y1 = Math.min(h - 1, y0 + 1);
+    const tx = fx - x0;
+    const ty = fy - y0;
+
+    const a = flat[y0 * w + x0];
+    const b = flat[y0 * w + x1];
+    const c = flat[y1 * w + x0];
+    const d = flat[y1 * w + x1];
+    return (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty;
+  }
+
+  // Opacidad según cobertura: cielo poco nublado casi transparente, cubierto opaco.
+  function alphaFor(t, tMin, tMax, maxAlpha) {
+    if (t < tMin || t > tMax) return 0;
+    const k = (t - 0.2) / 0.8;
+    if (k <= 0) return 0;
+    return Math.pow(k, 1.3) * maxAlpha;
+  }
+
   App.cloudsOverlay = {
+    _grid: null,
+    _canvas: null,
+    _key: "",
+
     draw(globe, state) {
       if (!state.clouds.enabled) return;
 
-      // Si no hay grid, no dibujamos (pero UI puede mostrar %)
       let gridN = state.clouds.gridNormalized;
       if (!gridN && state.clouds.grid) {
         gridN = App.utils.normalizeCloudGrid(state.clouds.grid);
         state.clouds.gridNormalized = gridN;
       }
       if (!gridN) return;
-
-      if (!state.clouds.gridCache || state.clouds.gridCache.gridRef !== gridN) {
-        state.clouds.gridCache = buildCloudPointCache(gridN);
+      if (!this._grid || this._grid.ref !== gridN) {
+        this._grid = toFlatGrid(gridN);
+        this._key = "";
       }
 
       const { ctx, projection } = globe;
-
-      // Cara visible (evita dibujar “detrás”)
-      const center = projection.invert([globe.width / 2, globe.height / 2]);
-      const vc = center ? versor.cartesian(center) : null;
-
-      const isMobile = Math.min(globe.width, globe.height) < 520;
       const cloudsCfg = App.config?.clouds ?? {};
+      const isMobile = Math.min(globe.width, globe.height) < 520;
 
-      // Para performance: muestreamos 1 de cada N celdas del grid según dispositivo.
-      // Si tu grid es 360x180, step=1 es OK desktop, step=2/3 mobile.
-      let step = isMobile ? (cloudsCfg.sampleStepMobile ?? 2) : (cloudsCfg.sampleStepDesktop ?? 1);
-      // Mientras se arrastra el globo se dibuja la mitad de celdas; al soltar se repinta fino.
-      if (globe.interacting) step *= 2;
+      // Tamaño del "píxel" de la textura en px CSS: más grueso mientras se arrastra.
+      let cell = isMobile ? (cloudsCfg.textureCellMobile ?? 2) : (cloudsCfg.textureCellDesktop ?? 2);
+      if (globe.interacting) cell *= 2;
 
-      const baseOpacity = state.clouds.opacity ?? cloudsCfg.opacity ?? 0.28;
+      const tMin = Number(state.clouds.thresholdMin ?? cloudsCfg.minIntensity ?? 0.12);
+      const tMax = Number(state.clouds.thresholdMax ?? cloudsCfg.maxIntensity ?? 1);
+      const maxAlpha = cloudsCfg.maxAlpha ?? 0.85;
+      const theme = currentTheme();
 
-      // Umbral visual: ignora intensidades bajas para no “ensuciar”
-      const T_MIN = Number(state.clouds.thresholdMin ?? cloudsCfg.minIntensity ?? 0.12);
-      const T_MAX = Number(state.clouds.thresholdMax ?? cloudsCfg.maxIntensity ?? 1);
+      const [cx, cy] = projection.translate();
+      const R = projection.scale();
+      const rot = projection.rotate();
+
+      const key = [globe.width, globe.height, cell, cx, cy, R, rot.join(","), tMin, tMax, maxAlpha, theme].join("|");
+      if (this._key !== key || !this._canvas) {
+        this.renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme, cx, cy, R });
+        this._key = key;
+      }
 
       ctx.save();
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = baseOpacity;
-
-      const r = isMobile ? (cloudsCfg.pointRadiusMobile ?? 1.6) : (cloudsCfg.pointRadiusDesktop ?? 2.2);
-
-      const cache = state.clouds.gridCache;
-      const { points, w, h } = cache;
-      if (!levelStyles) levelStyles = buildLevelStyles(cloudsCfg);
-
-      const groups = levelStyles.map(() => []);
-
-      for (let y = 0; y < h; y += step) {
-        for (let x = 0; x < w; x += step) {
-          const point = points[y * w + x];
-          if (!point) continue;
-          if (point.t < T_MIN || point.t > T_MAX) continue;
-
-          if (vc) {
-            const dot = vc[0] * point.cartesian[0] + vc[1] * point.cartesian[1] + vc[2] * point.cartesian[2];
-            if (dot <= 0) continue;
-          }
-
-          const xy = projection([point.lon, point.lat]);
-          if (!xy) continue;
-
-          groups[point.level].push(xy[0], xy[1]);
-        }
-      }
-
-      for (let level = 0; level < groups.length; level += 1) {
-        const coords = groups[level];
-        if (!coords.length) continue;
-        ctx.fillStyle = levelStyles[level];
-        ctx.beginPath();
-        for (let j = 0; j < coords.length; j += 2) {
-          ctx.moveTo(coords[j] + r, coords[j + 1]);
-          ctx.arc(coords[j], coords[j + 1], r, 0, 2 * Math.PI);
-        }
-        ctx.fill();
-      }
-
+      ctx.globalAlpha = state.clouds.opacity ?? cloudsCfg.opacity ?? 1;
+      ctx.imageSmoothingEnabled = true;
+      const { x, y, size } = this._placement;
+      ctx.drawImage(this._canvas, x, y, size, size);
       ctx.restore();
+    },
+
+    renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme, cx, cy, R }) {
+      const { projection } = globe;
+      const grid = this._grid;
+      const [cr, cg, cb] = CLOUD_RGB[theme] ?? CLOUD_RGB.dark;
+
+      // Solo el cuadrado que contiene el disco del globo.
+      const n = Math.max(8, Math.ceil((2 * R) / cell));
+      const size = n * cell;
+      const x0 = cx - size / 2;
+      const y0 = cy - size / 2;
+
+      if (!this._canvas) this._canvas = document.createElement("canvas");
+      const canvas = this._canvas;
+      if (canvas.width !== n || canvas.height !== n) {
+        canvas.width = n;
+        canvas.height = n;
+      }
+      const tctx = canvas.getContext("2d");
+      const image = tctx.createImageData(n, n);
+      const data = image.data;
+      const R2 = R * R;
+
+      for (let j = 0; j < n; j += 1) {
+        const py = y0 + (j + 0.5) * cell;
+        const dy = py - cy;
+        for (let i = 0; i < n; i += 1) {
+          const px = x0 + (i + 0.5) * cell;
+          const dx = px - cx;
+          if (dx * dx + dy * dy >= R2) continue;
+
+          const lonLat = projection.invert([px, py]);
+          if (!lonLat) continue;
+          const a = alphaFor(sample(grid, lonLat[0], lonLat[1]), tMin, tMax, maxAlpha);
+          if (a <= 0) continue;
+
+          const o = (j * n + i) * 4;
+          data[o] = cr;
+          data[o + 1] = cg;
+          data[o + 2] = cb;
+          data[o + 3] = Math.round(a * 255);
+        }
+      }
+
+      tctx.putImageData(image, 0, 0);
+      this._placement = { x: x0, y: y0, size };
     }
   };
 })();

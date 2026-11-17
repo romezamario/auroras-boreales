@@ -40,7 +40,8 @@
       ctx.save();
       ctx.beginPath();
       path(this._nightCircle);
-      ctx.fillStyle = cfg.nightColor;
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      ctx.fillStyle = (isDark && cfg.nightColorDark) || cfg.nightColor;
       ctx.fill();
       ctx.restore();
     }

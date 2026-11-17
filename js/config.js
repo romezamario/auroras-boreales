@@ -53,15 +53,14 @@
       // Configuración específica para la capa de nubosidad.
       clouds: {
         enabled: true,
-        opacity: 0.28,
-        sampleStepMobile: 2,
-        sampleStepDesktop: 1,
+        // Opacidad global de la capa; la de cada zona sale de la cobertura (hasta maxAlpha).
+        opacity: 1,
+        maxAlpha: 0.75,
+        // Tamaño en px de cada celda de la textura de nubes (se duplica al arrastrar).
+        textureCellMobile: 2,
+        textureCellDesktop: 2,
         minIntensity: 0.12,
-        maxIntensity: 1,
-        pointRadiusMobile: 1.6,
-        pointRadiusDesktop: 2.2,
-        pointAlphaBase: 0.08,
-        pointAlphaScale: 0.55
+        maxIntensity: 1
       },
       // Flags para activar/desactivar la capa de auroras.
       aurora: {
@@ -85,6 +84,8 @@
       dayNight: {
         enabled: true,
         nightColor: "rgba(15, 20, 35, 0.35)",
+        // Con el globo oscuro la noche necesita más contraste para distinguirse del día.
+        nightColorDark: "rgba(0, 2, 10, 0.55)",
         refreshMs: 60000
       },
       // Metadatos de versión para mostrar en pantalla sin depender de una llamada remota obligatoria.
