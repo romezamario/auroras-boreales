@@ -370,7 +370,7 @@ El workflow `Tests` (`.github/workflows/tests.yml`) corre en cada push a `main`:
 ## Operación de workflows
 - Los workflows `Collect OVATION Snapshots` y `Build OVATION Global Merge` se retiraron el **23 de marzo de 2026** porque la aplicación ya consume OVATION directamente desde NOAA en tiempo real y no requiere recolectar snapshots ni consolidarlos.
 - El único artefacto recolectado que permanece operativo para el frontend es `data/clouds.json`, generado por el workflow `Update cloud cover (Open-Meteo)` (cada 8 horas). Sustituyó en noviembre de 2026 al workflow de MODIS/LAADS, que dependía de un token de Earthdata con caducidad de 60 días.
-- `Collect aurora history` (cada 5 min, `scripts/ovation_history.py`): agrega la foto más reciente de OVATION a `aurora-history.json` y descarta las de más de ~65 min. El archivo vive en la rama `aurora-history`, que siempre tiene un único commit (force push en cada corrida) para que el repo no crezca; no redespliega Pages. GitHub puede retrasar los cron de 5 min en horas de carga, así que puede haber huecos entre fotos.
+- `Collect aurora history` (corrida de ~55 min que revisa NOAA cada 2 min y se relanza sola; cron cada hora de respaldo; `scripts/ovation_history.py`): agrega la foto más reciente de OVATION a `aurora-history.json` y descarta las de más de ~65 min. El archivo vive en la rama `aurora-history`, que siempre tiene un único commit (force push en cada corrida) para que el repo no crezca; no redespliega Pages. No se usa un cron de 5 min porque GitHub los retrasa o salta; para detener la cadena basta cancelar la corrida en curso.
 - El despliegue de GitHub Pages empaqueta una carpeta `dist/` y excluye `data/history/` para evitar publicar históricos o derivados de recolección.
 
 ## Gestión de cambio

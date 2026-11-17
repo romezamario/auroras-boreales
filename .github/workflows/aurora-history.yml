@@ -1,6 +1,12 @@
 # Junta las fotos de OVATION de la última hora para la animación del globo.
-# NOAA solo publica el pronóstico más reciente, así que cada 5 min se agrega
-# la foto nueva a aurora-history.json y se descartan las de más de ~1 h.
+# NOAA solo publica el pronóstico más reciente, así que se va guardando cada
+# foto nueva en aurora-history.json y se descartan las de más de ~1 h.
+#
+# Por qué un bucle y no un cron cada 5 min: los cron de GitHub se retrasan o se
+# saltan (el primero tardó más de 10 min en arrancar). Aquí cada corrida se
+# queda ~55 min revisando NOAA cada 2 min, y al terminar se relanza sola. El
+# cron cada hora solo sirve de respaldo si la cadena se corta. La cola de
+# concurrencia evita que corran dos a la vez.
 #
 # El archivo vive en la rama `aurora-history`, que siempre tiene UN solo commit
 # (se reemplaza con force push). Así el repo no crece con cada foto y no hace
@@ -9,12 +15,12 @@ name: Collect aurora history
 
 on:
   schedule:
-    # GitHub no garantiza la hora exacta: en horas de carga puede retrasarse.
-    - cron: "*/5 * * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: aurora-history
@@ -22,35 +28,58 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  LOOP_MINUTES: 55
+  POLL_SECONDS: 120
 
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 70
     steps:
       - name: Checkout (solo el script)
         uses: actions/checkout@v6
         with:
           sparse-checkout: scripts
-      - name: Recuperar el historial anterior
-        run: |
-          git fetch --depth=1 origin aurora-history 2>/dev/null \
-            && git show origin/aurora-history:aurora-history.json > /tmp/previous.json \
-            || echo "Rama aurora-history todavía no existe; se empieza de cero."
-      - name: Agregar la foto más reciente de NOAA
+      - name: Revisar NOAA durante ~55 min y publicar cada foto nueva
         env:
-          PREVIOUS_PATH: /tmp/previous.json
-          OUT_PATH: /tmp/out/aurora-history.json
-        run: python3 scripts/ovation_history.py
-      - name: Publicar en la rama aurora-history (un solo commit)
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
-          [ -f /tmp/out/aurora-history.json ] || { echo "Sin archivo nuevo"; exit 0; }
-          cd /tmp/out
+          set -u
+          mkdir -p /tmp/pub
+          cd /tmp/pub
           git init -q -b aurora-history
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+          if git fetch -q --depth=1 "$REMOTE" aurora-history; then
+            git show FETCH_HEAD:aurora-history.json > aurora-history.json || true
+          else
+            echo "Rama aurora-history todavía no existe; se empieza de cero."
+          fi
           printf '%s\n' "Fotos de OVATION de la última hora para la animación del sitio." \
-            "Las genera el workflow Collect aurora history; esta rama se reemplaza en cada corrida." > README.md
-          git add aurora-history.json README.md
-          git commit -q -m "Historial OVATION $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" aurora-history
+            "Las genera el workflow Collect aurora history; esta rama se reemplaza en cada foto nueva." > README.md
+
+          END=$(( $(date +%s) + LOOP_MINUTES * 60 ))
+          while :; do
+            BEFORE=$(sha1sum aurora-history.json 2>/dev/null || true)
+            PREVIOUS_PATH=aurora-history.json OUT_PATH=aurora-history.json \
+              python3 "$GITHUB_WORKSPACE/scripts/ovation_history.py" || true
+            AFTER=$(sha1sum aurora-history.json 2>/dev/null || true)
+            if [ -f aurora-history.json ] && [ "$BEFORE" != "$AFTER" ]; then
+              # Siempre un único commit: se rehace desde cero y se reemplaza la rama.
+              git checkout -q --orphan tmp 2>/dev/null || true
+              git add aurora-history.json README.md
+              git commit -q -m "Historial OVATION $(date -u +%Y-%m-%dT%H:%MZ)"
+              git branch -M aurora-history
+              for i in 1 2 3; do git push -q --force "$REMOTE" aurora-history && break; sleep 10; done
+            fi
+            [ $(( $(date +%s) + POLL_SECONDS )) -lt "$END" ] || break
+            sleep "$POLL_SECONDS"
+          done
+      - name: Relanzar la siguiente corrida
+        # No se relanza si alguien canceló la corrida a mano (así se puede detener la cadena).
+        if: success() || failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run aurora-history.yml --repo "${{ github.repository }}" --ref "${{ github.ref_name }}"
