@@ -544,6 +544,12 @@ Documentar de forma continua:
   - Resultado esperado: Tarjeta Kp con barras por día, aviso en página y notificación del navegador cuando la probabilidad alcanza el nivel elegido de noche, y tema oscuro sin destello inicial.
   - Verificación: `node --check` en los JS nuevos y Playwright con NOAA/CDN simulados (Kp en formato tabla y objetos, alerta disparada con nubosidad 0, notificación única, tema claro/oscuro, vista móvil 390 px), sin errores de página.
 
+- **Cambio:** Un solo despliegue por push y cache-busting de JS/CSS (2026-11-17).
+  - Archivos: `.github/workflows/static.yml`, `js/globe/globe.render.js`, `AGENTS.md`
+  - Motivo: Cada push publicaba dos veces (static.yml y "pages build and deployment" desde la rama, que terminaba último) y el navegador mezclaba archivos de versiones distintas por la caché de 10 min de Pages; el sitio fallaba en algunos despliegues sí y en otros no.
+  - Resultado esperado: Pages con Source = GitHub Actions (cambiado por Mario), `?v=<commit>` en todos los JS/CSS locales y capas del globo aisladas ante errores.
+  - Verificación: varios pushes seguidos con un único despliegue por commit.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)
