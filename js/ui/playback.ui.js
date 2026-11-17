@@ -111,8 +111,8 @@
         this.pos = 0;
         this.message(
           this.view.length
-            ? "Todavía hay una sola foto guardada. Se agrega una cada ~5 min; vuelve en un rato para ver la animación."
-            : "No se encontraron fotos de la última hora todavía. Se guardan cada ~5 min."
+            ? "Todavía hay una sola foto guardada. NOAA publica una nueva cada 5 a 10 min; vuelve en un rato para ver la animación."
+            : "No se encontraron fotos de la última hora todavía. Se guardan conforme NOAA publica, cada 5 a 10 min."
         );
       } else {
         this.message("");
