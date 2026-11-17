@@ -1329,3 +1329,152 @@ button:focus-visible {
 :root[data-theme="dark"] .accent-panel {
   background: linear-gradient(180deg, #13213a 0%, #111a2e 100%);
 }
+
+/* ================= MÓVIL: GLOBO FIJO, CAPAS FLOTANTES Y PANEL INFERIOR ================= */
+/* Fuera del diseño móvil estos elementos no existen. */
+.globe-fab {
+  display: none;
+}
+
+.mobile-sheet[hidden],
+.mobile-sheet-panel[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  /* Espacio para que el panel inferior no tape la última tarjeta. */
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* El globo se queda arriba mientras se recorre el resto de la página. */
+  .visual {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin: 0 -8px;
+    padding: 6px 8px;
+    background: #f4f6fb;
+  }
+
+  .canvas-card {
+    height: 45vh;
+    height: 45svh;
+    min-height: 280px;
+    padding: 6px;
+  }
+
+  /* Las capas pasan a los botones flotantes. */
+  .layers-card {
+    display: none;
+  }
+
+  .globe-fab {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .globe-fab-btn,
+  .globe-fab-btn:hover {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    transform: none;
+    opacity: 0.55;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .globe-fab-btn.is-on {
+    opacity: 1;
+    background: rgba(37, 99, 235, 0.85);
+    border-color: rgba(147, 197, 253, 0.8);
+  }
+
+  /* Panel inferior con pestañas. */
+  .mobile-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.22);
+    padding: 6px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-sheet-panel {
+    max-height: 38vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-sheet-panel .card {
+    box-shadow: none;
+    padding: 8px 4px 4px;
+    background: transparent;
+  }
+
+  .mobile-sheet-panel .card-header p {
+    display: none;
+  }
+
+  .mobile-sheet-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding-top: 6px;
+  }
+
+  .mobile-sheet-tab,
+  .mobile-sheet-tab:hover {
+    width: auto;
+    padding: 9px 6px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    background: #e2e8f0;
+    color: #0f172a;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .mobile-sheet-tab.is-active {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  :root[data-theme="dark"] .visual {
+    background: #0b1120;
+  }
+
+  :root[data-theme="dark"] .mobile-sheet {
+    background: #111a2e;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.5);
+  }
+
+  :root[data-theme="dark"] .mobile-sheet-tab {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+
+  :root[data-theme="dark"] .mobile-sheet-tab.is-active {
+    background: #2563eb;
+    color: #ffffff;
+  }
+}

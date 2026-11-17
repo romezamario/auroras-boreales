@@ -85,10 +85,20 @@
       <button type="button" id="aurora-alert-close" class="aurora-alert-close" aria-label="Cerrar aviso">✕</button>
     </div>
 
+    <!-- Móvil: panel inferior con pestañas; mobile-layout.ui.js mueve aquí las tarjetas de filtros. -->
+    <div class="mobile-sheet" id="mobile-sheet" hidden>
+      <div class="mobile-sheet-panel" id="mobile-sheet-panel" role="tabpanel" hidden></div>
+      <div class="mobile-sheet-tabs" role="tablist" aria-label="Filtros del globo">
+        <button type="button" role="tab" class="mobile-sheet-tab" data-sheet-tab="intensity" aria-selected="false" aria-controls="mobile-sheet-panel">Intensidad</button>
+        <button type="button" role="tab" class="mobile-sheet-tab" data-sheet-tab="clouds" aria-selected="false" aria-controls="mobile-sheet-panel">Nubosidad</button>
+        <button type="button" role="tab" class="mobile-sheet-tab" data-sheet-tab="probability" aria-selected="false" aria-controls="mobile-sheet-panel">Probabilidad</button>
+      </div>
+    </div>
+
     <div class="layout">
       <!-- Panel lateral con controles y leyendas -->
       <aside class="controls">
-        <div class="card">
+        <div class="card layers-card" id="layers-card">
           <div class="card-header">
             <h2>Capas visibles</h2>
             <p>Activa o desactiva fuentes para comparar lecturas.</p>
@@ -254,6 +264,13 @@
           <p id="globe-help" class="visually-hidden">Con el teclado: flechas para girar el globo, más y menos para acercar o alejar, Enter para consultar el punto del centro e Inicio para volver a la vista inicial. Con ratón o dedo: arrastra para girar y haz clic o toca para consultar un punto.</p>
           <p class="globe-loading" id="globe-loading" role="status">Cargando globo…</p>
           <p class="data-alert" id="data-alert" role="alert" hidden></p>
+          <!-- Móvil: capas como botones flotantes sobre el globo (reflejan los toggles de "Capas visibles"). -->
+          <div class="globe-fab" role="group" aria-label="Capas del globo">
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-aurora" aria-label="Auroras" title="Auroras"><span aria-hidden="true">✨</span></button>
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-probability" aria-label="Probabilidad" title="Probabilidad"><span aria-hidden="true">🎯</span></button>
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-day-night" aria-label="Día / noche" title="Día / noche"><span aria-hidden="true">🌓</span></button>
+            <button type="button" class="globe-fab-btn" data-layer-toggle="toggle-clouds" aria-label="Nubosidad" title="Nubosidad"><span aria-hidden="true">☁️</span></button>
+          </div>
         </div>
       </main>
 
@@ -405,6 +422,7 @@
   <script defer src="js/ui/theme.ui.js"></script>
   <script defer src="js/ui/kp-forecast.ui.js"></script>
   <script defer src="js/ui/alerts.ui.js"></script>
+  <script defer src="js/ui/mobile-layout.ui.js"></script>
 
   <!-- Overlays del globo (nubes, probabilidad, noche, auroras) -->
   <script defer src="js/overlays/space.overlay.js"></script>
