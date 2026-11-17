@@ -2450,3 +2450,12 @@ button:has(> .icon) {
     animation: none;
   }
 }
+
+/* Botón de 3 estados Auroras / Probabilidad / apagado. */
+:root.map-layout .fab-cycle-icon {
+  display: flex;
+}
+
+:root.map-layout .fab-cycle-icon[hidden] {
+  display: none;
+}

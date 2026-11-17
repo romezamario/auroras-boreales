@@ -566,6 +566,12 @@ Documentar de forma continua:
   - Resultado esperado: Botón "Capas" arriba a la derecha; al tocarlo aparecen los interruptores con su nombre (Auroras y Probabilidad siguen siendo excluyentes); se cierra con el mismo botón, tocando fuera o con Esc.
   - Verificación: Playwright en iPhone 13 y escritorio: abre, cambia capas, cierra al tocar fuera, sin errores.
 
+- **Cambio:** Auroras y Probabilidad en un solo botón de 3 estados (2026-11-17).
+  - Archivos: `index.html`, `style.css`, `js/ui/map-layout.ui.js`, `README.md`, `AGENTS.md`
+  - Motivo: Son capas excluyentes; Mario pidió un solo botón que alterne Auroras → Probabilidad → apagado.
+  - Resultado esperado: El botón cambia de icono y nombre según el estado y usa los checkboxes originales (la exclusión sigue en `layers.ui.js`).
+  - Verificación: Playwright en iPhone 13: el ciclo de 3 toques cambia checkboxes y `App.state`, sin errores.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)

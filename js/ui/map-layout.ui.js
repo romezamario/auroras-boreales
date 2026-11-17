@@ -202,6 +202,7 @@
         input.addEventListener("change", sync);
       });
       sync();
+      this.initAuroraCycle();
 
       // Botón "Capas": despliega u oculta los interruptores de cada capa.
       this.fab = document.getElementById("globe-fab");
@@ -219,6 +220,40 @@
           this.layersBtn.focus({ preventScroll: true });
         }
       });
+    },
+
+    // Auroras y Probabilidad comparten un botón de 3 estados (son excluyentes):
+    // Auroras → Probabilidad → apagado → Auroras.
+    initAuroraCycle() {
+      const btn = document.getElementById("aurora-mode-btn");
+      const aurora = document.getElementById("toggle-aurora");
+      const probability = document.getElementById("toggle-probability");
+      if (!btn || !aurora || !probability) {
+        if (btn) btn.hidden = true;
+        return;
+      }
+      const LABELS = { aurora: "Auroras", probability: "Probabilidad", off: "Auroras apagadas" };
+      const mode = () => (aurora.checked ? "aurora" : probability.checked ? "probability" : "off");
+      const label = btn.querySelector(".fab-label");
+      const sync = () => {
+        const current = mode();
+        btn.classList.toggle("is-on", current !== "off");
+        btn.querySelectorAll("[data-mode-icon]").forEach((icon) => {
+          icon.hidden = icon.dataset.modeIcon !== (current === "probability" ? "probability" : "aurora");
+        });
+        if (label) label.textContent = LABELS[current];
+        btn.setAttribute("aria-label", `Capa de auroras: ${LABELS[current]}. Toca para cambiar.`);
+      };
+      btn.addEventListener("click", () => {
+        const current = mode();
+        // Los checkboxes originales hacen la exclusión y el redibujado.
+        if (current === "aurora") probability.click();
+        else if (current === "probability") probability.click();
+        else aurora.click();
+      });
+      aurora.addEventListener("change", sync);
+      probability.addEventListener("change", sync);
+      sync();
     },
 
     toggleLayers(force) {
