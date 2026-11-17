@@ -588,6 +588,7 @@ Documentar de forma continua:
   - Archivos: `assets/icons/*`, `manifest.webmanifest`, `index.html`, `explicacion-sitio.html`, `tratamiento-datos.html`, `README.md`, `AGENTS.md`
   - Motivo: Al agregar el sitio a la pantalla de inicio del iPhone salía un ícono genérico con la letra "A".
   - Resultado esperado: `apple-touch-icon` de 180 px, favicon SVG/PNG y manifest con íconos 192/512. Sin service worker (la PWA sigue en backlog).
+  - Ajuste: el manifest ya no lista el SVG (iOS no lo usa para la pantalla de inicio) e incluye el PNG de 180 px; `static.yml` añade `?v=<commit>` también a `assets/icons/` y al manifest para que el teléfono no use una copia vieja.
   - Verificación: servidor local + Playwright: los `<link>` de íconos y el manifest responden 200 y el manifest es JSON válido; `node --test tests/*.test.js`.
 
 ---

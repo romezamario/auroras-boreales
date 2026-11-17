@@ -70,7 +70,7 @@ jobs:
         run: |
           V="${GITHUB_SHA::7}"
           for f in dist/*.html; do
-            sed -i -E "s#(src|href)=\"((js/|style\.css|versor\.js)[^\"?]*)\"#\1=\"\2?v=${V}\"#g" "$f"
+            sed -i -E "s#(src|href)=\"((js/|style\.css|versor\.js|assets/icons/|manifest\.webmanifest)[^\"?]*)\"#\1=\"\2?v=${V}\"#g" "$f"
           done
           grep -hoE '(src|href)="[^"]*\?v=[^"]*"' dist/*.html | sort | uniq -c | head -50
       - name: Upload artifact
