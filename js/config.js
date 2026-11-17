@@ -22,12 +22,25 @@
         kpForecast: "https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json",
         worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json",
         worldCountries: "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json",
+        // Proveedores de ubicación por IP, en orden. Si uno falla o lo bloquea el
+        // navegador (Safari bloquea algunos dominios de geolocalización por IP),
+        // se prueba el siguiente. Todos son JSON con CORS y sin clave.
         ipGeo: [
+          {
+            // BigDataCloud sin coordenadas = ubicación por IP (mismo proveedor que el geocodificador).
+            url: "https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=es",
+            type: "json"
+          },
           {
             url: "https://get.geojs.io/v1/ip/geo.json",
             type: "json"
+          },
+          {
+            url: "https://ipwho.is/?lang=es",
+            type: "json"
           }
         ],
+        ipGeoTimeoutMs: 6000,
         // Nombre de estado/país a partir de las coordenadas del dispositivo.
         // Servicio gratuito, sin clave y pensado para uso desde el navegador.
         reverseGeocode: "https://api.bigdatacloud.net/data/reverse-geocode-client"

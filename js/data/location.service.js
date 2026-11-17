@@ -15,16 +15,14 @@
     const lon = parseNumber(payload.longitude ?? payload.lon);
     if (lat === null || lon === null) return null;
 
-    const region = payload.region
-      ? String(payload.region)
-      : payload.region_name
-        ? String(payload.region_name)
-        : null;
-    const country = payload.country_name
-      ? String(payload.country_name)
-      : payload.country
-        ? String(payload.country)
-        : null;
+    // Nombres según el proveedor: GeoJS / ipwho.is (region, country),
+    // BigDataCloud (principalSubdivision, countryName) y otros (region_name, country_name).
+    const pick = (...values) => {
+      const found = values.find((v) => typeof v === "string" && v.trim());
+      return found ? found.trim() : null;
+    };
+    const region = pick(payload.region, payload.principalSubdivision, payload.region_name, payload.city, payload.locality);
+    const country = pick(payload.country_name, payload.countryName, payload.country);
 
     return {
       lat,
@@ -45,8 +43,21 @@
     // código de terceros con acceso completo a la página.
     if (normalizedEndpoint.type !== "json") return null;
 
-    const data = await d3.json(normalizedEndpoint.url);
-    return parseLocationPayload(data);
+    // fetch con límite de tiempo: si un proveedor no responde, se pasa al siguiente.
+    const timeoutMs = App.config?.endpoints?.ipGeoTimeoutMs ?? 6000;
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    try {
+      const res = await fetch(normalizedEndpoint.url, {
+        cache: "no-store",
+        credentials: "omit",
+        signal: controller?.signal
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return parseLocationPayload(await res.json());
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   function getDeviceConfig() {

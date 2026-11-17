@@ -275,7 +275,7 @@ flowchart TD
     APP[Frontend auroras-boreales]
     APP --> NOAA[services.swpc.noaa.gov]
     APP --> ATLAS[cdn.jsdelivr.net / world-atlas]
-    APP --> IP[get.geojs.io/v1/ip/geo.json]
+    APP --> IP[IP: BigDataCloud / GeoJS / ipwho.is]
     APP --> RG[api.bigdatacloud.net reverse-geocode-client]
     JOB[Pipeline openmeteo_cloudcover.py] --> OM[api.open-meteo.com]
     JOB --> CLOUDS[data/clouds.json]
@@ -384,7 +384,7 @@ El workflow `Tests` (`.github/workflows/tests.yml`) corre en cada push a `main`:
 
 ## Resiliencia
 - El refresco usa `Promise.allSettled`, lo que permite tolerar fallos parciales.
-- La geolocalización por IP usa solo `get.geojs.io/v1/ip/geo.json` (JSON con CORS); si falla, la app sigue funcionando sin marcador de ubicación. No se usa JSONP para no ejecutar código de terceros.
+- La geolocalización por IP prueba en orden BigDataCloud (`reverse-geocode-client` sin coordenadas), GeoJS y ipwho.is, todos JSON con CORS y con 6 s de límite cada uno; Safari puede bloquear alguno. Si todos fallan, la app sigue sin marcador y lo avisa en la pestaña Ubicación. No se usa JSONP para no ejecutar código de terceros.
 - El botón **"Usar mi ubicación"** pide la posición del dispositivo con `navigator.geolocation` (solo tras un clic, con el permiso del navegador). Es más preciso que la IP, que con datos móviles suele apuntar a la ciudad del operador. La elección se recuerda en `localStorage` y, en visitas siguientes, se usa sin preguntar si el permiso sigue concedido; si no, se vuelve a la IP. Al obtenerla, el globo se centra en ese punto.
 - La UI mantiene funcionalidad básica aun sin `clouds.grid`, mostrando al menos cobertura global cuando existe.
 - El sombreado día/noche se recalcula localmente sin depender de APIs externas una vez cargada la app.

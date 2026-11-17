@@ -110,6 +110,13 @@
         console.warn("[location] device location failed:", error);
         if (error?.code === 1) App.locationService.rememberDeviceChoice?.(false);
         if (!silent) this.setHint(describeError(error));
+        // Sin ubicación todavía: se intenta (otra vez) la estimación por IP.
+        if (!hasCoords(App.state?.userLocation)) {
+          const message = silent ? null : describeError(error);
+          this.loadIpLocation().then((loc) => {
+            if (loc && message) this.setHint(message);
+          });
+        }
         return false;
       } finally {
         if (this.btn) {
@@ -117,6 +124,38 @@
           this.btn.innerHTML = App.state?.userLocation?.source === "device" ? BUTTON_LABEL_UPDATE : BUTTON_LABEL;
         }
       }
+    },
+
+    // Ubicación aproximada por IP (con varios proveedores de respaldo).
+    async loadIpLocation() {
+      if (this._ipLoading) return this._ipLoading;
+      this._ipLoading = (async () => {
+        let location = null;
+        try {
+          location = await App.locationService?.fetchIpLocation?.();
+        } catch (error) {
+          console.warn("[location] ip location error:", error);
+        }
+        this._ipLoading = null;
+
+        // No pisar una ubicación del dispositivo obtenida mientras tanto.
+        if (App.state.userLocation?.source === "device") return App.state.userLocation;
+
+        if (!location) {
+          this.ipFailed = true;
+          if (!hasCoords(App.state.userLocation)) {
+            this.setHint("No se pudo estimar tu ubicación por IP (puede que el navegador bloquee estos servicios). Usa \"Usar mi ubicación\" o vuelve a intentarlo más tarde.");
+          }
+          return null;
+        }
+
+        this.ipFailed = false;
+        App.state.userLocation = location;
+        App.emit("data:location");
+        App.globe?.requestRender();
+        return location;
+      })();
+      return this._ipLoading;
     },
 
     // Al cargar: usa el dispositivo solo si la persona ya lo eligió y el permiso sigue concedido.
