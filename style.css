@@ -1864,3 +1864,46 @@ button:focus-visible {
 .playback--dock .playback-msg {
   max-width: none;
 }
+
+/* Panel inferior: detalle del punto y ubicación en rejilla compacta de 3 columnas,
+   para que todos los datos quepan sin desplazarse. */
+:root.map-layout .sheet-panel .inspector-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+:root.map-layout .sheet-panel .inspector-item {
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+
+:root.map-layout .sheet-panel .inspector-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+:root.map-layout .sheet-panel .inspector-value {
+  font-size: 0.82rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+:root.map-layout .sheet-panel .inspector-card .card-header h2 {
+  font-size: 1rem;
+}
+
+:root.map-layout .sheet-panel .inspector-card .card-header p {
+  font-size: 0.72rem;
+  margin: 2px 0 0;
+}
+
+:root.map-layout .sheet-panel .inspector-body {
+  margin-top: 8px;
+}
+
+:root.map-layout .sheet-panel .inspector-hint {
+  margin-top: 6px;
+  font-size: 0.72rem;
+}
