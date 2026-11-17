@@ -3,6 +3,13 @@
 
   // UI para activar/desactivar capas visibles del globo.
   App.layersUI = {
+    // Apaga un toggle y avisa con "change" para que su estado y los botones flotantes se sincronicen.
+    turnOff(input) {
+      if (!input || !input.checked) return;
+      input.checked = false;
+      input.dispatchEvent(new Event("change"));
+    },
+
     init() {
       this.cloudsToggle = document.getElementById("toggle-clouds");
       this.auroraToggle = document.getElementById("toggle-aurora");
@@ -23,6 +30,8 @@
         this.auroraToggle.checked = !!App.state.aurora.enabled;
         this.auroraToggle.addEventListener("change", () => {
           App.state.aurora.enabled = this.auroraToggle.checked;
+          // Auroras y Probabilidad son excluyentes: encender una apaga la otra.
+          if (this.auroraToggle.checked) this.turnOff(this.probabilityToggle);
           App.emit("state:layers");
         });
       }
@@ -32,6 +41,7 @@
         this.probabilityToggle.checked = !!App.state.probability?.enabled;
         this.probabilityToggle.addEventListener("change", () => {
           App.state.probability.enabled = this.probabilityToggle.checked;
+          if (this.probabilityToggle.checked) this.turnOff(this.auroraToggle);
           App.emit("state:probability");
         });
       }
