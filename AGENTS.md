@@ -560,6 +560,12 @@ Documentar de forma continua:
   - Resultado esperado: Barra inferior con 4 pestañas sin scroll; menú lateral con Ubicación, Pronóstico, Alertas, Datos y fuentes, modo oscuro y refrescar; tira Kp de 8 h bajo la barra superior que abre el pronóstico completo.
   - Verificación: Playwright en iPhone 13 y escritorio 1280 px con Kp simulado: pestañas sin desbordar, menú abre/cierra (Esc, fondo, volver), sin errores de página.
 
+- **Cambio:** Botón único de capas desplegable (2026-11-17).
+  - Archivos: `index.html`, `style.css`, `js/ui/map-layout.ui.js`, `README.md`, `AGENTS.md`
+  - Motivo: Mario pidió juntar los cuatro botones de capas en uno que al tocarlo muestre el resto.
+  - Resultado esperado: Botón "Capas" arriba a la derecha; al tocarlo aparecen los interruptores con su nombre (Auroras y Probabilidad siguen siendo excluyentes); se cierra con el mismo botón, tocando fuera o con Esc.
+  - Verificación: Playwright en iPhone 13 y escritorio: abre, cambia capas, cierra al tocar fuera, sin errores.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)

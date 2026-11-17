@@ -52,7 +52,7 @@
       });
       this.closeBtn?.addEventListener("click", () => this.open(null));
       document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape") return;
+        if (event.key !== "Escape" || this.layersOpen) return;
         if (this.drawerOpen) this.closeDrawer();
         else if (this.active) this.open(null);
       });
@@ -188,7 +188,7 @@
       const sync = () => {
         buttons.forEach((btn) => {
           const on = Boolean(document.getElementById(btn.dataset.layerToggle)?.checked);
-          btn.setAttribute("aria-pressed", on ? "true" : "false");
+          btn.setAttribute("aria-checked", on ? "true" : "false");
           btn.classList.toggle("is-on", on);
         });
       };
@@ -202,6 +202,32 @@
         input.addEventListener("change", sync);
       });
       sync();
+
+      // Botón "Capas": despliega u oculta los interruptores de cada capa.
+      this.fab = document.getElementById("globe-fab");
+      this.layersBtn = document.getElementById("layers-btn");
+      this.layersMenu = document.getElementById("layers-menu");
+      if (!this.layersBtn || !this.layersMenu) return;
+      this.layersBtn.addEventListener("click", () => this.toggleLayers());
+      // Tocar fuera (globo, panel, barra) lo cierra.
+      document.addEventListener("pointerdown", (event) => {
+        if (this.layersOpen && !this.fab.contains(event.target)) this.toggleLayers(false);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && this.layersOpen) {
+          this.toggleLayers(false);
+          this.layersBtn.focus({ preventScroll: true });
+        }
+      });
+    },
+
+    toggleLayers(force) {
+      const open = typeof force === "boolean" ? force : !this.layersOpen;
+      this.layersOpen = open;
+      this.layersMenu.hidden = !open;
+      this.fab.classList.toggle("is-open", open);
+      this.layersBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      this.layersBtn.classList.toggle("is-on", open);
     },
 
     // Abre una pestaña (o cierra el panel con null).

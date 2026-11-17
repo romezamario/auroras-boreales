@@ -2392,3 +2392,61 @@ button:has(> .icon) {
     top: calc(76px + env(safe-area-inset-top, 0px));
   }
 }
+
+/* ================= BOTÓN DE CAPAS DESPLEGABLE ================= */
+:root.map-layout .globe-fab-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+:root.map-layout .globe-fab-menu[hidden] {
+  display: none;
+}
+
+:root.map-layout .globe-fab.is-open .globe-fab-menu {
+  animation: fab-menu-in 0.16s ease-out;
+}
+
+@keyframes fab-menu-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+:root.map-layout .globe-fab-menu .globe-fab-btn {
+  position: relative;
+}
+
+/* Nombre de cada capa a la izquierda de su botón. */
+:root.map-layout .fab-label {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root.map-layout .globe-fab-btn.is-on .fab-label {
+  background: rgba(37, 99, 235, 0.92);
+  color: #ffffff;
+}
+
+:root.map-layout .globe-fab-main.is-on {
+  background: rgba(37, 99, 235, 0.9);
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root.map-layout .globe-fab.is-open .globe-fab-menu {
+    animation: none;
+  }
+}
