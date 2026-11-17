@@ -81,3 +81,41 @@ test("colores de aurora por intensidad", () => {
   assert.equal(bucket(20), 3);
   assert.equal(bucket(5), 4);
 });
+
+test("top de ciudades: solo de noche, ordenado por categoría e intensidad", () => {
+  const c = loadApp([
+    "versor.js",
+    "js/config.js",
+    "js/data/geo.utils.js",
+    "js/utils.js",
+    "js/events.js",
+    "js/data/probability.service.js",
+    "js/data/cities.service.js"
+  ]);
+  const A = c.App;
+  // Rejilla OVATION de 1° con intensidad fija por latitud: alta en el norte de Europa.
+  const points = [];
+  for (let lat = -90; lat <= 90; lat += 1) {
+    for (let lon = -180; lon < 180; lon += 1) {
+      let intensity = 0;
+      if (lat >= 59 && lat <= 65) intensity = 80;
+      else if (lat >= 55 && lat < 59) intensity = 40;
+      else if (lat >= 50 && lat < 55) intensity = 10;
+      points.push([lon, lat, intensity]);
+    }
+  }
+  A.state = { aurora: { points }, clouds: { grid: { w: 1, h: 1, values_0_100: [10] } }, probability: {} };
+  A.probabilityService.init();
+  // 17 nov 2026, 22:00 UTC: de noche en Europa, de día en Norteamérica occidental.
+  const date = new Date(Date.UTC(2026, 10, 17, 22, 0, 0));
+  const ranked = A.citiesService.rank(date);
+  assert.ok(ranked.length >= 3);
+  assert.deepEqual(Array.from(ranked.slice(0, 3), (r) => r.category.key), ["high", "high", "high"]);
+  assert.ok(ranked.every((r) => A.utils.isDayAt(r.lon, r.lat, date) !== true));
+  for (let i = 1; i < ranked.length; i += 1) {
+    const rankOf = { high: 3, medium: 2, low: 1 };
+    assert.ok(rankOf[ranked[i - 1].category.key] >= rankOf[ranked[i].category.key]);
+  }
+  assert.ok(!ranked.some((r) => r.name === "Anchorage"));
+  assert.ok(ranked.every((r) => Math.abs(r.lat) >= 40));
+});

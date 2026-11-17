@@ -298,8 +298,12 @@
           <!-- Espacio para controles flotantes sobre el globo, encima del panel inferior
                (p. ej. el reproductor de la última hora). -->
           <div class="map-dock" id="map-dock"></div>
-          <!-- Kp previsto de las próximas 8 horas (se abre el pronóstico completo al tocarlo). -->
-          <button type="button" class="kp-strip" id="kp-strip" hidden></button>
+          <!-- Indicadores sobre el globo: Kp de las próximas 8 horas (abre el pronóstico
+               completo) y top 3 de ciudades con posible aurora (centra el globo en la ciudad). -->
+          <div class="globe-indicators" id="globe-indicators">
+            <button type="button" class="kp-strip" id="kp-strip" hidden></button>
+            <div class="city-strip" id="city-strip" role="group" aria-label="Ciudades con posible aurora" hidden></div>
+          </div>
           <!-- Salir del modo pantalla completa (solo visible en ese modo). -->
           <button type="button" class="fullscreen-exit" id="fullscreen-exit" aria-label="Salir de pantalla completa" title="Salir de pantalla completa" hidden></button>
           <!-- Capas: un botón que despliega los interruptores de cada capa (reflejan los toggles de "Capas visibles"). -->
@@ -449,6 +453,7 @@
   <script defer src="js/data/probability.service.js"></script>
   <script defer src="js/data/refresh.service.js"></script>
   <script defer src="js/data/kp.service.js"></script>
+  <script defer src="js/data/cities.service.js"></script>
 
   <!-- UI: widgets y controles -->
   <script defer src="js/ui/version.ui.js"></script>
@@ -463,6 +468,7 @@
   <script defer src="js/ui/theme.ui.js"></script>
   <script defer src="js/ui/kp-forecast.ui.js"></script>
   <script defer src="js/ui/kp-strip.ui.js"></script>
+  <script defer src="js/ui/city-strip.ui.js"></script>
   <script defer src="js/ui/alerts.ui.js"></script>
   <script defer src="js/ui/playback.ui.js"></script>
   <script defer src="js/ui/map-layout.ui.js"></script>

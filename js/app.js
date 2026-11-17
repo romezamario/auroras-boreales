@@ -19,6 +19,7 @@
     App.playbackUI?.init();
     App.mapLayoutUI?.init();
     App.kpStripUI?.init();
+    App.cityStripUI?.init();
     App.fullscreenUI?.init();
   }
 

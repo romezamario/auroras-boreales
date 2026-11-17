@@ -572,6 +572,12 @@ Documentar de forma continua:
   - Resultado esperado: El botón cambia de icono y nombre según el estado y usa los checkboxes originales (la exclusión sigue en `layers.ui.js`).
   - Verificación: Playwright en iPhone 13: el ciclo de 3 toques cambia checkboxes y `App.state`, sin errores.
 
+- **Cambio:** Top 3 de ciudades con posible aurora bajo el Kp (2026-11-17).
+  - Archivos: `index.html`, `style.css`, `js/data/cities.service.js`, `js/ui/city-strip.ui.js`, `js/app.js`, `tests/core.test.js`, `README.md`, `AGENTS.md`
+  - Motivo: Mario pidió, junto a los indicadores, las 3 ciudades principales (capitales y grandes ciudades, sin pueblos) con mayor probabilidad de aurora, clasificadas baja/media/alta.
+  - Resultado esperado: Tira "Ciudades top 3" debajo de la tira Kp (ambas en `#globe-indicators`). Cada ciudad se evalúa como la capa Probabilidad (OVATION + nubosidad, solo de noche, |lat| >= 40, intensidad >= `minRelevantIntensity`) y se ordena por categoría, luego intensidad y luego menos nubes. Tocar una ciudad centra el globo y abre su detalle. Si ninguna califica se muestra un aviso. Se recalcula con datos nuevos y cada 10 min.
+  - Verificación: `node --test tests/*.test.js` (7/7, incluye prueba del ranking) y Playwright en iPhone 13 y escritorio con OVATION y Kp simulados: tira visible bajo el Kp, toque centra el globo y abre el detalle, sin errores de página.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)

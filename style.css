@@ -2310,18 +2310,37 @@ button:has(> .icon) {
 }
 
 /* ================= KP DE LAS PRÓXIMAS 8 HORAS (sobre el globo) ================= */
-.kp-strip {
+.kp-strip,
+.city-strip,
+.globe-indicators {
   display: none;
 }
 
-:root.map-layout .kp-strip:not([hidden]),
-:root.map-layout .kp-strip:not([hidden]):hover {
+/* Indicadores sobre el globo (Kp 8 h y top de ciudades), apilados arriba a la izquierda. */
+:root.map-layout .globe-indicators {
   position: absolute;
   top: calc(76px + env(safe-area-inset-top, 0px));
   left: var(--map-gap);
   z-index: 3;
-  width: auto;
   max-width: calc(100% - 2 * var(--map-gap) - 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+}
+
+/* Si hay aviso de aurora arriba, los indicadores bajan para no quedar debajo. */
+:root.map-layout:has(.aurora-alert-banner:not([hidden])) .globe-indicators {
+  top: calc(140px + env(safe-area-inset-top, 0px));
+}
+
+:root.map-layout .kp-strip:not([hidden]),
+:root.map-layout .kp-strip:not([hidden]):hover,
+:root.map-layout .city-strip:not([hidden]) {
+  position: static;
+  width: auto;
+  max-width: 100%;
   display: flex;
   align-items: stretch;
   justify-content: flex-start;
@@ -2337,14 +2356,11 @@ button:has(> .icon) {
   transform: none;
   font: inherit;
   text-align: center;
+  pointer-events: auto;
 }
 
-/* Si hay aviso de aurora arriba, la tira baja para no quedar debajo. */
-:root.map-layout:has(.aurora-alert-banner:not([hidden])) .kp-strip {
-  top: calc(140px + env(safe-area-inset-top, 0px));
-}
-
-:root.map-layout .kp-strip-label {
+:root.map-layout .kp-strip-label,
+:root.map-layout .city-strip-label {
   align-self: center;
   font-size: 0.62rem;
   font-weight: 700;
@@ -2363,14 +2379,16 @@ button:has(> .icon) {
   min-width: 40px;
 }
 
-:root.map-layout .kp-strip-time {
+:root.map-layout .kp-strip-time,
+:root.map-layout .city-strip-name {
   font-size: 0.66rem;
   font-weight: 600;
   opacity: 0.75;
   white-space: nowrap;
 }
 
-:root.map-layout .kp-strip-kp {
+:root.map-layout .kp-strip-kp,
+:root.map-layout .city-strip-level {
   min-width: 32px;
   padding: 2px 6px;
   border-radius: 8px;
@@ -2381,16 +2399,56 @@ button:has(> .icon) {
   line-height: 1.2;
 }
 
-:root.is-immersive .kp-strip {
-  display: none !important;
+/* Cada ciudad es un botón: centra el globo en ella. */
+:root.map-layout .city-strip-city,
+:root.map-layout .city-strip-city:hover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 44px;
+  max-width: 92px;
+  width: auto;
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+  transform: none;
+  font: inherit;
+  cursor: pointer;
 }
 
-@media (min-width: 900px) {
-  :root.map-layout .kp-strip:not([hidden]),
-  :root.map-layout:has(.aurora-alert-banner:not([hidden])) .kp-strip:not([hidden]) {
-    left: var(--map-gap);
-    top: calc(76px + env(safe-area-inset-top, 0px));
-  }
+:root.map-layout .city-strip-city:focus-visible {
+  outline: 2px solid var(--accent, #3b82f6);
+  outline-offset: 2px;
+}
+
+:root.map-layout .city-strip-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mismos colores que la capa Probabilidad (Okabe-Ito, aptos para daltonismo). */
+.city-level-low { --kp-bg: #d55e00; --kp-fg: #1a0a00; }
+.city-level-medium { --kp-bg: #f0e442; --kp-fg: #2a2600; }
+.city-level-high { --kp-bg: #009e73; --kp-fg: #00170f; }
+
+:root.map-layout .city-strip-empty {
+  align-self: center;
+  max-width: 190px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: left;
+  opacity: 0.8;
+}
+
+:root.is-immersive .globe-indicators {
+  display: none !important;
 }
 
 /* ================= BOTÓN DE CAPAS DESPLEGABLE ================= */
