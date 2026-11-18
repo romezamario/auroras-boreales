@@ -46,6 +46,10 @@
         const xy = projection([point.lon, point.lat]);
         if (!xy) continue;
 
+        // Con zoom, casi todo cae fuera de la pantalla: no se dibuja.
+
+        if (xy[0] < -radius || xy[1] < -radius || xy[0] > globe.width + radius || xy[1] > globe.height + radius) continue;
+
         const color = probability.color || DEFAULT_COLOR;
         if (!groups.has(color)) groups.set(color, []);
         groups.get(color).push(xy[0], xy[1]);

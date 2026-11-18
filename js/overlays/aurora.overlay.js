@@ -66,6 +66,10 @@
           const xy = projection([point[0], lat]);
           if (!xy) continue;
 
+          // Con zoom, casi todo cae fuera de la pantalla: no se dibuja.
+
+          if (xy[0] < -radius || xy[1] < -radius || xy[0] > globe.width + radius || xy[1] > globe.height + radius) continue;
+
           let bucket = point[4];
           if (bucket === undefined) {
             bucket = auroraBucket(val);
@@ -118,6 +122,8 @@
           if (vc && vc[0] * xyz[k * 3] + vc[1] * xyz[k * 3 + 1] + vc[2] * xyz[k * 3 + 2] <= 0) continue;
           const xy = projection([lon[k], lat[k]]);
           if (!xy) continue;
+          // Con zoom, casi todo cae fuera de la pantalla: no se dibuja.
+          if (xy[0] < -radius || xy[1] < -radius || xy[0] > globe.width + radius || xy[1] > globe.height + radius) continue;
           groups[auroraBucket(val)].push(xy[0], xy[1]);
         }
 

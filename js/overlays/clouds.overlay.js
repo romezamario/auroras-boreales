@@ -152,8 +152,8 @@
       ctx.globalAlpha = state.clouds.opacity ?? cloudsCfg.opacity ?? 1;
       ctx.imageSmoothingEnabled = true;
       if ("imageSmoothingQuality" in ctx) ctx.imageSmoothingQuality = "high";
-      const { x, y, size } = this._placement;
-      ctx.drawImage(this._canvas, x, y, size, size);
+      const { x, y, w, h } = this._placement;
+      ctx.drawImage(this._canvas, x, y, w, h);
       ctx.restore();
     },
 
@@ -162,30 +162,37 @@
       const grid = this._grid;
       const [cr, cg, cb] = CLOUD_RGB[theme] ?? CLOUD_RGB.dark;
 
-      // Cuadrado que contiene el disco del globo, con un margen de dos celdas: la
-      // textura se rellena un poco más allá del borde y luego se recorta al disco.
-      const n = Math.max(8, Math.ceil((2 * R) / cell) + 4);
-      const size = n * cell;
-      const x0 = cx - size / 2;
-      const y0 = cy - size / 2;
+      // Rectángulo del disco del globo (con margen de dos celdas) RECORTADO a la
+      // pantalla. Antes se cubría el disco entero: con zoom máximo (R = 4000 px)
+      // eso eran millones de projection.invert por cuadro y el globo se trababa.
+      // Ahora el trabajo depende del tamaño de la pantalla, no del zoom.
+      const pad = cell * 2;
+      const left = Math.max(0, Math.floor((cx - R - pad) / cell) * cell);
+      const top = Math.max(0, Math.floor((cy - R - pad) / cell) * cell);
+      const right = Math.min(globe.width, cx + R + pad);
+      const bottom = Math.min(globe.height, cy + R + pad);
+      const nw = Math.max(1, Math.ceil((right - left) / cell));
+      const nh = Math.max(1, Math.ceil((bottom - top) / cell));
+      const x0 = left;
+      const y0 = top;
 
       if (!this._canvas) this._canvas = document.createElement("canvas");
       const canvas = this._canvas;
-      if (canvas.width !== n || canvas.height !== n) {
-        canvas.width = n;
-        canvas.height = n;
+      if (canvas.width !== nw || canvas.height !== nh) {
+        canvas.width = nw;
+        canvas.height = nh;
       }
       const tctx = canvas.getContext("2d");
-      const image = tctx.createImageData(n, n);
+      const image = tctx.createImageData(nw, nh);
       const data = image.data;
       const outer = R + cell * 2;
       const outer2 = outer * outer;
       const inner = R * 0.999;
 
-      for (let j = 0; j < n; j += 1) {
+      for (let j = 0; j < nh; j += 1) {
         const py = y0 + (j + 0.5) * cell;
         const dy = py - cy;
-        for (let i = 0; i < n; i += 1) {
+        for (let i = 0; i < nw; i += 1) {
           const px = x0 + (i + 0.5) * cell;
           const dx = px - cx;
           const d2 = dx * dx + dy * dy;
@@ -204,7 +211,7 @@
           const a = alphaFor(sample(grid, lonLat[0], lonLat[1]), tMin, tMax, maxAlpha);
           if (a <= 0) continue;
 
-          const o = (j * n + i) * 4;
+          const o = (j * nw + i) * 4;
           data[o] = cr;
           data[o + 1] = cg;
           data[o + 2] = cb;
@@ -213,7 +220,7 @@
       }
 
       tctx.putImageData(image, 0, 0);
-      this._placement = { x: x0, y: y0, size };
+      this._placement = { x: x0, y: y0, w: nw * cell, h: nh * cell };
     }
   };
 })();
