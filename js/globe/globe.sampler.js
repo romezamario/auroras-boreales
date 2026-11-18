@@ -21,6 +21,13 @@
       const cfg = App.config?.clouds ?? {};
       const isMobile = Math.min(globe.width, globe.height) < 520;
       let cell = isMobile ? (cfg.textureCellMobile ?? 2) : (cfg.textureCellDesktop ?? 2);
+      // Con zoom, un grado de los datos (OVATION es de 1°, las nubes de 5°) ocupa
+      // muchos píxeles: con ~3 celdas por grado la textura ya no gana detalle, y el
+      // suavizado al escalarla hace el resto. Sin esto, al acercar el globo hasta
+      // llenar la pantalla se calculaban 2–3 veces más celdas por cuadro.
+      // En la vista inicial (≈3 px por grado en móvil) no cambia nada.
+      const pxPerDegree = (globe.projection.scale() * Math.PI) / 180;
+      cell = Math.max(cell, Math.round(pxPerDegree / 3.5));
       if (globe.interacting) cell *= isMobile ? 2 : 1.5;
       return cell;
     },

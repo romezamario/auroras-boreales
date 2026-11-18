@@ -191,6 +191,7 @@
       const SCALE_MIN = 50;
       const SCALE_MAX = 4000;
       const ZOOM_SPEED = 0.0015; // higher = more sensitive
+      let wheelTimer = 0;
 
       canvasSel.on("wheel.globeZoom", (event) => {
         event.preventDefault(); // prevent page scroll
@@ -202,6 +203,14 @@
         if (next === s) return;
 
         g.projection.scale(next);
+        // Igual que al arrastrar: mientras gira la rueda las texturas van a menor
+        // resolución y, al detenerse, se repinta con el detalle completo.
+        g.interacting = true;
+        window.clearTimeout(wheelTimer);
+        wheelTimer = window.setTimeout(() => {
+          g.interacting = false;
+          g.requestRender();
+        }, 160);
         g.requestRender();
       }, { passive: false });
     }

@@ -20,7 +20,6 @@
         auroraHistory: "https://raw.githubusercontent.com/romezamario/auroras-boreales/aurora-history/aurora-history.json",
         // Kp observado/estimado de los últimos días y previsto para los próximos 3 (bloques de 3 h).
         kpForecast: "https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json",
-        worldLand: "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json",
         worldCountries: "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json",
         // Proveedores de ubicación por IP, en orden. Si uno falla o lo bloquea el
         // navegador (Safari bloquea algunos dominios de geolocalización por IP),

@@ -14,8 +14,12 @@
     return window.AuroraIcons?.svg?.(name) || `<span aria-hidden="true">${fallback}</span>`;
   }
 
+  // Formateador reutilizado: toLocaleTimeString crea uno nuevo en cada llamada y
+  // la animación lo pide en cada cuadro.
+  let clockFmt = null;
   function fmtClock(date) {
-    return date.toLocaleTimeString(App.config?.locale ?? "es-MX", { hour: "2-digit", minute: "2-digit" });
+    if (!clockFmt) clockFmt = new Intl.DateTimeFormat(App.config?.locale ?? "es-MX", { hour: "2-digit", minute: "2-digit" });
+    return clockFmt.format(date);
   }
 
   App.playbackUI = {

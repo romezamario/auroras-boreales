@@ -112,7 +112,7 @@
       if (cloudHoursPromise && Date.now() - cloudHoursAt < 30 * 60000) return cloudHoursPromise;
       cloudHoursAt = Date.now();
       const url = App.config?.endpoints?.cloudsHourly ?? "data/clouds-hourly.json";
-      cloudHoursPromise = fetch(url, { cache: "no-store" })
+      cloudHoursPromise = fetch(url, { cache: "no-cache" })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (!data?.times?.length || !App.cloudsOverlay?.toFlatGrid) return [];

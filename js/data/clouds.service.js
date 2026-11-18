@@ -5,8 +5,10 @@
     App.cloudsService = {
       async fetchLatest() {
         const url = "data/clouds.json";
-        // Fuerza la descarga sin caché para evitar datos stale.
-        const res = await fetch(url, { cache: "no-store" });
+        // "no-cache" pregunta siempre al servidor si hay versión nueva, pero si el
+        // archivo no cambió (solo cambia cada ~8 h) la respuesta es un 304 sin cuerpo
+        // y se reutiliza la copia guardada: no se vuelven a bajar ~40 KB cada 5 min.
+        const res = await fetch(url, { cache: "no-cache" });
         if (!res.ok) throw new Error(`clouds.json HTTP ${res.status} (${url})`);
 
         const payload = await res.json();

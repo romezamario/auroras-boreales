@@ -22,9 +22,19 @@
     return date.toLocaleTimeString(App.config?.locale ?? "es-MX", { hour: "2-digit", minute: "2-digit" });
   }
 
+  // Devuelve false si los datos son los mismos que ya se están mostrando: así no se
+  // rehacen la rejilla, los índices ni las texturas en cada recarga de 5 min.
   function applyCloudsResult(result) {
     if (result.status === "fulfilled") {
       const clouds = result.value;
+      if (
+        clouds.extractedAt &&
+        clouds.extractedAt === App.state.clouds.extractedAt &&
+        App.state.clouds.grid &&
+        App.state.clouds.textureReady
+      ) {
+        return false;
+      }
       App.state.clouds.lastDate = clouds.date ?? null;
       App.state.clouds.extractedAt = clouds.extractedAt ?? null;
       App.state.clouds.coverage = Math.round(Number(clouds.coverage_percent_global ?? 0));
@@ -47,6 +57,7 @@
     }
 
     App.emit("data:clouds");
+    return true;
   }
 
   function scheduleRetry() {
@@ -61,6 +72,21 @@
   function applyAuroraResult(result) {
     if (result.status === "fulfilled") {
       const { points, forecastTime, observationTime } = result.value;
+      // NOAA publica una foto nueva cada ~10 min y aquí se consulta cada 5: si llega
+      // la misma foto se conservan los puntos actuales (y todo lo que depende de ellos).
+      const prev = App.state.aurora;
+      const same =
+        (observationTime || forecastTime) &&
+        observationTime === (prev.observationTime ?? null) &&
+        forecastTime === prev.forecastTime &&
+        points.length === (prev.points?.length ?? -1);
+      if (same && !prev.error) {
+        lastAuroraSuccessAt = Date.now();
+        retryAttempt = 0;
+        window.clearTimeout(retryTimer);
+        App.refreshUI?.setAlert("aurora", null);
+        return "unchanged";
+      }
       App.state.aurora.points = points;
       App.state.aurora.forecastTime = forecastTime;
       App.state.aurora.observationTime = observationTime ?? null;
@@ -97,9 +123,10 @@
       ]);
 
       applyCloudsResult(cloudsResult);
-      if (applyAuroraResult(auroraResult)) {
+      const aurora = applyAuroraResult(auroraResult);
+      if (aurora) {
         App.refreshUI?.markUpdated();
-        App.emit("data:aurora");
+        if (aurora !== "unchanged") App.emit("data:aurora");
       }
     } catch (e) {
       console.error("[app] refresh error:", e);
