@@ -1,5 +1,6 @@
 // js/data/cities.service.js
-// Ciudades principales (capitales y grandes ciudades, sin pueblos) donde puede
+// Ciudades principales (capitales y grandes ciudades) más algunas ciudades
+// pequeñas famosas por sus auroras (Tromsø, Fairbanks, Yellowknife…) donde puede
 // verse aurora, y el top de las que tienen mayor probabilidad ahora mismo.
 // La probabilidad es la misma de la capa "Probabilidad": intensidad OVATION de
 // NOAA + nubosidad, solo de noche y fuera de la franja ecuatorial excluida.
@@ -131,7 +132,27 @@
     ["Hobart", "AU", -42.88, 147.33],
     ["Puerto Montt", "CL", -41.47, -72.94],
     ["Punta Arenas", "CL", -53.16, -70.91],
-    ["Comodoro Rivadavia", "AR", -45.86, -67.48]
+    ["Comodoro Rivadavia", "AR", -45.86, -67.48],
+    // Ciudades pequeñas pero conocidas por sus auroras (Mario las pidió el 2026-11-18).
+    ["Tromsø", "NO", 69.65, 18.96],
+    ["Alta", "NO", 69.97, 23.27],
+    ["Bodø", "NO", 67.28, 14.4],
+    ["Kiruna", "SE", 67.86, 20.23],
+    ["Luleå", "SE", 65.58, 22.15],
+    ["Rovaniemi", "FI", 66.5, 25.73],
+    ["Akureyri", "IS", 65.68, -18.09],
+    ["Tórshavn", "FO", 62.01, -6.77],
+    ["Inverness", "GB", 57.48, -4.22],
+    ["Norilsk", "RU", 69.35, 88.2],
+    ["Fairbanks", "US", 64.84, -147.72],
+    ["Juneau", "US", 58.3, -134.42],
+    ["Whitehorse", "CA", 60.72, -135.06],
+    ["Yellowknife", "CA", 62.45, -114.37],
+    ["Churchill", "CA", 58.77, -94.17],
+    ["Iqaluit", "CA", 63.75, -68.52],
+    ["Ushuaia", "AR", -54.8, -68.3],
+    ["Invercargill", "NZ", -46.41, 168.35],
+    ["Queenstown", "NZ", -45.03, 168.66]
   ].map(([name, country, lat, lon]) => Object.freeze({ name, country, lat, lon }));
 
   const CATEGORY_RANK = { high: 3, medium: 2, low: 1 };

@@ -578,6 +578,12 @@ Documentar de forma continua:
   - Resultado esperado: Tira "Ciudades top 3" debajo de la tira Kp (ambas en `#globe-indicators`). Cada ciudad se evalúa como la capa Probabilidad (OVATION + nubosidad, solo de noche, |lat| >= 40, intensidad >= `minRelevantIntensity`) y se ordena por categoría, luego intensidad y luego menos nubes. Tocar una ciudad centra el globo y abre su detalle. Si ninguna califica se muestra un aviso. Se recalcula con datos nuevos y cada 10 min.
   - Verificación: `node --test tests/*.test.js` (7/7, incluye prueba del ranking) y Playwright en iPhone 13 y escritorio con OVATION y Kp simulados: tira visible bajo el Kp, toque centra el globo y abre el detalle, sin errores de página.
 
+- **Cambio:** Ciudades auroreales pequeñas en el top 3 (2026-11-18).
+  - Archivos: `js/data/cities.service.js`, `README.md`, `AGENTS.md`
+  - Motivo: Con actividad moderada el óvalo pasa al norte de las ciudades grandes y el top quedaba con una sola ciudad; Mario pidió agregar Tromsø, Fairbanks, Yellowknife y similares.
+  - Resultado esperado: 19 ciudades más (Escandinavia ártica, Islandia, Feroe, Alaska, norte de Canadá, Ushuaia, sur de Nueva Zelanda).
+  - Verificación: `node --test tests/*.test.js` y ranking con la foto OVATION real de la rama aurora-history.
+
 - **Cambio:** Sin probabilidad con nubosidad desde 50% (2026-11-17).
   - Archivos: `js/config.js` (`probability.noVisibilityCloudsFrom`), `js/data/probability.service.js`, `tests/core.test.js`, `README.md`, `AGENTS.md`
   - Motivo: Puntos totalmente nublados salían como "Baja"; Mario decidió que desde 50% de nubes no haya probabilidad.
