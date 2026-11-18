@@ -133,13 +133,8 @@
 
       const { ctx, projection } = globe;
       const cloudsCfg = App.config?.clouds ?? {};
-      const isMobile = Math.min(globe.width, globe.height) < 520;
 
-      // Tamaño del "píxel" de la textura en px CSS: más grueso mientras se arrastra.
-      let cell = isMobile ? (cloudsCfg.textureCellMobile ?? 2) : (cloudsCfg.textureCellDesktop ?? 2);
-      // Al arrastrar se baja algo la resolución para ir fluido, sin que se note el bloque.
-      // En móvil se baja más para no perder fluidez; el recorte al disco mantiene el borde liso.
-      if (globe.interacting) cell *= isMobile ? 2 : 1.5;
+      const cell = App.globeSampler.cellFor(globe);
 
       const tMin = Number(state.clouds.thresholdMin ?? cloudsCfg.minIntensity ?? 0.12);
       const tMax = Number(state.clouds.thresholdMax ?? cloudsCfg.maxIntensity ?? 1);
@@ -156,7 +151,7 @@
         if (pbClouds) {
           this._grid = { w: pbClouds.a.w, h: pbClouds.a.h, flat: pbClouds.a.flat, flatB: pbClouds.b.flat, mix: pbClouds.mix, ref: live.ref };
         }
-        this.renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme, cx, cy, R });
+        this.renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme });
         this._grid = live;
         this._key = key;
       }
@@ -175,24 +170,11 @@
       ctx.restore();
     },
 
-    renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme, cx, cy, R }) {
-      const { projection } = globe;
+    renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme }) {
       const grid = this._grid;
       const [cr, cg, cb] = CLOUD_RGB[theme] ?? CLOUD_RGB.dark;
-
-      // Rectángulo del disco del globo (con margen de dos celdas) RECORTADO a la
-      // pantalla. Antes se cubría el disco entero: con zoom máximo (R = 4000 px)
-      // eso eran millones de projection.invert por cuadro y el globo se trababa.
-      // Ahora el trabajo depende del tamaño de la pantalla, no del zoom.
-      const pad = cell * 2;
-      const left = Math.max(0, Math.floor((cx - R - pad) / cell) * cell);
-      const top = Math.max(0, Math.floor((cy - R - pad) / cell) * cell);
-      const right = Math.min(globe.width, cx + R + pad);
-      const bottom = Math.min(globe.height, cy + R + pad);
-      const nw = Math.max(1, Math.ceil((right - left) / cell));
-      const nh = Math.max(1, Math.ceil((bottom - top) / cell));
-      const x0 = left;
-      const y0 = top;
+      const sp = App.globeSampler.get(globe, cell);
+      const { nw, nh, lon, lat, valid } = sp;
 
       if (!this._canvas) this._canvas = document.createElement("canvas");
       const canvas = this._canvas;
@@ -203,42 +185,20 @@
       const tctx = canvas.getContext("2d");
       const image = tctx.createImageData(nw, nh);
       const data = image.data;
-      const outer = R + cell * 2;
-      const outer2 = outer * outer;
-      const inner = R * 0.999;
 
-      for (let j = 0; j < nh; j += 1) {
-        const py = y0 + (j + 0.5) * cell;
-        const dy = py - cy;
-        for (let i = 0; i < nw; i += 1) {
-          const px = x0 + (i + 0.5) * cell;
-          const dx = px - cx;
-          const d2 = dx * dx + dy * dy;
-          if (d2 >= outer2) continue;
-
-          // Fuera del disco se repite el valor del borde (se recorta después).
-          let qx = px;
-          let qy = py;
-          if (d2 >= inner * inner) {
-            const k = inner / Math.sqrt(d2);
-            qx = cx + dx * k;
-            qy = cy + dy * k;
-          }
-          const lonLat = projection.invert([qx, qy]);
-          if (!lonLat) continue;
-          const a = alphaFor(sample(grid, lonLat[0], lonLat[1]), tMin, tMax, maxAlpha);
-          if (a <= 0) continue;
-
-          const o = (j * nw + i) * 4;
-          data[o] = cr;
-          data[o + 1] = cg;
-          data[o + 2] = cb;
-          data[o + 3] = Math.round(a * 255);
-        }
+      for (let k = 0; k < nw * nh; k += 1) {
+        if (!valid[k]) continue;
+        const a = alphaFor(sample(grid, lon[k], lat[k]), tMin, tMax, maxAlpha);
+        if (a <= 0) continue;
+        const o = k * 4;
+        data[o] = cr;
+        data[o + 1] = cg;
+        data[o + 2] = cb;
+        data[o + 3] = Math.round(a * 255);
       }
 
       tctx.putImageData(image, 0, 0);
-      this._placement = { x: x0, y: y0, w: nw * cell, h: nh * cell };
+      this._placement = { x: sp.x0, y: sp.y0, w: nw * cell, h: nh * cell };
     }
   };
 })();

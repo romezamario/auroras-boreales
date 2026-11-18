@@ -122,3 +122,21 @@ test("top de ciudades: solo de noche, ordenado por categoría e intensidad", () 
   assert.ok(!ranked.some((r) => r.name === "Anchorage"));
   assert.ok(ranked.every((r) => Math.abs(r.lat) >= 40));
 });
+
+test("malla de auroras: interpolación bilineal entre celdas", () => {
+  const sample = App.auroraOverlay.sample;
+  const grid = new Uint8Array(360 * 181);
+  // lon 10, lat 65 vale 8 y lon 11, lat 65 vale 7.
+  grid[10 * 181 + 65 + 90] = 8;
+  grid[11 * 181 + 65 + 90] = 7;
+  assert.equal(sample(grid, null, 0, 10, 65), 8);
+  assert.equal(sample(grid, null, 0, 11, 65), 7);
+  assert.equal(sample(grid, null, 0, 10.5, 65), 7.5);
+  // Vuelta en longitud: -180 es la celda 180.
+  grid[180 * 181 + 90] = 4;
+  assert.equal(sample(grid, null, 0, -180, 0), 4);
+  // Mezcla con la foto siguiente.
+  const next = new Uint8Array(360 * 181);
+  next[10 * 181 + 65 + 90] = 4;
+  assert.equal(sample(grid, next, 0.5, 10, 65), 6);
+});
