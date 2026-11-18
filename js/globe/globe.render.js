@@ -22,6 +22,41 @@
       dark: { sphere: "#0b1530", land: "#3b4659", borders: "rgba(203,213,225,0.28)", graticule: "rgba(148,163,184,0.12)", outline: "#475569" }
     };
 
+    // Precisión del remuestreo de D3 (px). Al arrastrar se desactiva (0): el trazado
+    // de tierra, fronteras y retícula es lo más caro de cada cuadro y el
+    // remuestreo apenas se nota mientras el globo se mueve. Al soltar vuelve a 0.5.
+    const PRECISION_STILL = 0.5;
+    const PRECISION_MOVING = 0;
+
+    // Trazados del mapa base ya proyectados (Path2D), reutilizados mientras la vista
+    // no cambie: la animación «Última hora», el reloj de día/noche, los datos nuevos
+    // o la selección redibujan el globo sin volver a proyectar ~10 mil vértices.
+    const supportsPath2D = typeof window.Path2D === "function";
+    let baseCache = null;
+
+    function basePaths(g, precision) {
+      const p = g.projection;
+      const key = [g.width, g.height, p.scale(), p.translate().join(","), p.rotate().join(","), precision,
+        App.assets.land ? 1 : 0, App.assets.countryBorders ? 1 : 0, App.assets.graticule ? 1 : 0].join("|");
+      if (baseCache && baseCache.key === key && baseCache.land === App.assets.land) return baseCache;
+
+      const build = (geo) => {
+        if (!geo) return null;
+        const path2d = new Path2D();
+        d3.geoPath(p, path2d)(geo);
+        return path2d;
+      };
+      baseCache = {
+        key,
+        land: App.assets.land,
+        sphere: build({ type: "Sphere" }),
+        landPath: build(App.assets.land),
+        borders: build(App.assets.countryBorders),
+        graticule: build(App.assets.graticule)
+      };
+      return baseCache;
+    }
+
     function globeColors() {
       return document.documentElement.getAttribute("data-theme") === "dark" ? GLOBE_COLORS.dark : GLOBE_COLORS.light;
     }
@@ -63,6 +98,10 @@
         const { ctx, path } = g;
         const w = g.width, h = g.height;
         const colors = globeColors();
+
+        const precision = g.interacting ? PRECISION_MOVING : PRECISION_STILL;
+        if (g.projection.precision() !== precision) g.projection.precision(precision);
+        const base = supportsPath2D ? basePaths(g, precision) : null;
   
         // Limpia el canvas para el nuevo frame.
         ctx.clearRect(0, 0, w, h);
@@ -77,33 +116,37 @@
         // Espacio: estrellas y halo de atmósfera.
         safeLayer("espacio", () => App.spaceOverlay?.drawBackground?.(g));
 
+        // Dibuja un trazado del mapa base: el Path2D en caché si existe; si no, D3 directo.
+        const fillBase = (cached, geo, style) => {
+          ctx.fillStyle = style;
+          if (cached) { ctx.fill(cached); return; }
+          ctx.beginPath();
+          path(geo);
+          ctx.fill();
+        };
+        const strokeBase = (cached, geo, style) => {
+          ctx.strokeStyle = style;
+          if (cached) { ctx.stroke(cached); return; }
+          ctx.beginPath();
+          path(geo);
+          ctx.stroke();
+        };
+
         // Sphere
-        ctx.beginPath();
-        path({ type: "Sphere" });
-        ctx.fillStyle = colors.sphere;
-        ctx.fill();
-  
+        fillBase(base?.sphere, { type: "Sphere" }, colors.sphere);
+
         // Land
-        ctx.beginPath();
-        path(App.assets.land);
-        ctx.fillStyle = colors.land;
-        ctx.fill();
+        fillBase(base?.landPath, App.assets.land, colors.land);
 
         // Country borders
         if (App.assets.countryBorders) {
-          ctx.beginPath();
-          path(App.assets.countryBorders);
-          ctx.strokeStyle = colors.borders;
           ctx.lineWidth = 0.6;
-          ctx.stroke();
+          strokeBase(base?.borders, App.assets.countryBorders, colors.borders);
         }
 
         // Graticule
         if (App.assets.graticule) {
-          ctx.beginPath();
-          path(App.assets.graticule);
-          ctx.strokeStyle = colors.graticule;
-          ctx.stroke();
+          strokeBase(base?.graticule, App.assets.graticule, colors.graticule);
         }
 
         // Day/Night shading
@@ -145,10 +188,7 @@
         this.updateAccessibleLabel(g);
 
         // Border
-        ctx.beginPath();
-        path({ type: "Sphere" });
-        ctx.strokeStyle = colors.outline;
-        ctx.stroke();
+        strokeBase(base?.sphere, { type: "Sphere" }, colors.outline);
       }
     };
   })();
