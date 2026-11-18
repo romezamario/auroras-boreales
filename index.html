@@ -269,16 +269,16 @@
 
         <div class="card probability-filters-card">
           <div class="card-header">
-            <h2>Probabilidad de ver auroras</h2>
-            <p>Activa la capa (apaga la de intensidad) y elige qué categorías mostrar.</p>
+            <h2>Probabilidad (visibilidad)</h2>
+            <p>Combina intensidad, nubosidad y noche. Al activarla se oculta la capa de intensidad.</p>
           </div>
-          <div class="layer-controls-items probability-layer-toggle">
-            <label class="toggle">
-              <input type="checkbox" id="toggle-probability">
-              <span class="toggle-text">Mostrar capa de probabilidad</span>
-            </label>
-          </div>
-          <div class="layer-controls-items probability-filter-items">
+          <label class="legend-header switch-row">
+            <span class="legend-title">Mostrar capa</span>
+            <input type="checkbox" id="toggle-probability" class="switch-input" role="switch">
+            <span class="switch" aria-hidden="true"></span>
+          </label>
+          <span class="legend-title probability-filter-title">Categorías visibles</span>
+          <div class="probability-filter-items" role="group" aria-label="Categorías visibles">
             <label class="toggle">
               <input type="checkbox" id="probability-filter-high" checked>
               <span class="toggle-text">Alta</span>

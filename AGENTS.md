@@ -602,6 +602,7 @@ Documentar de forma continua:
   - Motivo: Mario pidió activar la probabilidad desde su propia sección, junto a sus filtros.
   - Resultado esperado: la tarjeta "Probabilidad de ver auroras" tiene "Mostrar capa de probabilidad" arriba de los filtros. En "Capas" el botón de Auroras ya no es de 3 estados: es un interruptor simple de la capa de intensidad. Siguen siendo excluyentes (`js/ui/layers.ui.js`): activar Probabilidad apaga Auroras y viceversa.
   - Verificación: `node --test tests/*.test.js` (8/8) y Playwright en iPhone 13 con OVATION simulado: activar probabilidad en la pestaña apaga Auroras (`App.state`), activar Auroras desde Capas apaga Probabilidad, sin errores de página.
+  - Ajuste (mismo día): Mario pidió botones más chicos y que la sección coincida con Intensidad y Nubes. Título "Probabilidad (visibilidad)", fila "Mostrar capa" con interruptor deslizante (estilo `legend-title`) y Alta / Media / Baja como chips compactos en una fila de 3; con la capa apagada los chips se atenúan.
 
 ---
 

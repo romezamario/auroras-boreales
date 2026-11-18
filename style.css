@@ -280,14 +280,101 @@ button:focus-visible {
   gap: 10px;
 }
 
-.probability-filter-items {
-  grid-template-columns: 1fr;
+/* ---- Sección Probabilidad: interruptor de la capa + chips Alta/Media/Baja ---- */
+.switch-row {
+  position: relative;
+  margin-bottom: 14px;
+  cursor: pointer;
 }
 
-/* Interruptor de la capa de probabilidad, encima de los filtros Alta/Media/Baja. */
-.probability-layer-toggle {
-  grid-template-columns: 1fr;
-  margin-bottom: 10px;
+.probability-filter-title {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.switch-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: #a8b3c2;
+  transition: background 0.2s ease;
+  pointer-events: none;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.switch-input:checked ~ .switch {
+  background: #2563eb;
+}
+
+.switch-input:checked ~ .switch::after {
+  transform: translateX(18px);
+}
+
+.switch-input:focus-visible ~ .switch {
+  outline: 3px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+.probability-filter-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.probability-filter-items .toggle-text {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: transparent;
+  border-color: rgba(148, 163, 184, 0.45);
+  box-shadow: none;
+}
+
+.probability-filter-items .toggle input[type="checkbox"]:checked + .toggle-text {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1e3a8a;
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: none;
+}
+
+.probability-filter-items .toggle input[type="checkbox"]:not(:checked) + .toggle-text .probability-swatch {
+  opacity: 0.35;
+}
+
+.probability-filter-items .probability-swatch {
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  border: none;
+}
+
+/* Con la capa apagada, los filtros se ven atenuados (siguen funcionando). */
+.probability-filters-card:has(#toggle-probability:not(:checked)) .probability-filter-items {
+  opacity: 0.55;
 }
 
 .toggle {
@@ -1280,6 +1367,26 @@ button:focus-visible {
 :root[data-theme="dark"] .toggle input[type="checkbox"]:checked + .toggle-text {
   color: #ffffff;
   border-color: #3b82f6;
+}
+
+:root[data-theme="dark"] .switch {
+  background: #334155;
+}
+
+:root[data-theme="dark"] .switch-input:checked ~ .switch {
+  background: #3b82f6;
+}
+
+:root[data-theme="dark"] .probability-filter-items .toggle-text {
+  background: transparent;
+  border-color: #334155;
+  color: #64748b;
+}
+
+:root[data-theme="dark"] .probability-filter-items .toggle input[type="checkbox"]:checked + .toggle-text {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(96, 165, 250, 0.6);
+  color: #dbeafe;
 }
 
 :root[data-theme="dark"] .theme-toggle {
