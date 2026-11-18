@@ -597,6 +597,12 @@ Documentar de forma continua:
   - Ajuste: el manifest ya no lista el SVG (iOS no lo usa para la pantalla de inicio) e incluye el PNG de 180 px; `static.yml` añade `?v=<commit>` también a `assets/icons/` y al manifest para que el teléfono no use una copia vieja.
   - Verificación: servidor local + Playwright: los `<link>` de íconos y el manifest responden 200 y el manifest es JSON válido; `node --test tests/*.test.js`.
 
+- **Cambio:** El interruptor de la capa Probabilidad pasa a la pestaña "Probabilidad", encima de Alta / Media / Baja (2026-11-18).
+  - Archivos: `index.html`, `js/ui/map-layout.ui.js`, `style.css`, `README.md`, `AGENTS.md`
+  - Motivo: Mario pidió activar la probabilidad desde su propia sección, junto a sus filtros.
+  - Resultado esperado: la tarjeta "Probabilidad de ver auroras" tiene "Mostrar capa de probabilidad" arriba de los filtros. En "Capas" el botón de Auroras ya no es de 3 estados: es un interruptor simple de la capa de intensidad. Siguen siendo excluyentes (`js/ui/layers.ui.js`): activar Probabilidad apaga Auroras y viceversa.
+  - Verificación: `node --test tests/*.test.js` (8/8) y Playwright en iPhone 13 con OVATION simulado: activar probabilidad en la pestaña apaga Auroras (`App.state`), activar Auroras desde Capas apaga Probabilidad, sin errores de página.
+
 ---
 
 ## 6) Pendientes inmediatos (Next actions)

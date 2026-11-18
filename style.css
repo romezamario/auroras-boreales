@@ -284,6 +284,12 @@ button:focus-visible {
   grid-template-columns: 1fr;
 }
 
+/* Interruptor de la capa de probabilidad, encima de los filtros Alta/Media/Baja. */
+.probability-layer-toggle {
+  grid-template-columns: 1fr;
+  margin-bottom: 10px;
+}
+
 .toggle {
   position: relative;
   display: flex;
@@ -2509,11 +2515,3 @@ button:has(> .icon) {
   }
 }
 
-/* Botón de 3 estados Auroras / Probabilidad / apagado. */
-:root.map-layout .fab-cycle-icon {
-  display: flex;
-}
-
-:root.map-layout .fab-cycle-icon[hidden] {
-  display: none;
-}
