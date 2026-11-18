@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: clouds-update
@@ -43,10 +44,12 @@ jobs:
         run: python scripts/openmeteo_cloudcover.py
 
       - name: Commit & push if changed
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/clouds.json
+          [ -f data/clouds-hourly.json ] && git add data/clouds-hourly.json
           if git diff --cached --quiet; then
             echo "Sin cambios"
             exit 0
@@ -54,3 +57,12 @@ jobs:
           git commit -m "Update cloud cover (Open-Meteo)"
           git pull --rebase origin main
           git push origin HEAD:main
+          echo "pushed=1" >> "$GITHUB_OUTPUT"
+
+      # Un push hecho con GITHUB_TOKEN no dispara otros workflows, así que el sitio
+      # se quedaba con las nubes viejas hasta el siguiente push manual.
+      - name: Publicar el sitio con las nubes nuevas
+        if: steps.commit.outputs.pushed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run static.yml --repo "${{ github.repository }}" --ref main

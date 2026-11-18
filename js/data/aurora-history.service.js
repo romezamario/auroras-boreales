@@ -69,11 +69,72 @@
     return drawCells;
   }
 
+  // Pasa la rejilla gruesa de Open-Meteo (filas norte→sur, lon oeste→este,
+  // centros de celda) a 360x180 de 1°, igual que scripts/openmeteo_cloudcover.py.
+  function upsampleClouds(values, cw, ch) {
+    const step = 180 / ch;
+    const stepLon = 360 / cw;
+    const lat0 = 90 - step / 2;
+    const lon0 = -180 + stepLon / 2;
+    const out = new Float32Array(360 * 180);
+    for (let y = 0; y < 180; y += 1) {
+      const lat = 89.5 - y;
+      const fy = Math.min(ch - 1, Math.max(0, (lat0 - lat) / step));
+      const y0 = Math.floor(fy);
+      const y1 = Math.min(y0 + 1, ch - 1);
+      const ty = fy - y0;
+      for (let x = 0; x < 360; x += 1) {
+        const fx = (-179.5 + x - lon0) / stepLon;
+        const xf = Math.floor(fx);
+        const tx = fx - xf;
+        const x0 = ((xf % cw) + cw) % cw;
+        const x1 = (x0 + 1) % cw;
+        const top = values[y0 * cw + x0] * (1 - tx) + values[y0 * cw + x1] * tx;
+        const bot = values[y1 * cw + x0] * (1 - tx) + values[y1 * cw + x1] * tx;
+        out[y * 360 + x] = top * (1 - ty) + bot * ty;
+      }
+    }
+    return out;
+  }
+
+  let cloudHoursPromise = null;
+  let cloudHoursAt = 0;
+
   App.auroraHistoryService = {
     N_LAT,
     cellIndex,
     gridFromPoints,
     getDrawCells,
+
+    // Nubosidad por hora (Open-Meteo) para animar las nubes junto con la aurora.
+    // Devuelve [{ time: Date, grid }] con la rejilla ya suavizada como la capa en vivo.
+    fetchCloudHours() {
+      if (cloudHoursPromise && Date.now() - cloudHoursAt < 30 * 60000) return cloudHoursPromise;
+      cloudHoursAt = Date.now();
+      const url = App.config?.endpoints?.cloudsHourly ?? "data/clouds-hourly.json";
+      cloudHoursPromise = fetch(url, { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data?.times?.length || !App.cloudsOverlay?.toFlatGrid) return [];
+          const cw = Number(data.w);
+          const ch = Number(data.h);
+          return data.times
+            .map((t, i) => {
+              const time = new Date(t);
+              const vals = data.values?.[i];
+              if (Number.isNaN(time.getTime()) || !vals || vals.length !== cw * ch) return null;
+              const fine = upsampleClouds(vals, cw, ch);
+              return { time, grid: App.cloudsOverlay.toFlatGrid({ w: 360, h: 180, values1D: fine, values2D: null }) };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.time - b.time);
+        })
+        .catch((error) => {
+          console.warn("[aurora-history] sin nubosidad por hora:", error);
+          return [];
+        });
+      return cloudHoursPromise;
+    },
 
     // Devuelve [{ time: Date, grid: Uint8Array }] ordenado del más viejo al más nuevo.
     async fetchFrames() {

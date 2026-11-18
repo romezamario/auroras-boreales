@@ -56,7 +56,8 @@
       gridA: null,
       gridB: null,
       mix: 0,
-      time: null
+      time: null,
+      clouds: null
     },
     dayNight: {
       enabled: cfg.dayNight?.enabled ?? true

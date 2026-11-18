@@ -84,10 +84,19 @@
     const tx = fx - x0;
     const ty = fy - y0;
 
-    const a = flat[y0 * w + x0];
-    const b = flat[y0 * w + x1];
-    const c = flat[y1 * w + x0];
-    const d = flat[y1 * w + x1];
+    let a = flat[y0 * w + x0];
+    let b = flat[y0 * w + x1];
+    let c = flat[y1 * w + x0];
+    let d = flat[y1 * w + x1];
+    // Animación: mezcla con la hora siguiente (flatB) según mix.
+    const fb = grid.flatB;
+    if (fb && fb !== flat && grid.mix > 0) {
+      const m = grid.mix;
+      a += (fb[y0 * w + x0] - a) * m;
+      b += (fb[y0 * w + x1] - b) * m;
+      c += (fb[y1 * w + x0] - c) * m;
+      d += (fb[y1 * w + x1] - d) * m;
+    }
     return (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty;
   }
 
@@ -100,12 +109,16 @@
   }
 
   App.cloudsOverlay = {
+    toFlatGrid,
     _grid: null,
     _canvas: null,
     _key: "",
 
     draw(globe, state) {
       if (!state.clouds.enabled) return;
+
+      // Animación "Última hora": nubes de la hora del cuadro, mezclando dos horas.
+      const pbClouds = state.playback?.active ? state.playback.clouds : null;
 
       let gridN = state.clouds.gridNormalized;
       if (!gridN && state.clouds.grid) {
@@ -137,9 +150,14 @@
       const R = projection.scale();
       const rot = projection.rotate();
 
-      const key = [globe.width, globe.height, cell, cx, cy, R, rot.join(","), tMin, tMax, maxAlpha, theme].join("|");
+      const key = [pbClouds ? pbClouds.key : "live", globe.width, globe.height, cell, cx, cy, R, rot.join(","), tMin, tMax, maxAlpha, theme].join("|");
       if (this._key !== key || !this._canvas) {
+        const live = this._grid;
+        if (pbClouds) {
+          this._grid = { w: pbClouds.a.w, h: pbClouds.a.h, flat: pbClouds.a.flat, flatB: pbClouds.b.flat, mix: pbClouds.mix, ref: live.ref };
+        }
         this.renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme, cx, cy, R });
+        this._grid = live;
         this._key = key;
       }
 

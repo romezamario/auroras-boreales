@@ -35,6 +35,11 @@ BATCH_PAUSE_S = float(os.getenv("BATCH_PAUSE_S", "11"))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "5"))
 OUT_PATH = os.getenv("OUT_PATH", "data/clouds.json")
 OUT_W, OUT_H = 360, 180
+# Nubosidad por hora (rejilla gruesa) para la animación de la última hora.
+HOURLY_OUT_PATH = os.getenv("HOURLY_OUT_PATH", "data/clouds-hourly.json")
+PAST_HOURS = int(os.getenv("PAST_HOURS", "2"))
+# Cubre hasta la siguiente corrida (cada 8 h) con margen por retrasos del cron.
+FORECAST_HOURS = int(os.getenv("FORECAST_HOURS", "10"))
 
 
 def utc_now_iso() -> str:
@@ -54,6 +59,11 @@ def fetch_batch(session: requests.Session, lats, lons):
         "latitude": ",".join(f"{v:.2f}" for v in lats),
         "longitude": ",".join(f"{v:.2f}" for v in lons),
         "current": "cloud_cover",
+        # Mismas llamadas (una por coordenada): también se piden las horas
+        # cercanas para animar las nubes en el reproductor "Última hora".
+        "hourly": "cloud_cover",
+        "past_hours": PAST_HOURS,
+        "forecast_hours": FORECAST_HOURS,
         "timezone": "GMT",
     }
     delay = 15.0
@@ -68,13 +78,15 @@ def fetch_batch(session: requests.Session, lats, lons):
             items = payload if isinstance(payload, list) else [payload]
             if len(items) != len(lats):
                 raise ValueError(f"Esperaba {len(lats)} resultados, llegaron {len(items)}")
-            values, times = [], []
+            values, times, hourly = [], [], []
             for item in items:
                 current = item.get("current") or {}
                 v = current.get("cloud_cover")
                 values.append(np.nan if v is None else float(v))
                 times.append(current.get("time"))
-            return values, times
+                h = item.get("hourly") or {}
+                hourly.append(dict(zip(h.get("time") or [], h.get("cloud_cover") or [])))
+            return values, times, hourly
         except (requests.RequestException, ValueError) as exc:
             if attempt == MAX_RETRIES:
                 raise
@@ -131,13 +143,15 @@ def main() -> int:
 
     values = np.full(total, np.nan)
     times = []
+    hourly = []
     session = requests.Session()
     session.headers["User-Agent"] = "auroras-boreales-clouds/1.0 (GitHub Actions)"
 
     for start in range(0, total, BATCH_SIZE):
         end = min(start + BATCH_SIZE, total)
-        batch_vals, batch_times = fetch_batch(session, flat_lats[start:end], flat_lons[start:end])
+        batch_vals, batch_times, batch_hourly = fetch_batch(session, flat_lats[start:end], flat_lons[start:end])
         values[start:end] = batch_vals
+        hourly.extend(batch_hourly)
         times.extend(t for t in batch_times if t)
         print(f"  {end}/{total}")
         if end < total:
@@ -181,7 +195,45 @@ def main() -> int:
         json.dump(meta, f, ensure_ascii=False, separators=(",", ":"))
 
     print(f"OK {OUT_PATH}: {meta['observed_at']} cobertura={coverage}% grid={OUT_W}x{OUT_H}")
+    write_hourly(hourly, len(lats), len(lons))
     return 0
+
+
+def write_hourly(hourly, n_lat: int, n_lon: int) -> None:
+    """Escribe la nubosidad por hora en la rejilla gruesa (filas norte→sur, lon oeste→este).
+
+    El frontend la interpola a 1° y entre horas. Es opcional: si falla, el sitio
+    solo deja de animar las nubes.
+    """
+    try:
+        hours = sorted({t for h in hourly for t in h})
+        frames, out_times = [], []
+        for t in hours:
+            vals = np.array([np.nan if h.get(t) is None else float(h[t]) for h in hourly])
+            if np.mean(np.isnan(vals)) > 0.05:
+                continue
+            grid = fill_gaps(vals.reshape(n_lat, n_lon))
+            frames.append(np.rint(np.clip(grid, 0, 100)).astype(int).ravel().tolist())
+            out_times.append(f"{t}Z")
+        if not frames:
+            print("Sin nubosidad por hora; no se escribe", HOURLY_OUT_PATH, file=sys.stderr)
+            return
+        payload = {
+            "source": "Open-Meteo",
+            "product": "cloud_cover (hourly)",
+            "retrieved_at": utc_now_iso(),
+            "attribution": "Weather data by Open-Meteo.com (CC BY 4.0)",
+            "step_deg": STEP_DEG,
+            "w": n_lon,
+            "h": n_lat,
+            "times": out_times,
+            "values": frames,
+        }
+        with open(HOURLY_OUT_PATH, "w", encoding="utf-8") as f:
+            json.dump(payload, f, separators=(",", ":"))
+        print(f"OK {HOURLY_OUT_PATH}: {len(frames)} horas ({out_times[0]} a {out_times[-1]})")
+    except Exception as exc:  # no tumbar la actualización principal
+        print(f"No se pudo escribir {HOURLY_OUT_PATH}: {exc}", file=sys.stderr)
 
 
 if __name__ == "__main__":

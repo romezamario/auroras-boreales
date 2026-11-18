@@ -87,8 +87,12 @@
 
     async load(keepPosition) {
       if (this._loading) return this._loading;
-      this._loading = App.auroraHistoryService.fetchFrames()
-        .then((frames) => {
+      this._loading = Promise.all([
+        App.auroraHistoryService.fetchFrames(),
+        App.auroraHistoryService.fetchCloudHours?.() ?? []
+      ])
+        .then(([frames, cloudHours]) => {
+          this.cloudHours = cloudHours || [];
           const atEnd = this.pos >= this.view.length - 1.001;
           this.frames = frames;
           this.applyWindow(keepPosition && !atEnd);
@@ -163,6 +167,7 @@
         mix: this.pos - i,
         time
       });
+      App.state.playback.clouds = this.cloudsAt(time);
       App.dayNightOverlay?.setTime?.(time);
 
       this.range.value = String(this.pos);
@@ -171,6 +176,23 @@
       this.timeEl.textContent = `${fmtClock(time)} · ${diff > 0 ? `−${diff} min` : "actual"}`;
       this.range.setAttribute("aria-valuetext", `Datos medidos a las ${fmtClock(time)}`);
       App.globe?.requestRender();
+    },
+
+    // Nubes de Open-Meteo (por hora) en el momento del cuadro: mezcla de las
+    // dos horas que lo rodean. null = la capa usa las nubes en vivo.
+    cloudsAt(time) {
+      const hours = this.cloudHours || [];
+      if (!hours.length || !time) return null;
+      const t = time.getTime();
+      let i = 0;
+      while (i < hours.length - 1 && hours[i + 1].time.getTime() <= t) i += 1;
+      const a = hours[i];
+      const b = hours[Math.min(i + 1, hours.length - 1)];
+      const span = b.time - a.time;
+      const mix = span > 0 ? Math.max(0, Math.min(1, (t - a.time) / span)) : 0;
+      // Paso de 1/40 de hora: la textura de nubes solo se recalcula cuando cambia.
+      const q = Math.round(mix * 40) / 40;
+      return { a: a.grid, b: b.grid, mix: q, key: `${i}:${q}` };
     },
 
     async start() {
@@ -196,6 +218,7 @@
       App.state.playback.active = false;
       App.state.playback.gridA = null;
       App.state.playback.gridB = null;
+      App.state.playback.clouds = null;
       App.dayNightOverlay?.setTime?.(null);
       App.globe?.requestRender();
     },
