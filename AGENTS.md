@@ -126,6 +126,10 @@ Documentar de forma continua:
   - Estado: `completada`
   - Evidencia: `style.css`, `AGENTS.md`
 
+- [x] Tarea 26: Tierra realista (fotos NASA con WebGL en un canvas debajo del 2D, luz solar, luces de ciudades, reflejo en el mar, atmósfera) sin subir el costo por cuadro; nubes grises de noche. Respaldo vectorial sin WebGL.
+  - Estado: `completada`
+  - Evidencia: `js/globe/globe.earth.js`, `js/globe/globe.render.js`, `js/overlays/clouds.overlay.js`, `assets/earth/`, `style.css`, `index.html`, `README.md`, `tratamiento-datos.html`
+
 
 ## 3) Aprendizajes del repositorio
 > Registrar hallazgos técnicos concretos y verificables.

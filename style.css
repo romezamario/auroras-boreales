@@ -428,6 +428,7 @@ button:focus-visible {
 
 /* ================= CANVAS / GLOBO ================= */
 #globe {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
@@ -1342,6 +1343,18 @@ button:focus-visible {
 :root[data-theme="dark"] #globe {
   background: #070c18;
   border-color: #1e293b;
+}
+
+/* Tierra realista (WebGL) debajo del canvas del globo: el canvas 2D pinta el
+   espacio alrededor y deja el disco transparente. */
+#globe-earth {
+  position: absolute;
+  pointer-events: none;
+}
+
+#globe.has-earth,
+:root[data-theme="dark"] #globe.has-earth {
+  background: transparent;
 }
 
 :root[data-theme="dark"] .inspector-item,

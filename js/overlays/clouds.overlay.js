@@ -22,7 +22,22 @@
     light: [71, 85, 105]
   };
 
+  // Nubes de noche sobre la Tierra realista: grises, visibles sin deslumbrar
+  // (de noche es cuando importan para ver auroras).
+  const NIGHT_RGB = [118, 128, 150];
+
+  function sunFor(state) {
+    if (!App.globeEarth?.active?.()) return null;
+    if (!(state?.dayNight?.enabled ?? App.config.dayNight?.enabled)) return null;
+    const when = App.dayNightOverlay?._time || new Date();
+    const minute = Math.floor(when.getTime() / 60000);
+    const sub = App.utils.getSubsolarPoint(new Date(minute * 60000));
+    return { minute, lonDeg: sub.lon, latDeg: sub.lat };
+  }
+
+  // Sobre la Tierra realista (foto de satélite) las nubes van siempre blancas.
   function currentTheme() {
+    if (App.globeEarth?.active?.()) return "dark";
     return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   }
 
@@ -145,13 +160,17 @@
       const R = projection.scale();
       const rot = projection.rotate();
 
-      const key = [pbClouds ? pbClouds.key : "live", globe.width, globe.height, cell, cx, cy, R, rot.join(","), tMin, tMax, maxAlpha, theme].join("|");
+      // Con la Tierra realista las nubes del lado nocturno se ven grises (no blancas
+      // brillantes): hace falta la posición del Sol, redondeada al minuto.
+      const sun = sunFor(state);
+
+      const key = [pbClouds ? pbClouds.key : "live", globe.width, globe.height, cell, cx, cy, R, rot.join(","), tMin, tMax, maxAlpha, theme, sun ? sun.minute : "-"].join("|");
       if (this._key !== key || !this._canvas) {
         const live = this._grid;
         if (pbClouds) {
           this._grid = { w: pbClouds.a.w, h: pbClouds.a.h, flat: pbClouds.a.flat, flatB: pbClouds.b.flat, mix: pbClouds.mix, ref: live.ref };
         }
-        this.renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme });
+        this.renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme, sun });
         this._grid = live;
         this._key = key;
       }
@@ -170,7 +189,7 @@
       ctx.restore();
     },
 
-    renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme }) {
+    renderTexture(globe, { cell, tMin, tMax, maxAlpha, theme, sun }) {
       const grid = this._grid;
       const [cr, cg, cb] = CLOUD_RGB[theme] ?? CLOUD_RGB.dark;
       const sp = App.globeSampler.get(globe, cell);
@@ -186,14 +205,41 @@
       const image = tctx.createImageData(nw, nh);
       const data = image.data;
 
+      // Altura del Sol por celda sin trigonometría: con el Sol girado a la vista,
+      // basta el producto con la normal de la esfera en ese punto de la pantalla.
+      let sv = null;
+      let cx = 0, cy = 0, invR = 0;
+      if (sun) {
+        const r = d3.geoRotation(globe.projection.rotate())([sun.lonDeg, sun.latDeg]);
+        const l = (r[0] * Math.PI) / 180;
+        const p = (r[1] * Math.PI) / 180;
+        sv = [Math.cos(p) * Math.cos(l), Math.cos(p) * Math.sin(l), Math.sin(p)];
+        [cx, cy] = globe.projection.translate();
+        invR = 1 / globe.projection.scale();
+      }
       for (let k = 0; k < nw * nh; k += 1) {
         if (!valid[k]) continue;
         const a = alphaFor(sample(grid, lon[k], lat[k]), tMin, tMax, maxAlpha);
         if (a <= 0) continue;
         const o = k * 4;
-        data[o] = cr;
-        data[o + 1] = cg;
-        data[o + 2] = cb;
+        if (sv) {
+          // Mezcla día -> noche con el mismo crepúsculo que la Tierra realista.
+          const i = k % nw;
+          const j = (k - i) / nw;
+          const px = ((sp.x0 + (i + 0.5) * cell) - cx) * invR;
+          const py = (cy - (sp.y0 + (j + 0.5) * cell)) * invR;
+          const d2 = px * px + py * py;
+          const mu = sv[0] * (d2 < 1 ? Math.sqrt(1 - d2) : 0) + sv[1] * px + sv[2] * py;
+          let t = (mu + 0.1) / 0.32;
+          t = t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+          data[o] = NIGHT_RGB[0] + (cr - NIGHT_RGB[0]) * t;
+          data[o + 1] = NIGHT_RGB[1] + (cg - NIGHT_RGB[1]) * t;
+          data[o + 2] = NIGHT_RGB[2] + (cb - NIGHT_RGB[2]) * t;
+        } else {
+          data[o] = cr;
+          data[o + 1] = cg;
+          data[o + 2] = cb;
+        }
         data[o + 3] = Math.round(a * 255);
       }
 

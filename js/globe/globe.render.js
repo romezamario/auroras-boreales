@@ -22,6 +22,10 @@
       dark: { sphere: "#0b1530", land: "#3b4659", borders: "rgba(203,213,225,0.28)", graticule: "rgba(148,163,184,0.12)", outline: "#475569" }
     };
 
+    // Con la Tierra realista: fronteras discretas y un borde de atmósfera en lugar de la línea negra.
+    const EARTH_BORDERS = "rgba(255,255,255,0.22)";
+    const EARTH_OUTLINE = "rgba(150,195,255,0.45)";
+
     // Precisión del remuestreo de D3 (px). Al arrastrar se desactiva (0): el trazado
     // de tierra, fronteras y retícula es lo más caro de cada cuadro y el
     // remuestreo apenas se nota mientras el globo se mueve. Al soltar vuelve a 0.5.
@@ -113,8 +117,24 @@
           this._loadingHidden = true;
         }
   
-        // Espacio: estrellas y halo de atmósfera.
-        safeLayer("espacio", () => App.spaceOverlay?.drawBackground?.(g));
+        // Tierra realista (WebGL, en un canvas debajo de este). Si aún no está
+        // lista o no hay WebGL, se pinta el globo vectorial de siempre.
+        let earth = false;
+        safeLayer("tierra", () => { earth = !!App.globeEarth?.draw?.(g, App.state); });
+
+        // Espacio: estrellas y halo de atmósfera. Con la Tierra realista se deja el
+        // disco transparente para que se vea el canvas de abajo.
+        safeLayer("espacio", () => {
+          if (!earth) { App.spaceOverlay?.drawBackground?.(g); return; }
+          const [ex, ey] = g.projection.translate();
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, w, h);
+          ctx.arc(ex, ey, g.projection.scale(), 0, 2 * Math.PI, true);
+          ctx.clip("evenodd");
+          App.spaceOverlay?.drawBackground?.(g);
+          ctx.restore();
+        });
 
         // Dibuja un trazado del mapa base: el Path2D en caché si existe; si no, D3 directo.
         const fillBase = (cached, geo, style) => {
@@ -132,25 +152,27 @@
           ctx.stroke();
         };
 
-        // Sphere
-        fillBase(base?.sphere, { type: "Sphere" }, colors.sphere);
+        if (!earth) {
+          // Sphere
+          fillBase(base?.sphere, { type: "Sphere" }, colors.sphere);
 
-        // Land
-        fillBase(base?.landPath, App.assets.land, colors.land);
-
-        // Country borders
-        if (App.assets.countryBorders) {
-          ctx.lineWidth = 0.6;
-          strokeBase(base?.borders, App.assets.countryBorders, colors.borders);
+          // Land
+          fillBase(base?.landPath, App.assets.land, colors.land);
         }
 
-        // Graticule
-        if (App.assets.graticule) {
+        // Country borders (tenues sobre la foto de satélite)
+        if (App.assets.countryBorders) {
+          ctx.lineWidth = earth ? 0.5 : 0.6;
+          strokeBase(base?.borders, App.assets.countryBorders, earth ? EARTH_BORDERS : colors.borders);
+        }
+
+        // Graticule (la Tierra realista no la necesita)
+        if (App.assets.graticule && !earth) {
           strokeBase(base?.graticule, App.assets.graticule, colors.graticule);
         }
 
-        // Day/Night shading
-        safeLayer("día/noche", () => App.dayNightOverlay?.draw?.(g, App.state));
+        // Day/Night shading (la Tierra realista ya trae la luz del Sol)
+        if (!earth) safeLayer("día/noche", () => App.dayNightOverlay?.draw?.(g, App.state));
 
         // Overlays (en orden)
         safeLayer("nubes", () => App.cloudsOverlay?.draw?.(g, App.state));
@@ -188,7 +210,7 @@
         this.updateAccessibleLabel(g);
 
         // Border
-        strokeBase(base?.sphere, { type: "Sphere" }, colors.outline);
+        strokeBase(base?.sphere, { type: "Sphere" }, earth ? EARTH_OUTLINE : colors.outline);
       }
     };
   })();

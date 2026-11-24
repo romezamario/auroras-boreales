@@ -267,6 +267,7 @@ erDiagram
 ### Externas
 - **NOAA SWPC:** feed JSON `ovation_aurora_latest.json` y pronóstico Kp `products/noaa-planetary-k-index-forecast.json` (acepta el formato de tabla con encabezados y el de objetos).
 - **world-atlas / jsDelivr:** topología mundial para masa continental y fronteras.
+- **Imágenes de la Tierra (NASA, dominio público):** Blue Marble (día), Black Marble / Earth at Night (luces nocturnas) y máscara de agua, reducidas a 2048×1024 WebP en `assets/earth/` (~240 KB en total). Se descargan del propio sitio después del primer cuadro del globo.
 - **Metadata de versión embebida:** `js/config.js` publica la etiqueta/fecha visible y puede inyectarse durante build o despliegue; el refresco remoto hacia GitHub queda deshabilitado por defecto y es opcional.
 - **BigDataCloud (`reverse-geocode-client`):** traduce las coordenadas del dispositivo a estado y país. Gratuito, sin clave, pensado para uso desde el navegador. Solo se llama tras "Usar mi ubicación" y recibe coordenadas redondeadas a 2 decimales (~1 km).
 - **GeoJS (`/v1/ip/geo.json`):** respaldo por IP y único proveedor de estimación geográfica por IP, consumido desde el navegador como JSON con CORS. JSONP (ipapi.co) se retiró en 2026-11-16 porque inserta un `<script>` de terceros con acceso completo a la página.
@@ -330,6 +331,8 @@ El workflow `Tests` (`.github/workflows/tests.yml`) corre en cada push a `main`:
 - Revisar manualmente que `tratamiento-datos.html`, `README.md` y `AGENTS.md` sigan alineados.
 
 ## Rendimiento
+- **Tierra realista con WebGL** (`js/globe/globe.earth.js`): la foto de satélite, la luz del Sol, las luces de ciudades, el reflejo en el mar y el borde de atmósfera se calculan en la GPU en un canvas `#globe-earth` situado debajo del canvas 2D (sin `drawImage` entre ambos). La CPU solo sube la rotación y la posición del Sol (~0.6 ms por cuadro con CPU 4× más lenta) y ya no rellena los polígonos de tierra ni la retícula. Solo se redibuja si cambian la vista, el minuto del Sol o el tamaño. Sin WebGL, con "Ahorro de datos" o si fallan las texturas, se queda el globo vectorial.
+- Sobre la Tierra realista las nubes del lado nocturno se pintan grises; la altura del Sol por celda sale de un producto escalar en coordenadas de pantalla (sin trigonometría por celda).
 - Auroras, nubes y probabilidad se dibujan agrupadas por color: un `fill()` por color (5 de aurora, 16 niveles de nube, 3 categorías) en lugar de uno por punto.
 - Las auroras no se submuestrean: el filtro por umbral y latitud descarta casi todos los puntos. Las nubes usan `sampleStep` según el viewport y la mitad de celdas mientras se arrastra el globo.
 - La capa de probabilidad calcula la posición del sol una vez por frame y mover el slider de intensidad no reconstruye el índice auroral.
