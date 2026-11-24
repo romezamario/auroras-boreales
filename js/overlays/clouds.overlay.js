@@ -22,9 +22,11 @@
     light: [71, 85, 105]
   };
 
-  // Nubes de noche sobre la Tierra realista: grises, visibles sin deslumbrar
-  // (de noche es cuando importan para ver auroras).
-  const NIGHT_RGB = [118, 128, 150];
+  // Nubes de noche sobre la Tierra realista: grises y tenues, se distinguen
+  // sin tapar las luces de las ciudades.
+  const NIGHT_RGB = [96, 106, 128];
+  // De noche las nubes se vuelven casi transparentes para que se vean las luces de las ciudades.
+  const NIGHT_ALPHA = 0.3;
 
   function sunFor(state) {
     if (!App.globeEarth?.active?.()) return null;
@@ -235,12 +237,13 @@
           data[o] = NIGHT_RGB[0] + (cr - NIGHT_RGB[0]) * t;
           data[o + 1] = NIGHT_RGB[1] + (cg - NIGHT_RGB[1]) * t;
           data[o + 2] = NIGHT_RGB[2] + (cb - NIGHT_RGB[2]) * t;
+          data[o + 3] = Math.round(a * 255 * (NIGHT_ALPHA + (1 - NIGHT_ALPHA) * t));
         } else {
           data[o] = cr;
           data[o + 1] = cg;
           data[o + 2] = cb;
+          data[o + 3] = Math.round(a * 255);
         }
-        data[o + 3] = Math.round(a * 255);
       }
 
       tctx.putImageData(image, 0, 0);

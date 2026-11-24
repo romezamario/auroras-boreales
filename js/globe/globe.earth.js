@@ -83,7 +83,7 @@ void main() {
 
   // Luces de las ciudades en el lado nocturno (tono sodio).
   float night = (1.0 - smoothstep(-0.18, 0.04, mu)) * uDayNight;
-  color += vec3(1.0, 0.8, 0.52) * pow(lights, 1.3) * 2.2 * night;
+  color += vec3(1.0, 0.8, 0.52) * pow(lights, 1.2) * 3.2 * night;
 
   // Reflejo del Sol en el mar.
   vec3 viewW = uViewToWorld * vec3(1.0, 0.0, 0.0);
@@ -92,9 +92,9 @@ void main() {
   color += vec3(1.0, 0.95, 0.85) * spec * 0.45;
 
   // Atmósfera: tinte azul que crece hacia el borde, más fuerte de día.
-  float rim = pow(1.0 - v.x, 2.2);
-  float atm = rim * (0.06 + 0.94 * smoothstep(-0.25, 0.35, mu * uDayNight + (1.0 - uDayNight)));
-  color = mix(color, vec3(0.42, 0.66, 1.0), clamp(atm * 0.75, 0.0, 0.85));
+  float rim = pow(1.0 - v.x, 1.9);
+  float atm = rim * (0.22 + 0.78 * smoothstep(-0.25, 0.35, mu * uDayNight + (1.0 - uDayNight)));
+  color = mix(color, vec3(0.45, 0.7, 1.0), clamp(atm * 1.05, 0.0, 0.92));
 
   gl_FragColor = vec4(color * edge, edge);
 }

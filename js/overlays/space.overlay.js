@@ -104,8 +104,8 @@
 
       // Halo de atmósfera.
       const atmosphere = ctx.createRadialGradient(cx, cy, R * 0.98, cx, cy, R * 1.12);
-      atmosphere.addColorStop(0, "rgba(120,180,255,0.55)");
-      atmosphere.addColorStop(0.35, "rgba(80,140,255,0.22)");
+      atmosphere.addColorStop(0, "rgba(130,190,255,0.8)");
+      atmosphere.addColorStop(0.35, "rgba(90,150,255,0.34)");
       atmosphere.addColorStop(1, "rgba(60,120,255,0)");
       ctx.fillStyle = atmosphere;
       ctx.beginPath();
